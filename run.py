@@ -123,7 +123,12 @@ def main():
             lasttime = lasttime.strftime('%Y-%m-%d')
             last_post_list = main_content[0].find_all('div', {"class": "recent-post-info"})
             for item in last_post_list:
-                if item.find(text=lasttime):
+                time_created = item.find('time', {"class": "post-meta-date-created"})
+                if time_created:
+                    pass
+                else:
+                    time_created = item
+                if time_created.find(text=lasttime):
                     print(lasttime)
                     a = item.find('a')
                     # print(item.find('a'))
