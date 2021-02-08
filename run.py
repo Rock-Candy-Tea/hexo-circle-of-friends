@@ -7,8 +7,34 @@ import leancloud
 
 
 def main():
+    # 全部删除
+    def deleteall():
+        leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
+        Friendlist = leancloud.Object.extend('friend_list')
+        def query_leancloud():
+            try:
+                # 查询已有的数据
+                query = Friendlist.query
+                # 为查询创建别名
+                query.select('frindname','friendlink','firendimg','error')
+                # 选择类
+                query.limit(1000)
+                # 限定数量
+                query_list = query.find()
+            except Exception as e:
+                print(e)
+                query_list = []
+            return query_list
+        query_list = query_leancloud()
+        for query_j in query_list:
+            delete = Friendlist.create_without_data(query_j.get('objectId'))
+            delete.destroy()
+
+
+
     # 过期文章删除
     def outdate(query_list, Friendspoor, days):
+
         for query_i in query_list:
             time = query_i.get('time')
             query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
@@ -16,7 +42,7 @@ def main():
                 delete = Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
 
-    # leancloud数据  信息存储
+    # leancloud数据  用户信息存储
     def leancloud_push_userinfo(friend_poordic):
         leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
         Friendlist = leancloud.Object.extend('friend_list')
@@ -62,7 +88,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print('重复了')
+                print('友链重复了')
 
     # leancloud数据  文章存储
     def leancloud_push(post_poor):
@@ -119,7 +145,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print('重复了')
+                print('文章重复了')
         query_list = query_leancloud()
         outdate(query_list, Friendspoor, time_limit)
 
@@ -207,7 +233,6 @@ def main():
     imglist = main_content[0].find_all('img')
     friend_poor = []
     post_poor = []
-    error_link = []
     for index, item in enumerate(link_list):
         name = item.string
         link = item.get('href')
@@ -228,7 +253,6 @@ def main():
             friend_poor.append(user_info)
 
 
-
     i = 0
     j = 0
     for index, item in enumerate(friend_poor):
@@ -243,6 +267,7 @@ def main():
             except:
                 print(item, "发生异常,仍然错误")
                 error = 'true'
+                deleteall()
                 i = i + 1
         item.append(error)
     print("一共进行%s次" % j)
