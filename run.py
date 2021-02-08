@@ -16,7 +16,55 @@ def main():
                 delete = Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
 
-    # leancloud数据存储
+    # leancloud数据  信息存储
+    def leancloud_push_userinfo(friend_poordic):
+        leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
+        Friendlist = leancloud.Object.extend('friend_list')
+        def query_leancloud():
+            try:
+                # 查询已有的数据
+                query = Friendlist.query
+                # 为查询创建别名
+                query.select('frindname','friendlink','firendimg','error')
+                # 选择类
+                query.limit(1000)
+                # 限定数量
+                query_list = query.find()
+            except Exception as e:
+                print(e)
+                query_list = []
+            return query_list
+
+        query_list = query_leancloud()
+
+        # 执行查询，返回数组
+        # 数据传入
+        def repeat(name):
+            upload = 'true'
+            for query_item in query_list:
+                title = query_item.get('title')
+                if name == title:
+                    upload = 'false'
+            return upload
+
+        for index, item in enumerate(friend_poordic):
+            friendpoor = Friendlist()
+            friendpoor.set('frindname', item[0])
+            friendpoor.set('friendlink', item[1])
+            friendpoor.set('firendimg', item[2])
+            friendpoor.set('error', item[3])
+            upload = repeat(item[0])
+            if upload == 'true':
+                try:
+                    friendpoor.save()
+                except Exception as e:
+                    print(e)
+                    friendpoor.save()
+                print("已上传第%s" % str(index + 1))
+            else:
+                print('重复了')
+
+    # leancloud数据  文章存储
     def leancloud_push(post_poor):
         # leancloud存储👇
 
@@ -24,6 +72,7 @@ def main():
         leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
         # 声明class
         Friendspoor = leancloud.Object.extend('friend_poor')
+
 
         def query_leancloud():
             try:
@@ -51,6 +100,8 @@ def main():
                 if name == title:
                     upload = 'false'
             return upload
+
+
 
         for index, item in enumerate(post_poor):
             friendpoor = Friendspoor()
@@ -181,6 +232,7 @@ def main():
     i = 0
     j = 0
     for index, item in enumerate(friend_poor):
+        error = 'false'
         try:
             get_last_post(item)
             j = j + 1
@@ -190,11 +242,12 @@ def main():
                 sitmap_get(item)
             except:
                 print(item, "发生异常,仍然错误")
-                error_link.append(item)
+                error = 'true'
                 i = i + 1
-
+        item.append(error)
     print("一共进行%s次" % j)
     print("一共失败%s次" % i)
+    leancloud_push_userinfo(friend_poor)
     post_poor.sort(key=itemgetter('time'), reverse=True)
     leancloud_push(post_poor)
 
