@@ -46,6 +46,10 @@ def main():
     def leancloud_push_userinfo(friend_poordic):
         leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
         Friendlist = leancloud.Object.extend('friend_list')
+
+        # 清除上一次数据
+        deleteall()
+
         def query_leancloud():
             try:
                 # 查询已有的数据
@@ -267,7 +271,6 @@ def main():
             except:
                 print(item, "发生异常,仍然错误")
                 error = 'true'
-                deleteall()
                 i = i + 1
         item.append(error)
     print("一共进行%s次" % j)
