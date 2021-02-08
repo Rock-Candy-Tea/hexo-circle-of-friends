@@ -31,6 +31,7 @@ jobs:
     - name: Waking  #读取站点信息
       run: | 
         python run.py
+        echo `date +"%Y-%m-%d %H:%M:%S"` begin > time.log
     - name: Commit #更新日志到GitHub仓库
       run: |
         git config --global user.email AutoWakeUp@email.com
