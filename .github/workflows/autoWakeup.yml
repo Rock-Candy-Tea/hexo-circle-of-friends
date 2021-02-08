@@ -1,4 +1,4 @@
-#自动激活Lean Cloud
+# 文章更新
 name: update-friends-posts
 
 on: 
@@ -10,7 +10,7 @@ on:
   #  branches: 
   #    - master
   schedule:
-    - cron: "0 0 0/1 * * ? "
+    - cron: "*/18 0-15 * * *"
   watch:
     types: [started]
    
@@ -25,12 +25,13 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - name: Install requests #安装requests
+    - name: Install requirements #安装requests
       run: |
         pip install -r requirements.txt
-    - name: Waking  #读取站点信息
+    - name: Update posts #更新
       run: | 
         python run.py
+        echo `date +"%Y-%m-%d %H:%M:%S"` begin > time.log
     - name: Commit #更新日志到GitHub仓库
       run: |
         git config --global user.email AutoWakeUp@email.com
