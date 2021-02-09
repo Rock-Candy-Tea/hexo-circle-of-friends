@@ -188,7 +188,10 @@ def main():
         error_sitmap = 'false'
         link = user_info[1]
         try:
-            result = get_data(link+'/archives/')
+            if link.endswith('/'):
+                result = get_data(link+'archives/')
+            else:
+                result = get_data(link+'/archives/')
         except:
             result = get_data(link)
             soup = BeautifulSoup(result, 'html.parser')
