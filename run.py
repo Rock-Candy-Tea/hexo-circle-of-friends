@@ -187,9 +187,16 @@ def main():
     def get_last_post(user_info):
         error_sitmap = 'false'
         link = user_info[1]
-        result = get_data(link)
-        soup = BeautifulSoup(result, 'html.parser')
-        main_content = soup.find_all(id='recent-posts')
+        try:
+            result = get_data(link+'/archives/')
+        except:
+            result = get_data(link)
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all(id='recent-posts')
+        else:
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all(id='archive')
+        
         if main_content:
             link_list = main_content[0].find_all('time',{"class": "post-meta-date-created"})
             if link_list == []:
