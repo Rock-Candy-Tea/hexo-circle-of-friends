@@ -230,12 +230,9 @@ def main():
 
     # 主方法获取友链池
     
-    # 打印环境变量
-      print（sys.argv[1]）
-
     # 引入leancloud验证
-    leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
-    friendpage_link = "https://zfe.space/link/"
+    leancloud.init(sys.argv[1], sys.argv[2])
+    friendpage_link = sys.argv[3]
 
     # 执行主方法
     today = datetime.datetime.today()
