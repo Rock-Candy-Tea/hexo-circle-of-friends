@@ -176,7 +176,7 @@ def main():
         post_info = {
             'title': title.text,
             'time': time.text,
-            'link': link,
+            'link': post_link,
             'name': user_info[0],
             'img': user_info[2]
         }
