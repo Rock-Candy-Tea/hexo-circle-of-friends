@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import datetime
 from operator import itemgetter
 import leancloud
+import sys
 
 
 
@@ -232,11 +233,11 @@ def main():
             error_sitmap = 'true'
         return error_sitmap
 
-    #主方法获取友链池
-
+    # 主方法获取友链池
+    
     # 引入leancloud验证
-    leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
-    friendpage_link = "https://zfe.space/link/"
+    leancloud.init(sys.argv[1], sys.argv[2])
+    friendpage_link = sys.argv[3]
 
     # 执行主方法
     today = datetime.datetime.today()
