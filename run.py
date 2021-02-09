@@ -227,7 +227,10 @@ def main():
             error_sitmap = 'true'
         return error_sitmap
 
-    #主方法获取友链池
+    # 主方法获取友链池
+    
+    # 打印环境变量
+      print（sys.argv）
 
     # 引入leancloud验证
     leancloud.init("VXE6IygSoL7c2wUNmSRpOtcz-MdYXbMMI", "8nLVKfvoCtAEIKK8mD2J2ki7")
