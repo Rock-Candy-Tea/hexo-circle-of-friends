@@ -189,7 +189,11 @@ def main():
         result = get_data(link)
         soup = BeautifulSoup(result, 'html.parser')
         main_content = soup.find_all(id='recent-posts')
-        if main_content:
+        time_excit = soup.find_all('time')
+        if main_content and time_excit:
+            error_sitmap = 'true'
+            print('-------开始---')
+            print(link)
             link_list = main_content[0].find_all('time',{"class": "post-meta-date-created"})
             if link_list == []:
                 link_list = main_content[0].find_all('time')
@@ -199,8 +203,8 @@ def main():
                 time = link_date[0:10]
                 if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                     lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
-
             lasttime = lasttime.strftime('%Y-%m-%d')
+            print('最新时间是',lasttime)
             last_post_list = main_content[0].find_all('div', {"class": "recent-post-info"})
             for item in last_post_list:
                 time_created = item.find('time', {"class": "post-meta-date-created"})
@@ -209,12 +213,13 @@ def main():
                 else:
                     time_created = item
                 if time_created.find(text=lasttime):
+                    error_sitmap = 'false'
                     print(lasttime)
                     a = item.find('a')
                     # print(item.find('a'))
                     print(a.text)
                     print(link + a['href'])
-                    print("---------------------")
+                    print("-----------结束----------")
                     post_info = {
                         'title': a.text,
                         'time': lasttime,
@@ -260,24 +265,18 @@ def main():
             user_info.append(link)
             user_info.append(img)
             friend_poor.append(user_info)
-    i = 0
-    j = 0
+
     for index, item in enumerate(friend_poor):
         error = 'false'
         try:
             error = get_last_post(item)
-            j = j + 1
-        except:
-            print(item, "发生异常,采取planB")
-            try:
+            if error == 'true':
                 error = sitmap_get(item)
-            except:
-                print(item, "发生异常,仍然错误")
-                error = 'true'
-                i = i + 1
+        except:
+            print(item, "发生异常")
         item.append(error)
-    print("一共进行%s次" % j)
-    print("一共失败%s次" % i)
+
+
     leancloud_push_userinfo(friend_poor)
     post_poor.sort(key=itemgetter('time'), reverse=True)
     leancloud_push(post_poor)
