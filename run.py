@@ -289,7 +289,7 @@ def main():
             print(item, "发生异常")
             error_count+=1
         item.append(error)
-    print("一共进行%s次"% jtotal_count)
+    print("一共进行%s次"% total_count)
     print("一共失败%s次"% error_count)
     leancloud_push_userinfo(friend_poor)
     post_poor.sort(key=itemgetter('time'), reverse=True)
