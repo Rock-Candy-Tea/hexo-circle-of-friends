@@ -169,15 +169,15 @@ def main():
         soup = BeautifulSoup(result, 'html.parser')
         time = soup.find('time')
         title = soup.find('title')
-        if '|' in title:
-            titlesplit=title.split("|", 1)
-            title = titlesplit[0].strip()
+        strtitle = title.text
+        titlesplit = strtitle.split("|", 1)
+        strtitle = titlesplit[0].strip()
         print(time.text)
-        print(title.text)
+        print(strtitle)
         print(post_link)
         print('——————————————————————')
         post_info = {
-            'title': title.text,
+            'title': strtitle,
             'time': time.text,
             'link': post_link,
             'name': user_info[0],
