@@ -90,7 +90,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print('友链重复了')
+                print(item[0],'友链重复了')
 
     # leancloud数据  文章存储
     def leancloud_push(post_poor):
@@ -143,7 +143,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print('文章重复了')
+                print(item['title'],'文章重复了')
         query_list = query_leancloud()
         outdate(query_list, Friendspoor, time_limit)
 
@@ -156,6 +156,9 @@ def main():
 
     # 通过sitemap请求
     def sitmap_get(user_info):
+        print('\n')
+        print('-------执行sitemap规则----------')
+        print('执行链接：',user_info[1])
         link = user_info[1]
         error_sitmap = 'false'
         try:
@@ -175,7 +178,8 @@ def main():
         print(time.text)
         print(strtitle)
         print(post_link)
-        print('——————————————————————')
+        print('-----------结束sitemap规则----------')
+        print('\n')
         post_info = {
             'title': strtitle,
             'time': time.text,
@@ -196,8 +200,9 @@ def main():
         time_excit = soup.find_all('time')
         if main_content and time_excit:
             error_sitmap = 'true'
-            print('-------开始---')
-            print(link)
+            print('\n')
+            print('-------执行主页规则----------')
+            print('执行链接：',link)
             link_list = main_content[0].find_all('time',{"class": "post-meta-date-created"})
             if link_list == []:
                 link_list = main_content[0].find_all('time')
@@ -223,7 +228,8 @@ def main():
                     # print(item.find('a'))
                     print(a.text)
                     print(link + a['href'])
-                    print("-----------结束----------")
+                    print("-----------结束主页规则----------")
+                    print('\n')
                     post_info = {
                         'title': a.text,
                         'time': lasttime,
@@ -270,14 +276,18 @@ def main():
             user_info.append(img)
             friend_poor.append(user_info)
 
+    total_count=0
+    error_count=0
     for index, item in enumerate(friend_poor):
         error = 'false'
         try:
+            total_count+=1
             error = get_last_post(item)
             if error == 'true':
                 error = sitmap_get(item)
         except:
             print(item, "发生异常")
+            error_count+=1
         item.append(error)
 
 
