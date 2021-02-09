@@ -170,7 +170,7 @@ def main():
         time = soup.find('time')
         title = soup.find('title')
         if '|' in title:
-            titlesplit=title.split("#", 1)
+            titlesplit=title.split("|", 1)
             title = titlesplit[0].strip()
         print(time.text)
         print(title.text)
