@@ -34,10 +34,15 @@ def main():
     def outdate(query_list, Friendspoor, days):
         for query_i in query_list:
             time = query_i.get('time')
-            query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
-            if (today - query_time).days > days:
+            try:
+                query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
+                if (today - query_time).days > days:
+                    delete = Friendspoor.create_without_data(query_i.get('objectId'))
+                    delete.destroy()
+            except Exception as e:
                 delete = Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
+                print(e)
 
     # leancloud数据  用户信息存储
     def leancloud_push_userinfo(friend_poordic):
