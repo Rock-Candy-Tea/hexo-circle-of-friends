@@ -240,7 +240,7 @@ def main():
             last_post_list = main_content[0].find_all('div', {"class": "recent-post-info"})
             for item in last_post_list:
                 time_created = item.find('time', {"class": "post-meta-date-created"})
-                if len(time_created) != 0:
+                if time_created:
                     pass
                     print('有生成时间标签')
                 else:
