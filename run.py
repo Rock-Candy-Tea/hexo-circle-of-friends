@@ -173,26 +173,27 @@ def main():
         soup = BeautifulSoup(result, 'html.parser')
         loc = soup.find_all('loc')
         post_link = loc[0].text
-        result = get_data(post_link)
-        soup = BeautifulSoup(result, 'html.parser')
-        time = soup.find('time')
-        title = soup.find('title')
-        strtitle = title.text
-        titlesplit = strtitle.split("|", 1)
-        strtitle = titlesplit[0].strip()
-        print(time.text)
-        print(strtitle)
-        print(post_link)
-        print('-----------结束sitemap规则----------')
-        print('\n')
-        post_info = {
-            'title': strtitle,
-            'time': time.text,
-            'link': post_link,
-            'name': user_info[0],
-            'img': user_info[2]
-        }
-        post_poor.append(post_info)
+        for post_link in loc[0,5]
+            result = get_data(post_link)
+            soup = BeautifulSoup(result, 'html.parser')
+            time = soup.find('time')
+            title = soup.find('title')
+            strtitle = title.text
+            titlesplit = strtitle.split("|", 1)
+            strtitle = titlesplit[0].strip()
+            print(time.text)
+            print(strtitle)
+            print(post_link)
+            print('-----------结束sitemap规则----------')
+            print('\n')
+            post_info = {
+                'title': strtitle,
+                'time': time.text,
+                'link': post_link,
+                'name': user_info[0],
+                'img': user_info[2]
+            }
+            post_poor.append(post_info)
         return error_sitmap
 
     # 从主页获取文章
