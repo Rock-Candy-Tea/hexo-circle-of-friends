@@ -243,7 +243,7 @@ def main():
                     post_info = {
                         'title': a.text,
                         'time': lasttime,
-                        'link': link + a['href'],
+                        'link': link + stralink,
                         'name': user_info[0],
                         'img': user_info[2]
                     }
