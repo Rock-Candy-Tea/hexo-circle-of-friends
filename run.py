@@ -231,8 +231,7 @@ def main():
                 link_list = main_content[0].find_all('time')
             lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
             for index, item in enumerate(link_list):
-                link_date = item.get('datetime')
-                time = link_date[0:10]
+                time = item.text
                 if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                     lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
             lasttime = lasttime.strftime('%Y-%m-%d')
