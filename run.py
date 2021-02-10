@@ -240,9 +240,11 @@ def main():
             last_post_list = main_content[0].find_all('div', {"class": "recent-post-info"})
             for item in last_post_list:
                 time_created = item.find('time', {"class": "post-meta-date-created"})
-                if time_created:
+                if len(time_created) != 0:
                     pass
+                    print('有生成时间标签')
                 else:
+                    print('无生成时间标签')
                     time_created = item
                 if time_created.find(text=lasttime):
                     error_sitmap = 'false'
@@ -268,6 +270,7 @@ def main():
                     post_poor.append(post_info)
         else:
             error_sitmap = 'true'
+            print('不是类似的butterfly主题！')
         return error_sitmap
 
     # 主方法获取友链池
