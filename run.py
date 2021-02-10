@@ -172,7 +172,7 @@ def main():
             error_sitmap = 'true'
         soup = BeautifulSoup(result, 'html.parser')
         loc = soup.find_all('loc')
-        for loc_item in loc[0,5]:
+        for loc_item in loc[0:5]:
             try:
                 post_link = loc_item.text
                 result = get_data(post_link)
