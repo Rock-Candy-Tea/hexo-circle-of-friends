@@ -173,27 +173,30 @@ def main():
         soup = BeautifulSoup(result, 'html.parser')
         loc = soup.find_all('loc')
         for loc_item in loc[0,5]:
-            post_link = loc_item.text
-            result = get_data(post_link)
-            soup = BeautifulSoup(result, 'html.parser')
-            time = soup.find('time')
-            title = soup.find('title')
-            strtitle = title.text
-            titlesplit = strtitle.split("|", 1)
-            strtitle = titlesplit[0].strip()
-            print(time.text)
-            print(strtitle)
-            print(post_link)
-            print('-----------结束sitemap规则----------')
-            print('\n')
-            post_info = {
-                'title': strtitle,
-                'time': time.text,
-                'link': post_link,
-                'name': user_info[0],
-                'img': user_info[2]
-            }
-            post_poor.append(post_info)
+            try:
+                post_link = loc_item.text
+                result = get_data(post_link)
+                soup = BeautifulSoup(result, 'html.parser')
+                time = soup.find('time')
+                title = soup.find('title')
+                strtitle = title.text
+                titlesplit = strtitle.split("|", 1)
+                strtitle = titlesplit[0].strip()
+                print(time.text)
+                print(strtitle)
+                print(post_link)
+                print('-----------结束sitemap规则----------')
+                print('\n')
+                post_info = {
+                    'title': strtitle,
+                    'time': time.text,
+                    'link': post_link,
+                    'name': user_info[0],
+                    'img': user_info[2]
+                }
+                post_poor.append(post_info)
+            except:
+                print('-------当页爬取错误----------')
         return error_sitmap
 
     # 从主页获取文章
