@@ -342,7 +342,7 @@ def main():
                     print('好友名%r' % name)
                 except:
                     print('非法用户名')
-                print('头像链接%r' % link)
+                print('头像链接%r' % img)
                 print('主页链接%r' % link)
                 friend_poor.append(user_info)
         print('----------------------')
