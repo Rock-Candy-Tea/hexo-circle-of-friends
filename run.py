@@ -33,7 +33,8 @@ def main():
     # 过期文章删除
     def outdate(query_list, Friendspoor, days):
         print('\n')
-        print('-------执行删除规则----------')
+        print('-------执行过期删除规则----------')
+        print('\n')
         out_date_post=0
         for query_i in query_list:
             time = query_i.get('time')
@@ -50,7 +51,9 @@ def main():
                 print(e)
         print('\n')
         print('-------结束删除规则----------')
+        print('\n')
         print('共删除了%s篇文章'%out_date_post)
+        print('\n')
 
     # leancloud数据  用户信息存储
     def leancloud_push_userinfo(friend_poordic):
@@ -58,7 +61,9 @@ def main():
 
         # 清除上一次数据
         deleteall()
-
+        print('\n')
+        print('-------清空友链列表----------')
+        print('\n')
         # 定义查询函数
         def query_leancloud():
             try:
@@ -103,7 +108,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print(item[0],'友链重复了')
+                print("已上传第%s，但友链重复了" % str(index + 1))
 
     # leancloud数据  文章存储
     def leancloud_push(post_poor):
@@ -156,7 +161,7 @@ def main():
                     friendpoor.save()
                 print("已上传第%s" % str(index + 1))
             else:
-                print(item['title'],'文章重复了')
+                print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
         query_list = query_leancloud()
         outdate(query_list, Friendspoor, time_limit)
 
@@ -171,6 +176,7 @@ def main():
     def sitmap_get(user_info):
         print('\n')
         print('-------执行sitemap规则----------')
+        print('\n')
         print('执行链接：',user_info[1])
         link = user_info[1]
         error_sitmap = 'false'
@@ -180,37 +186,53 @@ def main():
             loc = soup.find_all('loc')
             if len(loc) == 0:
                 error_sitmap = 'true'
-                print('该网站没有sitemap')
-            for loc_item in loc[0:5]:
-                try:
-                    post_link = loc_item.text
-                    result = get_data(post_link)
-                    soup = BeautifulSoup(result, 'html.parser')
-                    time = soup.find('time')
-                    title = soup.find('title')
-                    strtitle = title.text
-                    titlesplit = strtitle.split("|", 1)
-                    strtitle = titlesplit[0].strip()
-                    print(time.text)
-                    print(strtitle)
+                print('该网站可能没有sitemap')
+            number = 0
+            times = 0
+            while number < 5:
+                if 'index' in loc[times].text:
+                    print('该页可能不是文章页')
+                    times += 1
+                    print('爬取第%s条链接'%times)
+                else:
+                    post_link = loc[times].text
                     print(post_link)
-                    print('-----------结束sitemap规则----------')
-                    print('\n')
-                    post_info = {
-                        'title': strtitle,
-                        'time': time.text,
-                        'link': post_link,
-                        'name': user_info[0],
-                        'img': user_info[2]
-                    }
-                    post_poor.append(post_info)
-                except Exception as e:
-                    print('爬取sitemap错误')
-                    print(e)
-                    error_sitmap = 'true'
-        except:
+                    result = get_data(post_link).encode("GBK", "ignore")
+                    try:
+                        time = re.findall(timere, str(result))[0]
+                        soup = BeautifulSoup(result, 'html.parser')
+                        print(time)
+                        times += 1
+                        print('爬取第%s条链接'%times)
+                        number += 1
+                        title = soup.find('title')
+                        strtitle = title.text
+                        titlesplit = strtitle.split("|", 1)
+                        strtitle = titlesplit[0].strip()
+                        post_info = {
+                            'title': strtitle,
+                            'time': time,
+                            'link': post_link,
+                            'name': user_info[0],
+                            'img': user_info[2]
+                        }
+                        post_poor.append(post_info)
+                        print(time.text)
+                        print(strtitle)
+                        print(post_link)
+                        print("-----------获取到匹配结果----------")
+                        print('\n')
+                    except Exception as e:
+                        print('不包含标准时间格式')
+                        print(e)
+                        error_sitmap = 'true'
+        except Exception as e:
             print('无法请求sitemap')
+            print(e)
             error_sitmap = 'true'
+        print('\n')
+        print('-----------结束sitemap规则----------')
+        print('\n')
         return error_sitmap
 
     # 从主页获取文章
@@ -225,6 +247,7 @@ def main():
             error_sitmap = 'true'
             print('\n')
             print('-------执行主页规则----------')
+            print('\n')
             print('执行链接：',link)
             link_list = main_content[0].find_all('time',{"class": "post-meta-date-created"})
             if link_list == []:
@@ -256,7 +279,7 @@ def main():
                         link = link + '/'
                     print(a.text)
                     print(link + stralink)
-                    print("-----------结束主页规则----------")
+                    print("-----------获取到匹配结果----------")
                     print('\n')
                     post_info = {
                         'title': a.text,
@@ -268,7 +291,10 @@ def main():
                     post_poor.append(post_info)
         else:
             error_sitmap = 'true'
-            print('不是类似的butterfly主题！')
+            print('貌似不是类似butterfly主题！')
+        print('\n')
+        print("-----------结束主页规则----------")
+        print('\n')
         return error_sitmap
 
     # 主方法获取友链池
@@ -278,6 +304,10 @@ def main():
     friendpage_link = sys.argv[3]
 
     # 执行主方法
+    print('----------------------')
+    print('-----------！！开始执行爬取文章任务！！----------')
+    print('----------------------')
+    print('\n')
     today = datetime.datetime.today()
     time_limit = 60
     result = get_data(friendpage_link)
@@ -287,24 +317,31 @@ def main():
     imglist = main_content[0].find_all('img')
     friend_poor = []
     post_poor = []
+    print('----------------------')
+    print('-----------！！开始执行友链获取任务！！----------')
+    print('----------------------')
     for index, item in enumerate(link_list):
         link = item.get('href')
         name = item.get('title')
         try:
             img = imglist[index].get('data-lazy-src')
-            print(img)
         except:
             img = ''
         if "#" in link:
             pass
         else:
-            print(link)
             user_info = []
             user_info.append(name)
             user_info.append(link)
             user_info.append(img)
+            print('----------------------')
+            print('好友名%r'%name)
+            print('头像链接%r'%link)
+            print('主页链接%r'%link)
             friend_poor.append(user_info)
-
+    print('----------------------')
+    print('-----------！！结束友链获取任务！！----------')
+    print('----------------------')
     total_count=0
     error_count=0
     for index, item in enumerate(friend_poor):
@@ -313,18 +350,36 @@ def main():
             total_count+=1
             error = get_last_post(item)
             if error == 'true':
+                print("-----------获取主页信息失败，采取sitemap策略----------")
+                print('\n')
                 error = sitmap_get(item)
         except Exception as e:
             print('\n')
-            print(item, "发生异常")
+            print(item, "运用主页及sitemap爬虫爬取失败！请检查")
+            print('\n')
             print(e)
             error_count+=1
         item.append(error)
     print('\n')
+    print('----------------------')
     print("一共进行%s次"% total_count)
     print("一共失败%s次"% error_count)
+    print('----------------------')
+    print('\n')
+    print('----------------------')
+    print('-----------！！执行用户信息上传！！----------')
+    print('----------------------')
     leancloud_push_userinfo(friend_poor)
+    print('----------------------')
+    print('-----------！！用户信息上传完毕！！----------')
+    print('----------------------')
     post_poor.sort(key=itemgetter('time'), reverse=True)
+    print('----------------------')
+    print('-----------！！执行文章信息上传！！----------')
+    print('----------------------')
     leancloud_push(post_poor)
+    print('----------------------')
+    print('-----------！！文章信息上传完毕！！----------')
+    print('----------------------')
 
 main()
