@@ -204,8 +204,9 @@ def main():
                         'img': user_info[2]
                     }
                     post_poor.append(post_info)
-                except:
+                except Exception as e:
                     print('爬取sitemap错误')
+                    print(e)
                     error_sitmap = 'true'
         except:
             print('无法请求sitemap')
