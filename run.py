@@ -234,6 +234,8 @@ def main():
                     alink =  a['href']
                     alinksplit = alink.split("/", 1)
                     stralink =  alinksplit[1].strip()
+                    if link[-1] != '/':
+                        link = link + '/'
                     print(a.text)
                     print(link + stralink)
                     print("-----------结束主页规则----------")
