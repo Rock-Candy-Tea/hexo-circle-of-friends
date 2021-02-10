@@ -32,17 +32,25 @@ def main():
 
     # 过期文章删除
     def outdate(query_list, Friendspoor, days):
+        print('\n')
+        print('-------执行删除规则----------')
+        out_date_post=0
         for query_i in query_list:
             time = query_i.get('time')
             try:
                 query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
                 if (today - query_time).days > days:
                     delete = Friendspoor.create_without_data(query_i.get('objectId'))
+                    out_date_post+=1
                     delete.destroy()
             except Exception as e:
                 delete = Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
+                out_date_post+=1
                 print(e)
+        print('\n')
+        print('-------结束删除规则----------')
+        print（'共删除了%s篇文章'%out_date_post）
 
     # leancloud数据  用户信息存储
     def leancloud_push_userinfo(friend_poordic):
@@ -300,10 +308,13 @@ def main():
             error = get_last_post(item)
             if error == 'true':
                 error = sitmap_get(item)
-        except:
+        except Exception as e:
+            print('\n')
             print(item, "发生异常")
+            print(e)
             error_count+=1
         item.append(error)
+    print('\n')
     print("一共进行%s次"% total_count)
     print("一共失败%s次"% error_count)
     leancloud_push_userinfo(friend_poor)
