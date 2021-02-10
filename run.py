@@ -231,8 +231,11 @@ def main():
                     print(lasttime)
                     a = item.find('a')
                     # print(item.find('a'))
+                    alink =  a['href']
+                    alinksplit = alink.split("/", 1)
+                    stralink =  alinksplit[1].strip()
                     print(a.text)
-                    print(link + a['href'])
+                    print(link + stralink)
                     print("-----------结束主页规则----------")
                     print('\n')
                     post_info = {
