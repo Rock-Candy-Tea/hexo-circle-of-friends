@@ -241,10 +241,9 @@ def main():
                 time_created = item.find('time', {"class": "post-meta-date-created"})
                 if time_created:
                     pass
-                    print('有生成时间标签')
                 else:
-                    print('无生成时间标签')
                     time_created = item
+                    print('无文章生成日期')
                 if time_created.find(text=lasttime):
                     error_sitmap = 'false'
                     print(lasttime)
