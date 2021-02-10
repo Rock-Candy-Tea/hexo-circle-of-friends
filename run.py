@@ -170,9 +170,12 @@ def main():
 
         # 请求连接
         def get_data(link):
-            r = requests.get(link, timeout=10)
+            try:
+            r = requests.get(link, timeout=15)
             r.encoding = 'utf-8-sig'
             result = r.text
+            except:
+                print('请求超过15s。')
             return result
 
         # 通过sitemap请求
