@@ -202,8 +202,8 @@ def main():
                     }
                     post_poor.append(post_info)
                 except:
-                print('爬取sitemap错误')
-                error_sitmap = 'true'
+                    print('爬取sitemap错误')
+                    error_sitmap = 'true'
         except:
             print('无法请求sitemap')
             error_sitmap = 'true'
