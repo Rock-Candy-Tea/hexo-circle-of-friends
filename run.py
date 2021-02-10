@@ -198,7 +198,7 @@ def main():
                         pass
                     else:
                         new_loc.append(loc_item)
-                print('该网站最新的五条sitemap为：',new_loc)
+                print('该网站最新的五条sitemap为：',new_loc[0:5])
                 if len(new_loc) != 0:
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
