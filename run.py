@@ -178,7 +178,7 @@ def main():
             result = get_data(link + '/sitemap.xml')
             soup = BeautifulSoup(result, 'html.parser')
             loc = soup.find_all('loc')
-            if len(loc) = 0:
+            if len(loc) == 0:
                 error_sitmap = 'true'
                 print('该网站没有sitemap')
             for loc_item in loc[0:5]:
