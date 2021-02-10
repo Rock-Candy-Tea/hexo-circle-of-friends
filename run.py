@@ -50,7 +50,7 @@ def main():
                 print(e)
         print('\n')
         print('-------结束删除规则----------')
-        print（'共删除了%s篇文章'%out_date_post）
+        print('共删除了%s篇文章'%out_date_post)
 
     # leancloud数据  用户信息存储
     def leancloud_push_userinfo(friend_poordic):
