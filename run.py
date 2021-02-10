@@ -171,9 +171,9 @@ def main():
         # 请求连接
         def get_data(link):
             try:
-            r = requests.get(link, timeout=15)
-            r.encoding = 'utf-8-sig'
-            result = r.text
+                r = requests.get(link, timeout=15)
+                r.encoding = 'utf-8-sig'
+                result = r.text
             except:
                 print('请求超过15s。')
             return result
