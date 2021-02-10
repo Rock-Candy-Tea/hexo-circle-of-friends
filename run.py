@@ -197,6 +197,7 @@ def main():
                 post_poor.append(post_info)
             except:
                 print('-------当页爬取错误----------')
+                error_sitmap = 'true'
         return error_sitmap
 
     # 从主页获取文章
