@@ -317,7 +317,6 @@ def main():
         soup = BeautifulSoup(result, 'html.parser')
         main_content = soup.find_all(id='article-container')
         link_list = main_content[0].find_all('a')
-        imglist = main_content[0].find_all('img')
         friend_poor = []
         post_poor = []
         print('----------------------')
@@ -325,11 +324,24 @@ def main():
         print('----------------------')
         for index, item in enumerate(link_list):
             link = item.get('href')
-            name = item.get('title')
+            if link.count('/') > 3:
+                continue
+            if item.get('title'):
+                name = item.get('title')
+            else:
+                try:
+                    name = item.find('span').text
+                except:
+                    continue
             try:
-                img = imglist[index].get('data-lazy-src')
+                if len(item.find_all('img')) > 1:
+                    imglist = item.find_all('img')
+                    img = imglist[1].get('data-lazy-src')
+                else:
+                    imglist = item.find_all('img')
+                    img = imglist[0].get('data-lazy-src')
             except:
-                img = ''
+                continue
             if "#" in link:
                 pass
             else:
