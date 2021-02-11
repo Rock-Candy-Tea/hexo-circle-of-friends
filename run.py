@@ -8,6 +8,66 @@ import re
 
 
 def main():
+        # gitee适配
+        def reg(info_list, user_info, source):
+            print('----')
+            for item in info_list:
+                reg = re.compile('(?<=' + item + ': ).*')
+                result = re.findall(reg, str(source))
+                result = result[0].replace('\r', ' ')
+                print(result)
+                user_info.append(result)
+
+        # 从gitee获取friendlink
+        def kang_api(friend_poor):
+            print('\n')
+            print('-------获取gitee友链----------')
+            baselink = 'https://gitee.com'
+            errortimes = 0
+            f = open('userinfo.txt')
+            git_info_list = ['owner', 'repo', 'state']
+            user_info_txt = []
+            info = f.read()
+            reg(git_info_list, user_info_txt, info)
+            print(user_info_txt)
+            try:
+                for number in range(1, 100):
+                    print(number)
+                    gitee = get_data('https://gitee.com/' +
+                                     user_info_txt[0] +
+                                     '/' +
+                                     user_info_txt[1] +
+                                     '/issues?state=' + user_info_txt[2] + '&page=' + str(number))
+                    soup = BeautifulSoup(gitee, 'html.parser')
+                    main_content = soup.find_all(id='git-issues')
+                    linklist = main_content[0].find_all('a', {'class': 'title'})
+                    if len(linklist) == 0:
+                        print('爬取完毕')
+                        print('失败了%r次' % errortimes)
+                        break
+                    for item in linklist:
+                        issueslink = baselink + item['href']
+                        issues_page = get_data(issueslink)
+                        issues_soup = BeautifulSoup(issues_page, 'html.parser')
+                        try:
+                            issues_linklist = issues_soup.find_all('code')
+                            source = issues_linklist[0].text
+                            user_info = []
+                            info_list = ['name', 'link', 'avatar']
+                            reg(info_list, user_info, source)
+                            print(user_info)
+                            if user_info[1] != '你的链接':
+                                friend_poor.append(user_info)
+                        except:
+                            errortimes += 1
+                            continue
+            except Exception as e:
+                print('爬取完毕', e)
+                print(e.__traceback__.tb_frame.f_globals["__file__"])
+                print(e.__traceback__.tb_lineno)
+
+            print('------结束gitee友链获取----------')
+            print('\n')
         # 全部删除
         def deleteall():
             Friendlist = leancloud.Object.extend('friend_list')
@@ -206,7 +266,7 @@ def main():
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
                         result = get_data(post_link)
-                        timere = re.compile(r'[0-9]{4}-.{1,2}-.{1,2}', re.S)
+                        timere = re.compile(r'[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}', re.S)
                         try:
                             time = re.findall(timere, str(result))[0]
                             soup = BeautifulSoup(result, 'html.parser')
@@ -322,6 +382,10 @@ def main():
         print('----------------------')
         print('-----------！！开始执行友链获取任务！！----------')
         print('----------------------')
+        try:
+            kang_api(friend_poor)
+        except:
+            print('读取gitee友链失败')
         for index, item in enumerate(link_list):
             link = item.get('href')
             if link.count('/') > 3:
