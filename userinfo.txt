@@ -1,3 +1,3 @@
-owner: yourname
-repo: yourrepo
+owner: zfe
+repo: friend
 state: open

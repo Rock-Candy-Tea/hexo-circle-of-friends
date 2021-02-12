@@ -8,6 +8,20 @@ import re
 
 
 def main():
+        # 友链链接去重
+        def delete_same_link(orign_friend_poordic):
+            friend_poordic = []
+            friend_poorlink = []
+            for item in orign_friend_poordic:
+                if item[1] not in friend_poorlink:
+                    friend_poorlink.append(item[1])
+                    friend_poordic.append(item)
+                else:
+                    print('-----------------')
+                    print('重复1条友链链接，已删除')
+                    print('-----------------')
+            return  friend_poordic
+
         # gitee适配
         def reg(info_list, user_info, source):
             print('----')
@@ -421,6 +435,8 @@ def main():
                 print('头像链接%r' % img)
                 print('主页链接%r' % link)
                 friend_poor.append(user_info)
+        friend_poor = delete_same_link(friend_poor)
+        print('当前友链数量',len( friend_poor))
         print('----------------------')
         print('-----------！！结束友链获取任务！！----------')
         print('----------------------')
