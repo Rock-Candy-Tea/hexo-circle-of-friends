@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests
 from bs4 import BeautifulSoup
 import datetime
@@ -8,6 +9,33 @@ import re
 
 
 def main():
+        # 时间查找(中文、标准）
+        def time_zero_plus(str):
+            if len(str) < 2:
+                str = '0' + str
+            return str
+        def find_time(str):
+            try:
+                timere_ch = re.compile(r'[0-9]{4}\s*年\s*[0-9]{1,2}\s*月\s*[0-9]{1,2}\s*日', re.S)
+                time_ch = re.findall(timere_ch, str)[0]
+                print('找到中文时间', time_ch)
+                year = time_ch.split('年')[0].strip()
+                month = time_zero_plus(time_ch.split('年')[1].split('月')[0].strip())
+                day = time_zero_plus(time_ch.split('年')[1].split('月')[1].split('日')[0].strip())
+                time = year + '-' + month + '-' + day
+                print('获得标准时间', time)
+            except:
+                try:
+                    timere = re.compile(r'[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}', re.S)
+                    time = re.findall(timere, str)[0]
+                    timelist = time.split('-')
+                    time = timelist[0] + '-' + time_zero_plus(timelist[1]) + '-' + time_zero_plus(timelist[2])
+
+                    print('获得标准时间', time)
+                except:
+                    print('没找到符合要求的时间')
+            return time
+
         # 友链链接去重
         def delete_same_link(orign_friend_poordic):
             friend_poordic = []
@@ -280,9 +308,8 @@ def main():
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
                         result = get_data(post_link)
-                        timere = re.compile(r'[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}', re.S)
                         try:
-                            time = re.findall(timere, str(result))[0]
+                            time = find_time(str(result))
                             soup = BeautifulSoup(result, 'html.parser')
                             title = soup.find('title')
                             strtitle = title.text
