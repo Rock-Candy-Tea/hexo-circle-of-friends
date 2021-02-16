@@ -36,6 +36,20 @@ def main():
                     print('没找到符合要求的时间')
             return time
 
+        # 文章去重
+        def delete_same_article(orign_friend_postpoor):
+            friend_postpoor = []
+            friend_poortitle = []
+            for item in orign_friend_postpoor:
+                if item['title'] not in friend_poortitle:
+                    friend_poortitle.append(item['title'])
+                    friend_postpoor.append(item)
+                else:
+                    print('-----------------')
+                    print('重复1篇文章标题，已删除')
+                    print('-----------------')
+            return  friend_postpoor
+        
         # 友链链接去重
         def delete_same_link(orign_friend_poordic):
             friend_poordic = []
@@ -497,6 +511,7 @@ def main():
         print('----------------------')
         print('-----------！！用户信息上传完毕！！----------')
         print('----------------------')
+        delete_same_article(post_poor)
         post_poor.sort(key=itemgetter('time'), reverse=True)
         print('----------------------')
         print('-----------！！执行文章信息上传！！----------')
