@@ -49,7 +49,7 @@ def main():
                     print('重复1篇文章标题，已删除')
                     print('-----------------')
             return  friend_postpoor
-        
+
         # 友链链接去重
         def delete_same_link(orign_friend_poordic):
             friend_poordic = []
@@ -511,7 +511,6 @@ def main():
         print('----------------------')
         print('-----------！！用户信息上传完毕！！----------')
         print('----------------------')
-        delete_same_article(post_poor)
         post_poor.sort(key=itemgetter('time'), reverse=True)
         print('----------------------')
         print('-----------！！执行文章信息上传！！----------')
