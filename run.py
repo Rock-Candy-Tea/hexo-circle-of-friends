@@ -6,8 +6,8 @@ from operator import itemgetter
 import leancloud
 import re
 import sys
-import theme.butterfly.butterfly as butterfly
-import theme.matery.matery as matery
+from theme.butterfly import butterfly
+from theme.matery import matery
 
 
 def main():
