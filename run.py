@@ -9,6 +9,71 @@ import re
 
 
 def main():
+        # butterfly 友链规则
+        def butterfly_get_friendlink(friendpage_link,friend_poor):
+            result = get_data(friendpage_link)
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all(id='article-container')
+            link_list = main_content[0].find_all('a')
+            for index, item in enumerate(link_list):
+                link = item.get('href')
+                if link.count('/') > 3:
+                    continue
+                if item.get('title'):
+                    name = item.get('title')
+                else:
+                    try:
+                        name = item.find('span').text
+                    except:
+                        continue
+                try:
+                    if len(item.find_all('img')) > 1:
+                        imglist = item.find_all('img')
+                        img = imglist[1].get('data-lazy-src')
+                    else:
+                        imglist = item.find_all('img')
+                        img = imglist[0].get('data-lazy-src')
+                except:
+                    continue
+                if "#" in link:
+                    pass
+                else:
+                    user_info = []
+                    user_info.append(name)
+                    user_info.append(link)
+                    user_info.append(img)
+                    print('----------------------')
+                    try:
+                        print('好友名%r' % name)
+                    except:
+                        print('非法用户名')
+                    print('头像链接%r' % img)
+                    print('主页链接%r' % link)
+                    friend_poor.append(user_info)
+        # matery 友链规则
+        def matery_get_friendlink(friendpage_link,friend_poor):
+            result = get_data(friendpage_link)
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all('div', {"class": "friend-div"})
+            for item in main_content:
+                img = item.find('img').get('src')
+                link = item.find('a').get('href')
+                name = item.find('h1').text
+                if "#" in link:
+                    pass
+                else:
+                    user_info = []
+                    user_info.append(name)
+                    user_info.append(link)
+                    user_info.append(img)
+                    print('----------------------')
+                    try:
+                        print('好友名%r' % name)
+                    except:
+                        print('非法用户名')
+                    print('头像链接%r' % img)
+                    print('主页链接%r' % link)
+                    friend_poor.append(user_info)
         # 时间查找(中文、标准）
         def time_zero_plus(str):
             if len(str) < 2:
@@ -354,8 +419,8 @@ def main():
             print('\n')
             return error_sitmap
 
-        # 从主页获取文章
-        def get_last_post(user_info):
+        # 从butterfly主页获取文章
+        def get_last_post_from_butterfly(user_info):
             error_sitmap = 'false'
             link = user_info[1]
             print('\n')
@@ -376,6 +441,8 @@ def main():
                 lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
                 for index, item in enumerate(link_list):
                     time = item.text
+                    time = time.replace("|", "")
+                    time = time.replace(" ", "")
                     if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                         lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
                 lasttime = lasttime.strftime('%Y-%m-%d')
@@ -415,7 +482,60 @@ def main():
             print('\n')
             return error_sitmap
 
-        # 主方法获取友链池
+        # 从matery主页获取文章
+        def get_last_post_from_matery(user_info):
+            error_sitmap = 'false'
+            link = user_info[1]
+            print('\n')
+            print('-------执行matery主页规则----------')
+            print('执行链接：', link)
+            result = get_data(link)
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all(id='articles')
+            time_excit = soup.find_all('span',{"class": "publish-date"})
+            if main_content and time_excit:
+                error_sitmap = 'true'
+                link_list = main_content[0].find_all('span', {"class": "publish-date"})
+                lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
+                for index, item in enumerate(link_list):
+                    time = item.text
+                    time = time.replace("|","")
+                    time = time.replace(" ", "")
+                    time = time.replace("\n", "")
+                    if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
+                        lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
+                lasttime = lasttime.strftime('%Y-%m-%d')
+                print('最新时间是', lasttime)
+                last_post_list = main_content[0].find_all('div', {"class": "card"})
+                for item in last_post_list:
+                    time_created = item.find('span', {"class": "publish-date"}).text.strip()
+                    if time_created == lasttime:
+                        error_sitmap = 'false'
+                        print(lasttime)
+                        a = item.find('a')
+                        # print(item.find('a'))
+                        alink = a['href']
+                        alinksplit = alink.split("/", 1)
+                        stralink = alinksplit[1].strip()
+                        if link[-1] != '/':
+                            link = link + '/'
+                        print(item.find('span', {"class": "card-title"}).text.strip())
+                        print(link + stralink)
+                        print("-----------获取到匹配结果----------")
+                        post_info = {
+                            'title': item.find('span', {"class": "card-title"}).text.strip(),
+                            'time': lasttime,
+                            'link': link + stralink,
+                            'name': user_info[0],
+                            'img': user_info[2]
+                        }
+                        post_poor.append(post_info)
+            else:
+                error_sitmap = 'true'
+                print('貌似不是类似matery主题！')
+            print("-----------结束主页规则----------")
+            print('\n')
+            return error_sitmap
 
         # 引入leancloud验证
         leancloud.init(sys.argv[1], sys.argv[2])
@@ -428,10 +548,6 @@ def main():
         print('\n')
         today = datetime.datetime.today()
         time_limit = 60
-        result = get_data(friendpage_link)
-        soup = BeautifulSoup(result, 'html.parser')
-        main_content = soup.find_all(id='article-container')
-        link_list = main_content[0].find_all('a')
         friend_poor = []
         post_poor = []
         print('----------------------')
@@ -441,41 +557,14 @@ def main():
             kang_api(friend_poor)
         except:
             print('读取gitee友链失败')
-        for index, item in enumerate(link_list):
-            link = item.get('href')
-            if link.count('/') > 3:
-                continue
-            if item.get('title'):
-                name = item.get('title')
-            else:
-                try:
-                    name = item.find('span').text
-                except:
-                    continue
-            try:
-                if len(item.find_all('img')) > 1:
-                    imglist = item.find_all('img')
-                    img = imglist[1].get('data-lazy-src')
-                else:
-                    imglist = item.find_all('img')
-                    img = imglist[0].get('data-lazy-src')
-            except:
-                continue
-            if "#" in link:
-                pass
-            else:
-                user_info = []
-                user_info.append(name)
-                user_info.append(link)
-                user_info.append(img)
-                print('----------------------')
-                try:
-                    print('好友名%r' % name)
-                except:
-                    print('非法用户名')
-                print('头像链接%r' % img)
-                print('主页链接%r' % link)
-                friend_poor.append(user_info)
+        try:
+            butterfly_get_friendlink(friendpage_link, friend_poor)
+        except:
+            print('不是butterfly主题')
+        try:
+            matery_get_friendlink(friendpage_link, friend_poor)
+        except:
+            print('不是matery主题')
         friend_poor = delete_same_link(friend_poor)
         print('当前友链数量',len( friend_poor))
         print('----------------------')
@@ -487,7 +576,9 @@ def main():
             error = 'false'
             try:
                 total_count += 1
-                error = get_last_post(item)
+                error = get_last_post_from_butterfly(item)
+                if error == 'true':
+                    error = get_last_post_from_matery(item)
                 if error == 'true':
                     print("-----------获取主页信息失败，采取sitemap策略----------")
                     error = sitmap_get(item)
