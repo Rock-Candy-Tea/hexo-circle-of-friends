@@ -424,7 +424,7 @@ def main():
             error_sitmap = 'false'
             link = user_info[1]
             print('\n')
-            print('-------执行主页规则----------')
+            print('-------执行butterfly主页规则----------')
             print('执行链接：', link)
             result = get_data(link)
             soup = BeautifulSoup(result, 'html.parser')
@@ -478,7 +478,7 @@ def main():
             else:
                 error_sitmap = 'true'
                 print('貌似不是类似butterfly主题！')
-            print("-----------结束主页规则----------")
+            print("-----------结束butterfly主页规则----------")
             print('\n')
             return error_sitmap
 
@@ -533,7 +533,7 @@ def main():
             else:
                 error_sitmap = 'true'
                 print('貌似不是类似matery主题！')
-            print("-----------结束主页规则----------")
+            print("-----------结束matery主页规则----------")
             print('\n')
             return error_sitmap
 
