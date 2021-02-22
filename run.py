@@ -6,7 +6,6 @@ from operator import itemgetter
 import leancloud
 import re
 import sys
-sys.path.append('.')
 import theme.butterfly.butterfly as butterfly
 import theme.matery.matery as matery
 
