@@ -14,29 +14,47 @@ def get_data(link):
         print('请求超过15s。')
     return result
 
-def matery_get_friendlink(friendpage_link, friend_poor):
-    result = get_data(friendpage_link)
-    soup = BeautifulSoup(result, 'html.parser')
-    main_content = soup.find_all('div', {"class": "friend-div"})
-    for item in main_content:
-        img = item.find('img').get('src')
-        link = item.find('a').get('href')
-        name = item.find('h1').text
-        if "#" in link:
-            pass
-        else:
-            user_info = []
-            user_info.append(name)
-            user_info.append(link)
-            user_info.append(img)
-            print('----------------------')
-            try:
-                print('好友名%r' % name)
-            except:
-                print('非法用户名')
-            print('头像链接%r' % img)
-            print('主页链接%r' % link)
-            friend_poor.append(user_info)
+# butterfly 友链规则
+        def butterfly_get_friendlink(friendpage_link,friend_poor):
+            result = get_data(friendpage_link)
+            soup = BeautifulSoup(result, 'html.parser')
+            main_content = soup.find_all(id='article-container')
+            link_list = main_content[0].find_all('a')
+            for index, item in enumerate(link_list):
+                link = item.get('href')
+                if link.count('/') > 3:
+                    continue
+                if item.get('title'):
+                    name = item.get('title')
+                else:
+                    try:
+                        name = item.find('span').text
+                    except:
+                        continue
+                try:
+                    if len(item.find_all('img')) > 1:
+                        imglist = item.find_all('img')
+                        img = imglist[1].get('data-lazy-src')
+                    else:
+                        imglist = item.find_all('img')
+                        img = imglist[0].get('data-lazy-src')
+                except:
+                    continue
+                if "#" in link:
+                    pass
+                else:
+                    user_info = []
+                    user_info.append(name)
+                    user_info.append(link)
+                    user_info.append(img)
+                    print('----------------------')
+                    try:
+                        print('好友名%r' % name)
+                    except:
+                        print('非法用户名')
+                    print('头像链接%r' % img)
+                    print('主页链接%r' % link)
+                    friend_poor.append(user_info)
 
 # 从butterfly主页获取文章
 def get_last_post_from_butterfly(user_info,post_poor):
