@@ -430,7 +430,7 @@ def main():
         time_limit = 60
         result = get_data(friendpage_link)
         soup = BeautifulSoup(result, 'html.parser')
-        main_content = soup.find_all(id='article-container')
+        main_content = soup.find_all(id='friends-link')
         link_list = main_content[0].find_all('a')
         friend_poor = []
         post_poor = []
