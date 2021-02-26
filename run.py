@@ -387,7 +387,7 @@ def main():
         try:
             volantis.volantis_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是volantis主题')
+            print('不是volantis主题或未配置gitee友链')
         friend_poor = delete_same_link(friend_poor)
         print('当前友链数量',len( friend_poor))
         print('----------------------')
