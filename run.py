@@ -8,7 +8,7 @@ import re
 import sys
 from theme.butterfly import butterfly
 from theme.matery import matery
-
+from theme.volantis import volantis
 
 def main():
         # 时间查找(中文、标准）
@@ -72,7 +72,7 @@ def main():
             for item in info_list:
                 reg = re.compile('(?<=' + item + ': ).*')
                 result = re.findall(reg, str(source))
-                result = result[0].replace('\r', ' ')
+                result = result[0].replace('\r', '')
                 print(result)
                 user_info.append(result)
 
@@ -82,7 +82,7 @@ def main():
             print('-------获取gitee友链----------')
             baselink = 'https://gitee.com'
             errortimes = 0
-            f = open('userinfo.txt')
+            f = open('userinfo_normal.txt')
             git_info_list = ['owner', 'repo', 'state']
             user_info_txt = []
             info = f.read()
@@ -384,6 +384,10 @@ def main():
             matery.matery_get_friendlink(friendpage_link,friend_poor)
         except:
             print('不是matery主题')
+        try:
+            volantis.volantis_get_friendlink(friendpage_link,friend_poor)
+        except:
+            print('不是volantis主题')
         friend_poor = delete_same_link(friend_poor)
         print('当前友链数量',len( friend_poor))
         print('----------------------')
@@ -398,6 +402,8 @@ def main():
                 error = butterfly.get_last_post_from_butterfly(item,post_poor)
                 if error == 'true':
                     error = matery.get_last_post_from_matery(item,post_poor)
+                if error == 'true':
+                    error = volantis.get_last_post_from_volantis(item,post_poor)
                 if error == 'true':
                     print("-----------获取主页信息失败，采取sitemap策略----------")
                     error = sitmap_get(item)
