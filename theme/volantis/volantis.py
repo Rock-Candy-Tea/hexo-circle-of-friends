@@ -41,7 +41,7 @@ def reg_volantis(info_list, user_info, source):
 
 def gitee_issuse(friend_poor):
     print('\n')
-    print('-------获取gitee友链----------')
+    print('-------获取volantis-gitee友链----------')
     baselink = 'https://gitee.com'
     errortimes = 0
     f = open('userinfo_volantis.txt')
@@ -85,7 +85,7 @@ def gitee_issuse(friend_poor):
         print(e.__traceback__.tb_frame.f_globals["__file__"])
         print(e.__traceback__.tb_lineno)
 
-    print('------结束gitee友链获取----------')
+    print('------结束volantis-gitee友链获取----------')
     print('\n')
 
 
@@ -107,7 +107,7 @@ def volantis_get_friendlink(friendpage_link, friend_poor):
         main_content = soup.find_all('a', {"class": "friend-card"})
         print('使用Volantis sites')
     else:
-        print('不包含标准友链！')
+        print('不包含标准volantis友链！')
     for item in main_content:
         if len(item.find_all('img')) > 1:
             img = item.find_all('img')[1].get('src')
