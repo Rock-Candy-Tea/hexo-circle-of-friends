@@ -13,7 +13,7 @@ import yaml
 
 def main():
         def load_config():
-            f = open('_config.yml', 'r',encoding='gbk')
+            f = open('_config.yml', 'r')
             ystr = f.read()
             ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
             return ymllist
@@ -74,6 +74,7 @@ def main():
                     print('-----------------')
             return  friend_poordic
 
+        # 链接屏蔽
         def block_link(orign_friend_poordic):
             friend_poordic = []
             for item in orign_friend_poordic:
@@ -309,6 +310,8 @@ def main():
                 r = requests.get(link, timeout=15)
                 r.encoding = 'utf-8-sig'
                 result = r.text
+                if str(r) == '<Response [404]>':
+                    result ='error'
             except:
                 print('请求超过15s。')
             return result
@@ -385,6 +388,8 @@ def main():
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
                         result = get_data(post_link)
+                        if result == 'error':
+                            continue
                         try:
                             time = find_time(str(result))
                             if time == '':
@@ -464,6 +469,7 @@ def main():
         except:
             print('不是volantis主题或未配置gitee友链')
         friend_poor = delete_same_link(friend_poor)
+        friend_poor = block_link(friend_poordic)
         print('当前友链数量',len( friend_poor))
         print('----------------------')
         print('-----------！！结束友链获取任务！！----------')

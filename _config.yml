@@ -11,11 +11,13 @@ setting:
     - 'json'
     - 'tags'
     - 'categories'
+    - 'record'
 
   block_chars: # 屏蔽sitemap获取标题的分割字符
     - '|'
     - '::'
     - '-'
+    - '·'
 
   block_site: # 屏蔽站点
     - https://hexo.io/zh-tw/
