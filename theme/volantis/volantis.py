@@ -181,7 +181,7 @@ def get_last_post_from_volantis(user_info, post_poor):
                 stralink = alinksplit[1].strip()
                 if link[-1] != '/':
                     link = link + '/'
-                print(item.find('h2', {"class": "article-title"}).text.strip())
+                print(item.find('h2', {"class": "article-title"}).text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
                 print(link + stralink)
                 print("-----------获取到匹配结果----------")
                 post_info = {

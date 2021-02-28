@@ -6,6 +6,7 @@ import datetime
 
 # 请求连接
 def get_data(link):
+    result =''
     try:
         r = requests.get(link, timeout=15)
         r.encoding = 'utf-8-sig'
@@ -101,7 +102,7 @@ def get_last_post_from_butterfly(user_info,post_poor):
                         stralink = alinksplit[1].strip()
                         if link[-1] != '/':
                             link = link + '/'
-                        print(a.text)
+                        print(a.text.encode("gbk", 'ignore').decode('gbk', 'ignore'))
                         print(link + stralink)
                         print("-----------获取到匹配结果----------")
                         post_info = {

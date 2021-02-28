@@ -5,6 +5,7 @@ import datetime
 
 # 请求连接
 def get_data(link):
+    result = ''
     try:
         r = requests.get(link, timeout=15)
         r.encoding = 'utf-8-sig'
@@ -75,7 +76,7 @@ def get_last_post_from_matery(user_info,post_poor):
                         stralink = alinksplit[1].strip()
                         if link[-1] != '/':
                             link = link + '/'
-                        print(item.find('span', {"class": "card-title"}).text.strip())
+                        print(item.find('span', {"class": "card-title"}).text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
                         print(link + stralink)
                         print("-----------获取到匹配结果----------")
                         post_info = {
