@@ -1,6 +1,6 @@
 setting:
   gitee_friends_links: # gitee友链配置
-    enable: false
+    enable: false # 使用时请设置为true
     type: normal # volantis用户请在这里填写 volantis
     owner: yourname # 填写你的gitee用户名
     repo: yourrepo # 填写你的gitee仓库名
@@ -21,4 +21,4 @@ setting:
     - '·'
 
   block_site: # 屏蔽站点
-    - https://hexo.io/zh-tw/
+    - https://example.com/
