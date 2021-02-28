@@ -14,7 +14,7 @@ import yaml
 def main():
         def load_config():
             f = open('_config.yml', 'r')
-            ystr = f.read()
+            ystr = f.read().encode("gbk", 'utf-8').decode('gbk', 'utf-8')
             ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
             return ymllist
 
