@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import datetime
-
+import yaml
 
 def get_data(link):
     user_agent = 'Mozilla/5.0 (Macintosh;Intel Mac OS X 10_12_6) ' \
@@ -44,20 +44,18 @@ def gitee_issuse(friend_poor):
     print('-------获取volantis-gitee友链----------')
     baselink = 'https://gitee.com'
     errortimes = 0
-    f = open('userinfo_volantis.txt')
-    git_info_list = ['owner', 'repo', 'state']
-    user_info_txt = []
-    info = f.read()
-    reg(git_info_list, user_info_txt, info)
-    print(user_info_txt)
+    config = load_config()
+    print('owner:', config['setting']['gitee_friends_links']['owner'])
+    print('repo:', config['setting']['gitee_friends_links']['repo'])
+    print('state:', config['setting']['gitee_friends_links']['state'])
     try:
         for number in range(1, 100):
             print(number)
             gitee = get_data('https://gitee.com/' +
-                             user_info_txt[0] +
+                             config['setting']['gitee_friends_links']['owner'] +
                              '/' +
-                             user_info_txt[1] +
-                             '/issues?state=' + user_info_txt[2] + '&page=' + str(number))
+                             config['setting']['gitee_friends_links']['repo'] +
+                             '/issues?state=' + config['setting']['gitee_friends_links']['state'] + '&page=' + str(number))
             soup = BeautifulSoup(gitee, 'html.parser')
             main_content = soup.find_all(id='git-issues')
             linklist = main_content[0].find_all('a', {'class': 'title'})
@@ -133,7 +131,8 @@ def volantis_get_friendlink(friendpage_link, friend_poor):
             print('头像链接%r' % img)
             print('主页链接%r' % link)
             friend_poor.append(user_info)
-    gitee_issuse(friend_poor)
+    if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'volantis':
+        gitee_issuse(friend_poor)
 
 
 def get_last_post_from_volantis(user_info, post_poor):

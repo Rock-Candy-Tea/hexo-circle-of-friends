@@ -1,3 +1,0 @@
-owner: yourname
-repo: yourrepo
-state: open

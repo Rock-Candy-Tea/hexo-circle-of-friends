@@ -1,0 +1,21 @@
+setting:
+  gitee_friends_links: # gitee友链配置
+    enable: false
+    type: normal # volantis用户请在这里填写 volantis
+    owner: yourname # 填写你的gitee用户名
+    repo: yourrepo # 填写你的gitee仓库名
+    state: open # 填写抓取的issue状态(open/progressing/closed)
+
+  block_word: # 屏蔽sitemap链接关键词
+    - 'index'
+    - 'json'
+    - 'tags'
+    - 'categories'
+
+  block_chars: # 屏蔽sitemap获取标题的分割字符
+    - '|'
+    - '::'
+    - '-'
+
+  block_site: # 屏蔽站点
+    - https://akilar.top/
