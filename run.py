@@ -13,7 +13,7 @@ import yaml
 
 def main():
         def load_config():
-            f = open('_config.yml', 'r')
+            f = open('_config.yml', 'r','gbk')
             ystr = f.read()
             ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
             return ymllist
