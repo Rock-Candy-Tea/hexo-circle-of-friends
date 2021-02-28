@@ -12,6 +12,7 @@ setting:
     - 'tags'
     - 'categories'
     - 'record'
+    - 'sort'
 
   block_chars: # 屏蔽sitemap获取标题的分割字符
     - '|'
