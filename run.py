@@ -469,7 +469,7 @@ def main():
         except:
             print('不是volantis主题或未配置gitee友链')
         friend_poor = delete_same_link(friend_poor)
-        friend_poor = block_link(friend_poordic)
+        friend_poor = block_link(friend_poor)
         print('当前友链数量',len( friend_poor))
         print('----------------------')
         print('-----------！！结束友链获取任务！！----------')
