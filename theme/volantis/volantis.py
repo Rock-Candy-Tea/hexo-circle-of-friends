@@ -138,6 +138,7 @@ def volantis_get_friendlink(friendpage_link, friend_poor):
             print('头像链接%r' % img)
             print('主页链接%r' % link)
             friend_poor.append(user_info)
+    config = load_config()
     if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'volantis':
         gitee_issuse(friend_poor)
 
