@@ -12,29 +12,6 @@ from theme.volantis import volantis
 import yaml
 
 def main():
-        # sitemap筛选
-        def sitemap_filter(new_link_list,new_loc,new_loc_time,limit_number):
-            block_word = config['setting']['block_word']
-            for item in new_link_list:
-                loc_item = item[0]
-                time = item[1]
-                if loc_item.text[-1] == '/':
-                    limit_number = limit_number
-                else:
-                    limit_number = limit_number-1
-                block = False
-                for item in block_word:
-                    if item in loc_item.text:
-                        block = True
-                if block:
-                    pass
-                elif loc_item.text.count('/') < limit_number:
-                    pass
-                else:
-                    new_loc.append(loc_item)
-                    new_loc_time.append(time)
-
-        # 导入yml配置
         def load_config():
             f = open('_config.yml', 'r',encoding='gbk')
             ystr = f.read()
@@ -370,11 +347,46 @@ def main():
                 if len(url) == 0:
                     error_sitmap = 'true'
                     print('该网站可能没有sitemap')
+                block_word = config['setting']['block_word']
                 new_loc = []
                 new_loc_time = []
-                sitemap_filter(new_link_list,new_loc,new_loc_time,5)
+                for item in new_link_list:
+                    loc_item = item[0]
+                    time = item[1]
+                    if loc_item.text[-1] == '/':
+                        limit_number = 5
+                    else:
+                        limit_number = 4
+                    block = False
+                    for item in block_word:
+                        if item in loc_item.text:
+                            block = True
+                    if block:
+                        pass
+                    elif loc_item.text.count('/') < limit_number:
+                        pass
+                    else:
+                        new_loc.append(loc_item)
+                        new_loc_time.append(time)
                 if len(new_loc) < 1:
-                    sitemap_filter(new_link_list,new_loc,new_loc_time,4)
+                    for item in new_link_list:
+                        loc_item = item[0]
+                        time = item[1]
+                        if loc_item.text[-1] == '/':
+                            limit_number = 3
+                        else:
+                            limit_number = 2
+                        block = False
+                        for item in block_word:
+                            if item in loc_item.text:
+                                block = True
+                        if block:
+                            pass
+                        elif loc_item.text.count('/') == limit_number:
+                            pass
+                        else:
+                            new_loc.append(loc_item)
+                            new_loc_time.append(time)
                 print('该网站最新的五条sitemap为：', new_loc[0:5])
                 print('该网站最新的五个时间戳为：', new_loc_time[0:5])
                 print('-------开始详情页面爬取----------')
