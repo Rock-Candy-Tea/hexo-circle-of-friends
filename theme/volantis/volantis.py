@@ -5,6 +5,13 @@ import re
 import datetime
 import yaml
 
+
+def load_config():
+    f = open('_config.yml', 'r')
+    ystr = f.read()
+    ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
+    return ymllist
+
 def get_data(link):
     user_agent = 'Mozilla/5.0 (Macintosh;Intel Mac OS X 10_12_6) ' \
                  'AppleWebKit/537.36(KHTML, like Gecko) ' \
