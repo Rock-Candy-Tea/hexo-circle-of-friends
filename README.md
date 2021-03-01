@@ -1,18 +1,11 @@
 ```
-当前版本1.14
-——————————————————————————————
-更新日志
-2021/2/12   加入了友链链接的去重,适配了中文时间sitemap抓取，
-同时解决了时间格式不统一的问题导致的朋友圈时间显示错乱问题
-
-测试版本
-——————————————————————————————
-2021/2/22   增加了matery主题的友链获取和文章爬取适配，
-             对主题进行了分包。
-2021/2/26   增加了volantis主题的友链获取和文章爬取适配
-             
-
+目前 release1.5 版本：
+① 支持butterfly、volantis、matery 主题的友链获取
+② 支持**小康友链及volantis 主题友链，即部署于 gitee 上的 issuse 友链获取
+③ 支持butterfly、volantis、matery 主题**的最新文章获取
+④ 支持大部分拥有 sitemap 网站的文章获取
+⑤ 拥有友链屏蔽、关键词屏蔽、等自定义 yaml 的配置项        
 ```
-
+预览链接：https://zfe.space/friendcircle/
 
 教程请查阅：https://zfe.space/post/friend-link-circle.html
