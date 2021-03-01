@@ -6,6 +6,7 @@ from operator import itemgetter
 import leancloud
 import re
 import sys
+from request_data import request
 from theme.butterfly import butterfly
 from theme.matery import matery
 from theme.volantis import volantis
@@ -108,7 +109,7 @@ def main():
             try:
                 for number in range(1, 100):
                     print(number)
-                    gitee = get_data('https://gitee.com/' +
+                    gitee = request.get_data('https://gitee.com/' +
                                      config['setting']['gitee_friends_links']['owner'] +
                                      '/' +
                                      config['setting']['gitee_friends_links']['repo'] +
@@ -122,7 +123,7 @@ def main():
                         break
                     for item in linklist:
                         issueslink = baselink + item['href']
-                        issues_page = get_data(issueslink)
+                        issues_page = request.get_data(issueslink)
                         issues_soup = BeautifulSoup(issues_page, 'html.parser')
                         try:
                             issues_linklist = issues_soup.find_all('code')
@@ -304,17 +305,7 @@ def main():
             outdate(query_list, Friendspoor, time_limit)
 
         # 请求连接
-        def get_data(link):
-            result = ''
-            try:
-                r = requests.get(link, timeout=15)
-                r.encoding = 'utf-8-sig'
-                result = r.text
-                if str(r) == '<Response [404]>':
-                    result ='error'
-            except:
-                print('请求超过15s。')
-            return result
+        
 
         # 通过sitemap请求
         def sitmap_get(user_info):
@@ -324,11 +315,11 @@ def main():
             link = user_info[1]
             error_sitmap = 'false'
             try:
-                result = get_data(link + '/sitemap.xml')
+                result = request.get_data(link + '/sitemap.xml')
                 soup = BeautifulSoup(result, 'html.parser')
                 url = soup.find_all('url')
                 if len(url) == 0:
-                    result = get_data(link + '/baidusitemap.xml')
+                    result = request.get_data(link + '/baidusitemap.xml')
                     soup = BeautifulSoup(result, 'html.parser')
                     url = soup.find_all('url')
                 new_link_list = []
@@ -393,7 +384,7 @@ def main():
                 if len(new_loc) != 0:
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
-                        result = get_data(post_link)
+                        result = request.get_data(post_link)
                         if result == 'error':
                             continue
                         try:

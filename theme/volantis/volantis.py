@@ -4,24 +4,13 @@ from bs4 import BeautifulSoup
 import re
 import datetime
 import yaml
-
+from request_data import request
 
 def load_config():
     f = open('_config.yml', 'r',encoding='gbk')
     ystr = f.read()
     ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
     return ymllist
-
-def get_data(link):
-    user_agent = 'Mozilla/5.0 (Macintosh;Intel Mac OS X 10_12_6) ' \
-                 'AppleWebKit/537.36(KHTML, like Gecko) ' \
-                 'Chrome/67.0.3396.99Safari/537.36'
-    header = {'User_Agent': user_agent}
-    r = requests.get(link, headers=header, timeout=10)
-    r.encoding = 'utf-8'
-    result = r.text
-    return result
-
 
 # gitee适配
 def reg(info_list, user_info, source):
@@ -58,7 +47,7 @@ def gitee_issuse(friend_poor):
     try:
         for number in range(1, 100):
             print(number)
-            gitee = get_data('https://gitee.com/' +
+            gitee = request.get_data('https://gitee.com/' +
                              config['setting']['gitee_friends_links']['owner'] +
                              '/' +
                              config['setting']['gitee_friends_links']['repo'] +
@@ -72,7 +61,7 @@ def gitee_issuse(friend_poor):
                 break
             for item in linklist:
                 issueslink = baselink + item['href']
-                issues_page = get_data(issueslink)
+                issues_page = request.get_data(issueslink)
                 issues_soup = BeautifulSoup(issues_page, 'html.parser')
                 try:
                     issues_linklist = issues_soup.find_all('code')
@@ -97,7 +86,7 @@ def gitee_issuse(friend_poor):
 # Volantis  友链规则
 def volantis_get_friendlink(friendpage_link, friend_poor):
     main_content = []
-    result = get_data(friendpage_link)
+    result = request.get_data(friendpage_link)
     soup = BeautifulSoup(result, 'html.parser')
     # Volantis sites
     if len(soup.find_all('a', {"class": "site-card"})) > 0:
@@ -149,7 +138,7 @@ def get_last_post_from_volantis(user_info, post_poor):
     print('\n')
     print('-------执行volantis主页规则----------')
     print('执行链接：', link)
-    result = get_data(link)
+    result = request.get_data(link)
     soup = BeautifulSoup(result, 'html.parser')
     main_content = soup.find_all('section', {"class": "post-list"})
     time_excit = soup.find_all('time')

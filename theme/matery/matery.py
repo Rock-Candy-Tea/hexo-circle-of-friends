@@ -2,21 +2,11 @@
 import requests
 from bs4 import BeautifulSoup
 import datetime
-
-# 请求连接
-def get_data(link):
-    result = ''
-    try:
-        r = requests.get(link, timeout=15)
-        r.encoding = 'utf-8-sig'
-        result = r.text
-    except:
-        print('请求超过15s。')
-    return result
+from request_data import request
 
 # matery 友链规则
 def matery_get_friendlink(friendpage_link, friend_poor):
-    result = get_data(friendpage_link)
+    result = request.get_data(friendpage_link)
     soup = BeautifulSoup(result, 'html.parser')
     main_content = soup.find_all('div', {"class": "friend-div"})
     for item in main_content:
@@ -46,7 +36,7 @@ def get_last_post_from_matery(user_info,post_poor):
             print('\n')
             print('-------执行matery主页规则----------')
             print('执行链接：', link)
-            result = get_data(link)
+            result = request.get_data(link)
             soup = BeautifulSoup(result, 'html.parser')
             main_content = soup.find_all(id='articles')
             time_excit = soup.find_all('span',{"class": "publish-date"})
