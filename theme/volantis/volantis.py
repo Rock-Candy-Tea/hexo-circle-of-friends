@@ -12,6 +12,53 @@ def load_config():
     ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
     return ymllist
 
+def github_issuse(friend_poor):
+    print('\n')
+    print('-------获取volantis-github友链----------')
+    baselink = 'https://github.com/'
+    errortimes = 0
+    config = load_config()
+    print('owner:', config['setting']['github_friends_links']['owner'])
+    print('repo:', config['setting']['github_friends_links']['repo'])
+    print('state:', config['setting']['github_friends_links']['state'])
+    try:
+        for number in range(1, 100):
+            print(number)
+            github = request.get_data('https://github.com/' +
+                             config['setting']['github_friends_links']['owner'] +
+                             '/' +
+                             config['setting']['github_friends_links']['repo'] +
+                             '/issues?q=is%3A' + config['setting']['github_friends_links']['state'] + '&page=' + str(number))
+            soup = BeautifulSoup(github, 'html.parser')
+            main_content = soup.find_all('div',{'aria-label': 'Issues'})
+            linklist = main_content[0].find_all('a', {'class': 'Link--primary'})
+            if len(linklist) == 0:
+                print('爬取完毕')
+                print('失败了%r次' % errortimes)
+                break
+            for item in linklist:
+                issueslink = baselink + item['href']
+                issues_page = request.get_data(issueslink)
+                issues_soup = BeautifulSoup(issues_page, 'html.parser')
+                try:
+                    issues_linklist = issues_soup.find_all('pre')
+                    source = issues_linklist[0].text
+                    user_info = []
+                    info_list = ['title', 'url', 'avatar']
+                    reg_volantis(info_list, user_info, source)
+                    if user_info[1] != '你的链接':
+                        friend_poor.append(user_info)
+                except:
+                    errortimes += 1
+                    continue
+    except Exception as e:
+        print('爬取完毕', e)
+        print(e.__traceback__.tb_frame.f_globals["__file__"])
+        print(e.__traceback__.tb_lineno)
+
+    print('------结束volantis-github友链获取----------')
+    print('\n')
+
 # gitee适配
 def reg(info_list, user_info, source):
     print('----')
@@ -130,6 +177,8 @@ def volantis_get_friendlink(friendpage_link, friend_poor):
     config = load_config()
     if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'volantis':
         gitee_issuse(friend_poor)
+    if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'volantis':
+        github_issuse(friend_poor)
 
 
 def get_last_post_from_volantis(user_info, post_poor):

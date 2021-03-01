@@ -1,14 +1,21 @@
 setting:
   request: # 网络请求设置
-    timeout: 10 # 请求超时时间
-    ssl: false  # 是否进行ssl验证（适配http，但对相应请求会变慢）
+    timeout: 10 # gitee友链配置
+    ssl: false  # gitee友链配置
 
   gitee_friends_links: # gitee友链配置
     enable: false # 使用时请设置为true
     type: normal # volantis用户请在这里填写 volantis
-    owner: yourname # 填写你的gitee用户名
-    repo: yourrepo # 填写你的gitee仓库名
+    owner: Zfour # 填写你的gitee用户名
+    repo: zfour-friends # 填写你的gitee仓库名
     state: open # 填写抓取的issue状态(open/progressing/closed)
+
+  github_friends_links: # github友链配置
+    enable: false # 使用时请设置为true
+    type: normal # volantis用户请在这里填写 volantis
+    owner: Zfour # 填写你的github用户名
+    repo: zfour-friends # 填写你的github仓库名
+    state: open # 填写抓取的issue状态(open/closed)
 
   block_word: # 屏蔽sitemap链接关键词
     - 'index'

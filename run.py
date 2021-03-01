@@ -97,6 +97,55 @@ def main():
                 print(result)
                 user_info.append(result)
 
+        # 从github获取friendlink
+        def github_issuse(friend_poor):
+            print('\n')
+            print('-------获取github友链----------')
+            baselink = 'https://github.com/'
+            errortimes = 0
+            config = load_config()
+            print('owner:', config['setting']['github_friends_links']['owner'])
+            print('repo:', config['setting']['github_friends_links']['repo'])
+            print('state:', config['setting']['github_friends_links']['state'])
+            try:
+                for number in range(1, 100):
+                    print(number)
+                    github = request.get_data('https://github.com/' +
+                                              config['setting']['github_friends_links']['owner'] +
+                                              '/' +
+                                              config['setting']['github_friends_links']['repo'] +
+                                              '/issues?q=is%3A' + config['setting']['github_friends_links'][
+                                                  'state'] + '&page=' + str(number))
+                    soup = BeautifulSoup(github, 'html.parser')
+                    main_content = soup.find_all('div', {'aria-label': 'Issues'})
+                    linklist = main_content[0].find_all('a', {'class': 'Link--primary'})
+                    if len(linklist) == 0:
+                        print('爬取完毕')
+                        print('失败了%r次' % errortimes)
+                        break
+                    for item in linklist:
+                        issueslink = baselink + item['href']
+                        issues_page = request.get_data(issueslink)
+                        issues_soup = BeautifulSoup(issues_page, 'html.parser')
+                        try:
+                            issues_linklist = issues_soup.find_all('pre')
+                            source = issues_linklist[0].text
+                            user_info = []
+                            info_list = ['name', 'link', 'avatar']
+                            reg(info_list, user_info, source)
+                            if user_info[1] != '你的链接':
+                                friend_poor.append(user_info)
+                        except:
+                            errortimes += 1
+                            continue
+            except Exception as e:
+                print('爬取完毕', e)
+                print(e.__traceback__.tb_frame.f_globals["__file__"])
+                print(e.__traceback__.tb_lineno)
+
+            print('------结束github友链获取----------')
+            print('\n')
+
         # 从gitee获取friendlink
         def kang_api(friend_poor):
             print('\n')
@@ -453,6 +502,13 @@ def main():
                 print('读取gitee友链失败')
         else:
             print('未开启gitee友链获取')
+        if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
+            try:
+                github_issuse(friend_poor)
+            except:
+                print('读取github友链失败')
+        else:
+            print('未开启gihub友链获取')
         try:
             butterfly.butterfly_get_friendlink(friendpage_link,friend_poor)
         except:
