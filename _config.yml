@@ -1,23 +1,23 @@
 setting:
-  request: # ÍøÂçÇëÇóÉèÖÃ
-    timeout: 10 # giteeÓÑÁ´ÅäÖÃ
-    ssl: false  # giteeÓÑÁ´ÅäÖÃ
+  request: # ç½‘ç»œè¯·æ±‚è®¾ç½®
+    timeout: 10 # giteeå‹é“¾é…ç½®
+    ssl: false  # giteeå‹é“¾é…ç½®
 
-  gitee_friends_links: # giteeÓÑÁ´ÅäÖÃ
-    enable: false # Ê¹ÓÃÊ±ÇëÉèÖÃÎªtrue
-    type: normal # volantisÓÃ»§ÇëÔÚÕâÀïÌîĞ´ volantis
-    owner: Zfour # ÌîĞ´ÄãµÄgiteeÓÃ»§Ãû
-    repo: zfour-friends # ÌîĞ´ÄãµÄgitee²Ö¿âÃû
-    state: open # ÌîĞ´×¥È¡µÄissue×´Ì¬(open/progressing/closed)
+  gitee_friends_links: # giteeå‹é“¾é…ç½®
+    enable: false
+    type: normal # volantisç”¨æˆ·è¯·åœ¨è¿™é‡Œå¡«å†™ volantis
+    owner: Zfour # å¡«å†™ä½ çš„giteeç”¨æˆ·å
+    repo: zfour-friends # å¡«å†™ä½ çš„giteeä»“åº“å
+    state: open # å¡«å†™æŠ“å–çš„issueçŠ¶æ€(open/progressing/closed)
 
-  github_friends_links: # githubÓÑÁ´ÅäÖÃ
-    enable: false # Ê¹ÓÃÊ±ÇëÉèÖÃÎªtrue
-    type: normal # volantisÓÃ»§ÇëÔÚÕâÀïÌîĞ´ volantis
-    owner: Zfour # ÌîĞ´ÄãµÄgithubÓÃ»§Ãû
-    repo: zfour-friends # ÌîĞ´ÄãµÄgithub²Ö¿âÃû
-    state: open # ÌîĞ´×¥È¡µÄissue×´Ì¬(open/closed)
+  github_friends_links: # githubå‹é“¾é…ç½®
+    enable: false
+    type: normal # volantisç”¨æˆ·è¯·åœ¨è¿™é‡Œå¡«å†™ volantis
+    owner: Zfour # å¡«å†™ä½ çš„githubç”¨æˆ·å
+    repo: zfour-friends # å¡«å†™ä½ çš„githubä»“åº“å
+    state: open # å¡«å†™æŠ“å–çš„issueçŠ¶æ€(open/closed)
 
-  block_word: # ÆÁ±ÎsitemapÁ´½Ó¹Ø¼ü´Ê
+  block_word: # å±è”½sitemapé“¾æ¥å…³é”®è¯
     - 'index'
     - 'json'
     - 'tags'
@@ -25,12 +25,12 @@ setting:
     - 'record'
     - 'sort'
 
-  block_chars: # ÆÁ±Îsitemap»ñÈ¡±êÌâµÄ·Ö¸î×Ö·û
+  block_chars: # å±è”½sitemapè·å–æ ‡é¢˜çš„åˆ†å‰²å­—ç¬¦
     - '|'
     - '::'
     - '-'
-    - '¡¤'
-    - 'ÈŞ²¼Çò'
+    - 'Â·'
+    - 'ç»’å¸ƒçƒ'
 
-  block_site: # ÆÁ±ÎÕ¾µã
+  block_site: # å±è”½ç«™ç‚¹
     - https://example.com/
