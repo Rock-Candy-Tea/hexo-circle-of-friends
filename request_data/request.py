@@ -4,7 +4,7 @@ import yaml
 requests.packages.urllib3.disable_warnings()
 
 def load_config():
-    f = open('_config.yml', 'r',encoding='gbk')
+    f = open('_config.yml', 'r',encoding='utf-8')
     ystr = f.read()
     ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
     return ymllist
