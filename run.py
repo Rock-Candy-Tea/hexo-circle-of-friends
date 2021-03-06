@@ -10,6 +10,7 @@ from request_data import request
 from theme.butterfly import butterfly
 from theme.matery import matery
 from theme.volantis import volantis
+from handlers.coreSettings import configs
 import yaml
 
 def main():
@@ -354,7 +355,6 @@ def main():
             outdate(query_list, Friendspoor, time_limit)
 
         # 请求连接
-        
 
         # 通过sitemap请求
         def sitmap_get(user_info):
@@ -477,11 +477,17 @@ def main():
             return error_sitmap
 
         # 引入leancloud验证
-        leancloud.init(sys.argv[1], sys.argv[2])
-        friendpage_link = sys.argv[3]
+        if configs.DEBUG:
+            leancloud.init(configs.LC_APPID, configs.LC_APPKEY)
+            friendpage_link = configs.FRIENPAGE_LINK
+        else:
+            leancloud.init(sys.argv[1], sys.argv[2])
+            friendpage_link = sys.argv[3]
 
         # 导入yml配置文件
-        config = load_config()
+        # config = load_config()
+        config = configs.yml
+
 
         # 执行主方法
         print('----------------------')
@@ -570,5 +576,5 @@ def main():
         print('-----------！！文章信息上传完毕！！----------')
         print('----------------------')
 
-
-main()
+if __name__ == '__main__':
+    main()
