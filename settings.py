@@ -24,7 +24,7 @@ import os
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
 # debug模式
-DEBUG = False
+DEBUG = True
 
 # debug leancloud验证
 LC_APPID = "nSyYINNelN3OJdAbblDVNWM1-MdYXbMMI"
@@ -40,3 +40,15 @@ FRIENPAGE_LINK = "https://nekodeng.gitee.io/friends/"
 # 超时(单位:秒)
 TIMEOUT = 10
 SSL = False
+
+
+# 链接处理设置
+
+# 屏蔽站点
+BLOCK_SITE = [
+    "https://example.com/",
+]
+
+# 其他设置
+# TODAY = datetime.datetime.today()
+# TIME_limit = 60

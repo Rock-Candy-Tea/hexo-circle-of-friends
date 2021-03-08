@@ -59,6 +59,7 @@ def get_data(link):
     except Exception:
         count = 0  # 重试次数
         while count < 5:
+            print(f"{link} 重试 {count+1} 次")
             try:
                 r = requests.get(url=link, headers=headers, timeout=timeout, verify=verify)
                 # 获取网页编码格式，并修改为request.text的解码类型
@@ -71,7 +72,7 @@ def get_data(link):
                     return result
             except Exception:
                 count += 1
-    finally:
+                print(f"{link} 重试 {count + 1} 次 失败！")
         return result
 
 
