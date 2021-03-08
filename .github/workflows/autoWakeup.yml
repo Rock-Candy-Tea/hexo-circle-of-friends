@@ -35,14 +35,3 @@ jobs:
         $LINK: ${{ secrets.LINK }} 
       run: | 
         python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }}  ${{ secrets.LINK }}
-        echo `date +"%Y-%m-%d %H:%M:%S"` begin > time.log
-    - name: Commit #更新日志到GitHub仓库
-      run: |
-        git config --global user.email AutoWakeUp@email.com
-        git config --global user.name AutoWakeUp
-        git add .
-        git commit -m "Successfully Wake" -a
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
