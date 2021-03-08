@@ -24,10 +24,16 @@ def butterfly_get_friendlink(friendpage_link, friend_poor):
         try:
             if len(item.find_all('img')) > 1:
                 imglist = item.find_all('img')
-                img = imglist[1].get('data-lazy-src')
+                if imglist[1].get('data-lazy-src'):
+                    img = imglist[1].get('data-lazy-src')
+                else:
+                    img = imglist[1].get('src')
             else:
                 imglist = item.find_all('img')
-                img = imglist[0].get('data-lazy-src')
+                if imglist[0].get('data-lazy-src'):
+                    img = imglist[0].get('data-lazy-src')
+                else:
+                    img = imglist[0].get('src')
         except:
             continue
         if "#" in link:
