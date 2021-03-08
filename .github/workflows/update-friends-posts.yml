@@ -1,0 +1,54 @@
+# 文章更新
+name: update-friends-posts
+
+on: 
+  release:
+    types: [published]
+  push:
+    tags: 'v*'
+  #  branches: [master, main]
+  schedule:
+    - cron: "*/30 0-15 * * *"
+  watch: #个人仓库请 取消注释这 2 行，点击 star 触发；组织仓库可选择注释这 2 行，避免出现不不要的 run
+    types: [started]
+  workflow_dispatch: # 组织仓库可选择是否注释掉这 5 行，选定对应的工作流后手动触发
+  inputs:
+    name:
+      description: '组织仓库手动触发'
+      required: false
+   
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start；组织仓库可选择注释掉这行，避免出现不不要的 run
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+    - name: Set up Python #安装python
+      uses: actions/setup-python@main
+      with:
+        python-version: 3.8
+    - name: Install requirements #安装requests
+      run: |
+        pip install -r requirements.txt
+    - name: Update posts #更新
+      env:
+        TZ: Asia/Shanghai
+        $APP_ID: ${{ secrets.APPID }} 
+        $APP_KEY: ${{ secrets.APPKEY }}
+        $LINK: ${{ secrets.LINK }} 
+      run: | 
+        python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }}  ${{ secrets.LINK }}
+        echo `date +"%Y-%m-%d %H:%M:%S"` begin > time.log
+    - name: Commit #更新日志到GitHub仓库
+      run: |
+        git config --global user.email github-actions[bot]@users.noreply.github.com
+        git config --global user.name github-actions[bot]
+        git add .
+        git commit -m "update-friends-posts" -a
+        git push
+    - name: Delete Workflow Runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 1
