@@ -31,7 +31,8 @@ LC_APPID = "nSyYINNelN3OJdAbblDVNWM1-MdYXbMMI"
 LC_APPKEY = "yxmDsLg0reOEa0DXfW8cfnee"
 
 # debug 测试用的博客地址
-FRIENPAGE_LINK = "https://nekodeng.gitee.io/friends/"
+# FRIENPAGE_LINK = "https://nekodeng.gitee.io/friends/"
+FRIENPAGE_LINK = "https://zhangyazhuang.gitee.io/link/"
 # FRIENPAGE_LINK = "https://blog.raxianch.moe/link"
 
 
@@ -40,6 +41,7 @@ FRIENPAGE_LINK = "https://nekodeng.gitee.io/friends/"
 # 超时(单位:秒)
 TIMEOUT = 10
 SSL = False
+RETRY_MAX = 5
 
 
 # 链接处理设置
