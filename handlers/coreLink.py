@@ -103,7 +103,7 @@ def github_issuse(friend_poor, config=None):
 
 
 # 从gitee获取friendlink
-def kang_api(friend_poor):
+def kang_api(friend_poor, config=None):
     print('\n')
     print('-------获取gitee友链----------')
     baselink = 'https://gitee.com'
