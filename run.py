@@ -83,14 +83,14 @@ def main():
         print('----------------------')
         if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
             try:
-                kang_api(friend_poor)
+                kang_api(friend_poor,config)
             except:
                 print('读取gitee友链失败')
         else:
             print('未开启gitee友链获取')
         if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
             try:
-                github_issuse(friend_poor)
+                github_issuse(friend_poor,config)
             except:
                 print('读取github友链失败')
         else:
