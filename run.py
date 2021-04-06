@@ -120,8 +120,7 @@ def main():
         total_count = 0
         error_count = 0
 
-        def spider():
-            nonlocal item
+        def spider(item):
             nonlocal total_count
             nonlocal post_poor
             nonlocal error_count
@@ -143,6 +142,7 @@ def main():
                 print(e)
                 error_count += 1
             item.append(error)
+            return item
         
         '''
         for item in friend_poor:
@@ -150,7 +150,6 @@ def main():
         '''
 
         # 多线程试写
-        #------------
         Q = Queue()
 
         for i in range(len(friend_poor)):
@@ -160,7 +159,7 @@ def main():
             while not Q.empty():
                 i= Q.get()
                 item = friend_poor[i]
-                spider()
+                item = spider(item)
 
         cores = 128
         threads = []
@@ -171,7 +170,6 @@ def main():
             t.start()
         for t in threads:
             t.join()
-        #-------------
 
         print('\n')
         print('----------------------')
