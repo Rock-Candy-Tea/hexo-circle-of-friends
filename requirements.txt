@@ -3,6 +3,8 @@ beautifulsoup4==4.9.3
 certifi==2020.12.5
 cffi==1.14.4
 chardet==3.0.4
+dnspython==1.16.0
+eventlet==0.30.1
 gevent==1.5.0
 greenlet==1.0.0
 idna==2.8
@@ -10,6 +12,7 @@ iso8601==0.1.14
 leancloud==2.9.0
 pycparser==2.20
 python-dateutil==2.8.1
+PyYAML==5.4.1
 qiniu==7.2.2
 requests==2.22.0
 secure-cookie==0.1.0
