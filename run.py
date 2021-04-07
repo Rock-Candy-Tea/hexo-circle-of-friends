@@ -54,6 +54,10 @@ from handlers.coreLink import sitmap_get
 from handlers.coreDatas import leancloud_push_userinfo
 from handlers.coreDatas import leancloud_push
 
+# 多线程
+from queue import Queue
+from threading import Thread
+
 
 def main():
         # 引入leancloud验证
@@ -115,7 +119,11 @@ def main():
         print('----------------------')
         total_count = 0
         error_count = 0
-        for index, item in enumerate(friend_poor):
+
+        def spider(item):
+            nonlocal total_count
+            nonlocal post_poor
+            nonlocal error_count
             error = 'false'
             try:
                 total_count += 1
@@ -134,6 +142,36 @@ def main():
                 print(e)
                 error_count += 1
             item.append(error)
+            return item
+        
+        '''
+        for item in friend_poor:
+            item = spider(item)
+        '''
+
+        # 多线程------
+        Q = Queue()
+
+        for i in range(len(friend_poor)):
+            Q.put(i)
+
+        def multitask():
+            while not Q.empty():
+                i= Q.get()
+                item = friend_poor[i]
+                item = spider(item)
+
+        cores = 128
+        threads = []
+        for _ in range(cores):
+            t = Thread(target=multitask)
+            threads.append(t)
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        # ---------------------
+
         print('\n')
         print('----------------------')
         print("一共进行%s次" % total_count)
