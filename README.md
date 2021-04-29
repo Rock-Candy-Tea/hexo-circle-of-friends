@@ -49,32 +49,32 @@
 
 ### 友链爬取函数 get_friendlink(friendpage_link, friend_poor)
 
-传入友链页面地址`friendpage`和友链列表`friend_poor`两个参数，无需返回值。
-
-对于爬取到的友链地址`user_info`中应带有如下几个值（有序）：`name`，`link`，`img/avatar`。格式如：`user_info = [name, link, img]`
-
-然后将其放入列表`frieng_poor`中：`friend_poor.append(user_info)`
+> 传入友链页面地址`friendpage`和友链列表`friend_poor`两个参数，无需返回值。
+> 
+> 对于爬取到的友链地址`user_info`中应带有如下几个值（有序）：`name`，`link`，`img/avatar`。格式如：`user_info = [name, link, img]`
+> 
+> 然后将其放入列表`frieng_poor`中：`friend_poor.append(user_info)`
 
 
 ### 最新文章爬取函数 get_last_post(user_info,post_poor)
 
-传入友链信息列表`uesr_info`（格式如上）和文章列表`post_poor`两个参数，需返回值`error`，标记是否错误
+> 传入友链信息列表`uesr_info`（格式如上）和文章列表`post_poor`两个参数，需返回值`error`，标记是否错误
+> 
+> 对于爬取到的文章信息`post_info`中应带有如下键值对：
+? 
+> ```PY
+> post_info = {
+>    'title':    , 
+>     'time':     ,
+>     'link':     ,
+>     'name':     ,
+>    'img':      
+> }
+> ```
+> 
+> 然后将其放入列表`post_poor`中：`post_poor.append(post_info)`
 
-对于爬取到的文章信息`post_info`中应带有如下键值对：
-
-```PY
-post_info = {
-    'title':    , 
-    'time':     ,
-    'link':     ,
-    'name':     ,
-    'img':      
-}
-```
-
-然后将其放入列表`post_poor`中：`post_poor.append(post_info)`
-
-> 注意函数名，变量名保持一致，否则主函数将无法正确运行
+> **注意函数名，变量名保持一致，否则主函数将无法正确运行**
 
 主函数部分只需导入对应的文件和增添对象即可，修改部分如下所示：
 
