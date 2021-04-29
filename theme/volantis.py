@@ -131,7 +131,7 @@ def gitee_issuse(friend_poor):
 
 
 # Volantis  友链规则
-def volantis_get_friendlink(friendpage_link, friend_poor):
+def get_friendlink(friendpage_link, friend_poor):
     main_content = []
     result = request.get_data(friendpage_link)
     soup = BeautifulSoup(result, 'html.parser')
@@ -181,8 +181,8 @@ def volantis_get_friendlink(friendpage_link, friend_poor):
         github_issuse(friend_poor)
 
 
-def get_last_post_from_volantis(user_info, post_poor):
-    error_sitmap = 'false'
+def get_last_post(user_info, post_poor):
+    error_sitmap = False
     link = user_info[1]
     print('\n')
     print('-------执行volantis主页规则----------')
@@ -192,7 +192,7 @@ def get_last_post_from_volantis(user_info, post_poor):
     main_content = soup.find_all('section', {"class": "post-list"})
     time_excit = soup.find_all('time')
     if main_content and time_excit:
-        error_sitmap = 'true'
+        error_sitmap = True
         link_list = main_content[0].find_all('time')
         lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
         for index, item in enumerate(link_list):
@@ -211,7 +211,7 @@ def get_last_post_from_volantis(user_info, post_poor):
             else:
                 time_created = ''
             if time_created == lasttime:
-                error_sitmap = 'false'
+                error_sitmap = False
                 print(lasttime)
                 a = item.find('a')
                 alink = a['href']
@@ -231,7 +231,7 @@ def get_last_post_from_volantis(user_info, post_poor):
                 }
                 post_poor.append(post_info)
     else:
-        error_sitmap = 'true'
+        error_sitmap = True
         print('貌似不是类似volantis主题！')
     print("-----------结束主页规则----------")
     print('\n')

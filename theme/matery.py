@@ -5,7 +5,7 @@ import datetime
 from request_data import request
 
 # matery 友链规则
-def matery_get_friendlink(friendpage_link, friend_poor):
+def get_friendlink(friendpage_link, friend_poor):
     result = request.get_data(friendpage_link)
     soup = BeautifulSoup(result, 'html.parser')
     main_content = soup.find_all('div', {"class": "friend-div"})
@@ -30,8 +30,8 @@ def matery_get_friendlink(friendpage_link, friend_poor):
             friend_poor.append(user_info)
 
 # 从matery主页获取文章
-def get_last_post_from_matery(user_info,post_poor):
-            error_sitmap = 'false'
+def get_last_post(user_info,post_poor):
+            error_sitmap = False
             link = user_info[1]
             print('\n')
             print('-------执行matery主页规则----------')
@@ -41,7 +41,7 @@ def get_last_post_from_matery(user_info,post_poor):
             main_content = soup.find_all(id='articles')
             time_excit = soup.find_all('span',{"class": "publish-date"})
             if main_content and time_excit:
-                error_sitmap = 'true'
+                error_sitmap = True
                 link_list = main_content[0].find_all('span', {"class": "publish-date"})
                 lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
                 for index, item in enumerate(link_list):
@@ -57,7 +57,7 @@ def get_last_post_from_matery(user_info,post_poor):
                 for item in last_post_list:
                     time_created = item.find('span', {"class": "publish-date"}).text.strip()
                     if time_created == lasttime:
-                        error_sitmap = 'false'
+                        error_sitmap = False
                         print(lasttime)
                         a = item.find('a')
                         # print(item.find('a'))
@@ -78,7 +78,7 @@ def get_last_post_from_matery(user_info,post_poor):
                         }
                         post_poor.append(post_info)
             else:
-                error_sitmap = 'true'
+                error_sitmap = True
                 print('貌似不是类似matery主题！')
             print("-----------结束matery主页规则----------")
             print('\n')

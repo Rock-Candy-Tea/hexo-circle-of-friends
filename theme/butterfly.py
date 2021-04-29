@@ -5,7 +5,7 @@ import datetime
 from request_data import request
 
 # butterfly 友链规则
-def butterfly_get_friendlink(friendpage_link, friend_poor):
+def get_friendlink(friendpage_link, friend_poor):
     result = request.get_data(friendpage_link)
     soup = BeautifulSoup(result, 'html.parser')
     main_content = soup.find_all(id='article-container')
@@ -53,8 +53,8 @@ def butterfly_get_friendlink(friendpage_link, friend_poor):
             friend_poor.append(user_info)
 
 # 从butterfly主页获取文章
-def get_last_post_from_butterfly(user_info,post_poor):
-            error_sitmap = 'false'
+def get_last_post(user_info,post_poor):
+            error_sitmap = False
             link = user_info[1]
             print('\n')
             print('-------执行butterfly主页规则----------')
@@ -64,7 +64,7 @@ def get_last_post_from_butterfly(user_info,post_poor):
             main_content = soup.find_all(id='recent-posts')
             time_excit = soup.find_all('time')
             if main_content and time_excit:
-                error_sitmap = 'true'
+                error_sitmap = True
                 link_list = main_content[0].find_all('time', {"class": "post-meta-date-created"})
                 if link_list == []:
                     print('该页面无文章生成日期')
@@ -88,7 +88,7 @@ def get_last_post_from_butterfly(user_info,post_poor):
                     else:
                         time_created = item
                     if time_created.find(text=lasttime):
-                        error_sitmap = 'false'
+                        error_sitmap = False
                         print(lasttime)
                         a = item.find('a')
                         # print(item.find('a'))
@@ -109,7 +109,7 @@ def get_last_post_from_butterfly(user_info,post_poor):
                         }
                         post_poor.append(post_info)
             else:
-                error_sitmap = 'true'
+                error_sitmap = True
                 print('貌似不是类似butterfly主题！')
             print("-----------结束butterfly主页规则----------")
             print('\n')
