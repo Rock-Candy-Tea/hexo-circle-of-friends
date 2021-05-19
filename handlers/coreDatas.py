@@ -136,11 +136,11 @@ def leancloud_push(post_poor):
     query_list = query_leancloud()
 
     # 重复审查
-    def repeat(name):
+    def repeat(link):
         upload = 'true'
         for query_item in query_list:
-            title = query_item.get('title')
-            if name == title:
+            url = query_item.get('link')
+            if link == url:
                 upload = 'false'
         return upload
 
@@ -152,7 +152,7 @@ def leancloud_push(post_poor):
         friendpoor.set('link', item['link'])
         friendpoor.set('author', item['name'])
         friendpoor.set('headimg', item['img'])
-        upload = repeat(item['title'])
+        upload = repeat(item['link'])
         if upload == 'true':
             try:
                 friendpoor.save()

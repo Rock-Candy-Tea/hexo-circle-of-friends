@@ -14,7 +14,7 @@ import leancloud
 import sys
 
 # component
-from theme import butterfly,matery,volantis
+from theme import butterfly,matery,volantis,sakura
 
 # handlers
 from handlers.coreSettings import configs
@@ -36,7 +36,8 @@ from threading import Thread
 themes = [
     butterfly,
     matery,
-    volantis
+    volantis,
+    sakura
 ]
 
 # ---------- #
@@ -91,22 +92,26 @@ def get_post(friend_poor):
         nonlocal total_count
         nonlocal post_poor
         nonlocal error_count
-        error = False
+        error = True
         try:
             total_count += 1
-            for themelinkfun in themes:
-                if error:
-                    break
-                error = themelinkfun.get_last_post(item, post_poor)
+            error, post_poor = sitmap_get(item, post_poor)
             if error:
-                print("-----------获取主页信息失败，采取sitemap策略----------")
-                error, post_poor = sitmap_get(item, post_poor)
+                print("-----------获取sitemap信息失败，采取主页爬虫策略----------")
+                for themelinkfun in themes:
+                    if not error:
+                        break
+                    error = themelinkfun.get_last_post(item, post_poor)
+                
         except Exception as e:
             print('\n')
             print(item, "运用主页及sitemap爬虫爬取失败！请检查")
             print('\n')
             print(e)
             error_count += 1
+        
+        if error: error = 'true'
+        else: error = 'false'
         item.append(error)
         return item
 

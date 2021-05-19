@@ -160,7 +160,7 @@ def sitmap_get(user_info, post_poor, config=config.yml):
     print('-------执行sitemap规则----------')
     print('执行链接：', user_info[1])
     link = user_info[1]
-    error_sitmap = 'false'
+    error_sitmap = False
     try:
         result = request.get_data(link + '/sitemap.xml')
         soup = BeautifulSoup(result, 'html.parser')
@@ -183,7 +183,7 @@ def sitmap_get(user_info, post_poor, config=config.yml):
 
         new_link_list.sort(key=takeSecond, reverse=True)
         if len(url) == 0:
-            error_sitmap = 'true'
+            error_sitmap = True
             print('该网站可能没有sitemap')
         block_word = config['setting']['block_word']
         new_loc = []
@@ -263,13 +263,13 @@ def sitmap_get(user_info, post_poor, config=config.yml):
                     print(e.__traceback__.tb_frame.f_globals["__file__"])
                     print(e.__traceback__.tb_lineno)
                     print('网站不包含规范的时间格式！')
-                    error_sitmap = 'true'
+                    error_sitmap = True
     except Exception as e:
         print('无法请求sitemap')
         print(e)
         print(e.__traceback__.tb_frame.f_globals["__file__"])
         print(e.__traceback__.tb_lineno)
-        error_sitmap = 'true'
+        error_sitmap = True
     print('-----------结束sitemap规则----------')
     print('\n')
     return error_sitmap, post_poor
