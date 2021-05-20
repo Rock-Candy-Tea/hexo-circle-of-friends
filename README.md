@@ -8,9 +8,9 @@
 
 ```
 目前 release 1.18 版本：
-① 支持butterfly、volantis、matery、sakura主题的友链获取
+① 支持butterfly、volantis、matery主题的友链获取
 ② 支持小康友链及 volantis 主题友链，即部署于 gitee 上的 issuse 友链获取
-③ 支持 butterfly、volantis、matery、sakura 主题的最新文章获取
+③ 支持 butterfly、volantis、matery 主题的最新文章获取
 ④ 支持大部分拥有 sitemap 网站的文章获取
 ⑤ 拥有友链屏蔽、关键词屏蔽、等自定义 yaml 的配置项
 ⑥ 代码重构并规范化，便于二次开发
@@ -86,14 +86,13 @@ bug修复
 
 ```PY
 # component
-from theme import butterfly,matery,volantis,sakura
+from theme import butterfly,matery,volantis
 
 # theme fit massage
 themes = [
     butterfly,
     matery,
-    volantis,
-    sakura
+    volantis
 ]
 ```
 

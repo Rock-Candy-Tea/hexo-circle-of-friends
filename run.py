@@ -14,7 +14,7 @@ import leancloud
 import sys
 
 # component
-from theme import butterfly,matery,volantis,sakura
+from theme import butterfly,matery,volantis
 
 # handlers
 from handlers.coreSettings import configs
@@ -36,8 +36,7 @@ from threading import Thread
 themes = [
     butterfly,
     matery,
-    volantis,
-    sakura
+    volantis
 ]
 
 # ---------- #
