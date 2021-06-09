@@ -33,4 +33,4 @@ setting:
     - '绒布球'
 
   block_site: # 屏蔽站点
-    - https://example.com/
+    - 'https://example.com/'

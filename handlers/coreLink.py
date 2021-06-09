@@ -23,16 +23,17 @@ def delete_same_link(orign_friend_poordic):
             friend_poordic.append(item)
         else:
             print('-----------------')
-            print('重复1条友链链接，已删除')
+            print('重复1条友链链接，已删除！链接为：', item[1])
             print('-----------------')
     return friend_poordic
 
 
 # 链接屏蔽
-def block_link(orign_friend_poordic):
+def block_link(orign_friend_poordic, config = config.yml):
     friend_poordic = []
+    block_site = config['setting']['block_site']
     for item in orign_friend_poordic:
-        if item[1] not in config.BLOCK_SITE:
+        if item[1] not in block_site:
             friend_poordic.append(item)
         else:
             print('-----------------')
