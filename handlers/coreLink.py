@@ -30,8 +30,10 @@ def delete_same_link(orign_friend_poordic):
 
 # 链接屏蔽
 def block_link(orign_friend_poordic, config = config.yml):
+    from handlers.coreSettings import configs
     friend_poordic = []
-    block_site = config['setting']['block_site']
+    # block_site = config['setting']['block_site']
+    block_site = configs.BLOCK_SITE
     for item in orign_friend_poordic:
         if item[1] not in block_site:
             friend_poordic.append(item)
@@ -157,6 +159,7 @@ def kang_api(friend_poor, config=None):
 # 请求连接
 # 通过sitemap请求
 def sitmap_get(user_info, post_poor, config=config.yml):
+    from handlers.coreSettings import configs
     print('\n')
     print('-------执行sitemap规则----------')
     print('执行链接：', user_info[1])
@@ -186,7 +189,8 @@ def sitmap_get(user_info, post_poor, config=config.yml):
         if len(url) == 0:
             error_sitmap = True
             print('该网站可能没有sitemap')
-        block_word = config['setting']['block_word']
+        # block_word = config['setting']['block_word']
+        block_word = configs.BLOCK_WORD
         new_loc = []
         new_loc_time = []
         for item in new_link_list:
@@ -243,7 +247,8 @@ def sitmap_get(user_info, post_poor, config=config.yml):
                     soup = BeautifulSoup(result, 'html.parser')
                     title = soup.find('title')
                     strtitle = title.text
-                    block_chars = config['setting']['block_chars']
+                    # block_chars = config['setting']['block_chars']
+                    block_chars = configs.BLOCK_CHARS
                     for item in block_chars:
                         titlesplit = strtitle.split(item, 1)
                         strtitle = titlesplit[0].strip()

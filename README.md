@@ -51,6 +51,14 @@ bug修复
 * 程序的整体执行流程；
 * 打印执行信息.
 
+## 注意
+* request_data 即将移除;
+> 日后开发者,避免去是用 request_data 路径下的任何东西.
+
+* 更高层级 handlers(处理器) coreRequest(推荐) 或使用 component(组件)中 getWeb 来作为替代 
+
+
+
 ## 主题爬虫适配
 
 请在`theme`文件夹处增添以主题名命名的`.py`文件，文件中至少包含以下两个函数：

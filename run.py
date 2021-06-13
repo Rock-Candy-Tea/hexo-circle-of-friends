@@ -7,6 +7,34 @@ vindicator:
  - Zour     : https://github.com/Zfour
  - RaXianch : https://github.com/DeSireFire
  - noionion : https://github.com/2X-ercha
+
+主程序
+
+业务流程：
+主程序-->（处理器handlers）控件—->组件(component)
+
+组件作为最底层，单向调用。
+处理器可以调用组件，组件不可以反向调用处理器或主程序里的代码块。
+避免产生双向调用，执行流程不清。
+
+处理器之间，不能互相调用。
+避免出现处理器相互依赖，做到移除单一处理器时，不会导致其他处理器出错。
+(特例：coreSettings.py，其他处理器可以单向调用coreSettings.py的值，
+但coreSettings.py不能调用其他处理器的函数/类来处理)。
+处理器避免直接调用外部settings.py里的参数，而是使用coreSettings.py来调用设置的值。
+如要全局设置中的值，由coreSettings.py处理器统筹，使调用收束。
+
+主程序
+只负责：
+调用处理器；
+程序的整体执行流程；
+打印执行信息.
+
+todo:
+request_data 组件化
+request_data 多线程
+theme 组件化
+
 '''
 
 from operator import itemgetter
@@ -31,6 +59,8 @@ from queue import Queue
 from threading import Thread
 
 # ---------- #
+
+
 
 # theme fit massage
 themes = [
@@ -59,18 +89,20 @@ def get_link(friendpage_link, config):
     friend_poor = []
 
     #　get gitee_issue
-    if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
+    # if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
+    if configs.gitee_friends_links['enable'] and configs.gitee_friends_links['type'] == 'normal':
         try:
-            kang_api(friend_poor,config)
+            kang_api(friend_poor, config)
         except:
             print('读取gitee友链失败')
     else:
         print('未开启gitee友链获取')
     
     # get github_issue
-    if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
+    # if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
+    if configs.github_friends_links['enable'] and configs.github_friends_links['type'] == 'normal':
         try:
-            github_issuse(friend_poor,config)
+            github_issuse(friend_poor, config)
         except:
             print('读取github友链失败')
 

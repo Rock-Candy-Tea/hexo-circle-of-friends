@@ -19,7 +19,9 @@ print(config.yml)
 """
 import os
 
-
+"""
+综合 设置
+"""
 # 项目ROOT地址
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -35,7 +37,9 @@ LC_APPKEY = "yxmDsLg0reOEa0DXfW8cfnee"
 FRIENPAGE_LINK = "https://zhangyazhuang.gitee.io/link/"
 # FRIENPAGE_LINK = "https://blog.raxianch.moe/link"
 
-
+"""
+处理器 设置
+"""
 # 网页请求器
 # TODO 未实装
 # 超时(单位:秒)
@@ -44,13 +48,54 @@ SSL = False
 RETRY_MAX = 5
 
 
-# 链接处理设置
+
+"""
+功能 设置
+"""
+# github友链配置
+github_friends_links = {
+    "enable": False,    # True 开启gitee issue兼容
+    "type": "normal",  # volantis用户请在这里填写 volantis
+    "owner": "Zfour",  # 填写你的github用户名
+    "repo": "zfour-friends",  # 填写你的github仓库名
+    "state": "open"  # 填写抓取的issue状态(open/closed)
+}
+
+# gitee友链配置
+gitee_friends_links = {
+    "enable": False,    # True 开启gitee issue兼容
+    "type": "normal",  # volantis用户请在这里填写 volantis
+    "owner": "Zfour",  # 填写你的github用户名
+    "repo": "zfour-friends",  # 填写你的github仓库名
+    "state": "open"  # 填写抓取的issue状态(open/closed)
+}
 
 # 屏蔽站点
 BLOCK_SITE = [
     "https://example.com/",
 ]
 
-# 其他设置
+# 屏蔽sitemap链接关键词
+BLOCK_WORD = [
+    "index",
+    "json",
+    "tags",
+    "categories",
+    "record",
+    "sort",
+]
+
+# 屏蔽sitemap获取标题的分割字符
+BLOCK_CHARS = [
+    "|",
+    "::",
+    "-",
+    "·",
+]
+
+"""
+其他设置
+"""
 # TODAY = datetime.datetime.today()
 # TIME_limit = 60
+
