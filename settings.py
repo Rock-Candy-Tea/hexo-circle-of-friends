@@ -53,7 +53,7 @@ RETRY_MAX = 5
 功能 设置
 """
 # github友链配置
-github_friends_links = {
+GITHUB_FRIENDS_LINKS = {
     "enable": False,    # True 开启gitee issue兼容
     "type": "normal",  # volantis用户请在这里填写 volantis
     "owner": "Zfour",  # 填写你的github用户名
@@ -62,7 +62,7 @@ github_friends_links = {
 }
 
 # gitee友链配置
-gitee_friends_links = {
+GITEE_FRIENDS_LINKS = {
     "enable": False,    # True 开启gitee issue兼容
     "type": "normal",  # volantis用户请在这里填写 volantis
     "owner": "Zfour",  # 填写你的github用户名

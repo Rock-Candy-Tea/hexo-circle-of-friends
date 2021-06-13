@@ -129,6 +129,7 @@ def get_data(link, headers=None, timeout=None, verify=False):
         # 获取网页编码格式，并修改为request.text的解码类型
         char = contentChardetMiddleware()
         r.encoding = char.encoding_2_encoding(chardet.detect(r.content)['encoding'])
+        print(r.text)
 
         # 网页请求OK或者请求得到的内容过少，判断为连接失败
         if (not r.ok) or len(r.content) < 500 or r.status_code > 400:

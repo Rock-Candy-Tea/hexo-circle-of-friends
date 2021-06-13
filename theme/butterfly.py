@@ -2,8 +2,12 @@
 import requests
 from bs4 import BeautifulSoup
 import datetime
+
 # from request_data import request
-from request_data import request
+
+from handlers import coreRequest as getWeb
+# 或者
+from component import getWeb as request
 
 # butterfly 友链规则
 def get_friendlink(friendpage_link, friend_poor):

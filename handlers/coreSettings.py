@@ -29,6 +29,7 @@ class loading_configs(object):
         # 并将变量初始化为loading_configs的内部变量
         temp = [i if i.isupper() else None for i in dir(settings)]
         temp = list(filter(None, temp))
+        print(temp)
         for k in temp:
             setattr(self, k, getattr(settings, k))
 

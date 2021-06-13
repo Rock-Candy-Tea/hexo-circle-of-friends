@@ -90,7 +90,7 @@ def get_link(friendpage_link, config):
 
     #　get gitee_issue
     # if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
-    if configs.gitee_friends_links['enable'] and configs.gitee_friends_links['type'] == 'normal':
+    if configs.GITEE_FRIENDS_LINKS['enable'] and configs.GITEE_FRIENDS_LINKS['type'] == 'normal':
         try:
             kang_api(friend_poor, config)
         except:
@@ -100,7 +100,7 @@ def get_link(friendpage_link, config):
     
     # get github_issue
     # if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
-    if configs.github_friends_links['enable'] and configs.github_friends_links['type'] == 'normal':
+    if configs.GITHUB_FRIENDS_LINKS['enable'] and configs.GITHUB_FRIENDS_LINKS['type'] == 'normal':
         try:
             github_issuse(friend_poor, config)
         except:

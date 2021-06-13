@@ -20,7 +20,7 @@ class reRequest(object):
     def __init__(self):
         self.timeout = configs.TIMEOUT
         self.reTry = configs.RETRY_MAX
-        self.verify = configs.VERIFY
+        self.verify = configs.SSL
         self.headers = None
 
     def thread_load_web(self, urls,  inspectStr=None):
@@ -32,7 +32,8 @@ class reRequest(object):
         verify = self.verify
         for u in urls:
             # 进程列表生成
-            t = thread_callback(get_data, (u, headers, timeout, reTry, verify))
+            # t = thread_callback(get_data, (u, headers, timeout, reTry, verify))
+            t = thread_callback(get_data, (u, headers, timeout, verify))
             threads.append(t)
             resData[u] = None
 
@@ -47,3 +48,10 @@ class reRequest(object):
             # info = '[%s/%s]' % (i + 1, len(urls))
             # logger.info(info)
         return resData
+
+# 使用示范
+if __name__ == '__main__':
+    urls = ["www.baidu.com", "www.bilibili.com"]
+    request = reRequest()
+    res = request.thread_load_web(urls)
+    print(res)
