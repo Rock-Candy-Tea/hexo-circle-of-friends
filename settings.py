@@ -73,6 +73,7 @@ GITEE_FRIENDS_LINKS = {
 # 屏蔽站点
 BLOCK_SITE = [
     "https://example.com/",
+    "https://blog.cyfan.top/"
 ]
 
 # 屏蔽sitemap链接关键词
