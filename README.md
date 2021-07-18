@@ -7,11 +7,11 @@
 ![](https://cdn.nlark.com/yuque/0/2021/png/8391485/1612877553087-3087b091-93ce-40fd-a49f-8baf0f0f49c4.png#align=left&display=inline&height=521&margin=%5Bobject%20Object%5D&name=image.png&originHeight=521&originWidth=386&size=161076&status=done&style=none&width=386)
 
 ```
-目前 release 1.19 版本：
+目前 release 2.0 版本：
 ① 支持butterfly、volantis、matery、sakura、fluid主题的友链获取
 ② 支持小康友链及 volantis 主题友链，即部署于 gitee 上的 issuse 友链获取
 ③ 支持 butterfly、volantis、matery、sakura、fluid主题的最新文章获取
-④ 支持大部分拥有 sitemap 网站的文章获取
+④ 去除sitemap，新增目前最通用的atom和rss规则
 ⑤ 拥有友链屏蔽、关键词屏蔽、等自定义 yaml 的配置项
 ⑥ 代码重构并规范化，便于二次开发
 
@@ -21,6 +21,7 @@ bug修复
 ③ sitemap重新置后（不通用）
 ④ hexo-theme-sakura主题两种时间格式引发错误
 ⑤ 屏蔽链接修复
+⑥ sitemap的各种问题
 ```
 预览链接：https://noionion.top/friendcircle/
 
@@ -80,11 +81,12 @@ bug修复
 ? 
 > ```PY
 > post_info = {
->    'title':    , 
+>     'title':    , 
 >     'time':     ,
 >     'link':     ,
 >     'name':     ,
->    'img':      
+>     'img':      ,
+>     'rule':{themename}
 > }
 > ```
 > 
