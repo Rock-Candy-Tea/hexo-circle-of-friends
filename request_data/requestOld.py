@@ -29,9 +29,9 @@ def get_data(link):
         if str(r) == '<Response [404]>':
             result = 'error'
     except Exception as e:
-        print(e)
-        print(e.__traceback__.tb_frame.f_globals["__file__"])
-        print(e.__traceback__.tb_lineno)
+        # print(e)
+        # print(e.__traceback__.tb_frame.f_globals["__file__"])
+        # print(e.__traceback__.tb_lineno)
     return result
 
 if __name__ == '__main__':

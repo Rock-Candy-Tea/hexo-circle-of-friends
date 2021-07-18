@@ -5,8 +5,6 @@ import datetime
 
 # from request_data import request
 
-from handlers import coreRequest as getWeb
-# 或者
 from component import getWeb as request
 
 # butterfly 友链规则
@@ -61,9 +59,9 @@ def get_friendlink(friendpage_link, friend_poor):
 def get_last_post(user_info,post_poor):
             error_sitmap = False
             link = user_info[1]
-            print('\n')
-            print('-------执行butterfly主页规则----------')
-            print('执行链接：', link)
+            # print('\n')
+            # print('-------执行butterfly主页规则----------')
+            # print('执行链接：', link)
             result = request.get_data(link)
             soup = BeautifulSoup(result, 'html.parser')
             main_content = soup.find_all(id='recent-posts')
@@ -72,10 +70,10 @@ def get_last_post(user_info,post_poor):
                 error_sitmap = True
                 link_list = main_content[0].find_all('time', {"class": "post-meta-date-created"})
                 if link_list == []:
-                    print('该页面无文章生成日期')
+                    # print('该页面无文章生成日期')
                     link_list = main_content[0].find_all('time')
-                else:
-                    print('该页面有文章生成日期')
+                # else:
+                    # print('该页面有文章生成日期')
                 lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
                 for index, item in enumerate(link_list):
                     time = item.text
@@ -84,7 +82,7 @@ def get_last_post(user_info,post_poor):
                     if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                         lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
                 lasttime = lasttime.strftime('%Y-%m-%d')
-                print('最新时间是', lasttime)
+                # print('最新时间是', lasttime)
                 last_post_list = main_content[0].find_all('div', {"class": "recent-post-info"})
                 for item in last_post_list:
                     time_created = item.find('time', {"class": "post-meta-date-created"})
@@ -94,28 +92,29 @@ def get_last_post(user_info,post_poor):
                         time_created = item
                     if time_created.find(text=lasttime):
                         error_sitmap = False
-                        print(lasttime)
+                        # print(lasttime)
                         a = item.find('a')
-                        # print(item.find('a'))
+                        # # print(item.find('a'))
                         alink = a['href']
                         alinksplit = alink.split("/", 1)
                         stralink = alinksplit[1].strip()
                         if link[-1] != '/':
                             link = link + '/'
-                        print(a.text.encode("gbk", 'ignore').decode('gbk', 'ignore'))
-                        print(link + stralink)
-                        print("-----------获取到匹配结果----------")
+                        # print(a.text.encode("gbk", 'ignore').decode('gbk', 'ignore'))
+                        # print(link + stralink)
+                        # print("-----------获取到匹配结果----------")
                         post_info = {
                             'title': a.text,
                             'time': lasttime,
                             'link': link + stralink,
                             'name': user_info[0],
-                            'img': user_info[2]
+                            'img': user_info[2],
+                            'rule': "butterfly"
                         }
                         post_poor.append(post_info)
             else:
                 error_sitmap = True
-                print('貌似不是类似butterfly主题！')
-            print("-----------结束butterfly主页规则----------")
-            print('\n')
+                # print('貌似不是类似butterfly主题！')
+            # print("-----------结束butterfly主页规则----------")
+            # print('\n')
             return error_sitmap

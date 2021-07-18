@@ -29,7 +29,7 @@ class loading_configs(object):
         # 并将变量初始化为loading_configs的内部变量
         temp = [i if i.isupper() else None for i in dir(settings)]
         temp = list(filter(None, temp))
-        print(temp)
+        # print(temp)
         for k in temp:
             setattr(self, k, getattr(settings, k))
 
@@ -50,11 +50,11 @@ class loading_configs(object):
         :return: None
         """
         if self.DEBUG == True or not self.DEBUG:
-            print("当前设置为 debug 模式")
+            # print("当前设置为 debug 模式")
             if platform.system().lower() == 'windows':
                 self.DEBUG = True
             elif platform.system().lower() == 'linux':
-                print("检测运行环境为linux,调整非debug模式")
+                # print("检测运行环境为linux,调整非debug模式")
                 self.DEBUG = False
             else:
                 self.DEBUG = False
@@ -71,4 +71,4 @@ if __name__ == '__main__':
     # temp = list(filter(None, temp))
 
     config = loading_configs()
-    print(config.debug_check)
+    # print(config.debug_check)

@@ -129,7 +129,7 @@ def get_data(link, headers=None, timeout=None, verify=False):
         # 获取网页编码格式，并修改为request.text的解码类型
         char = contentChardetMiddleware()
         r.encoding = char.encoding_2_encoding(chardet.detect(r.content)['encoding'])
-        print(r.text)
+        # # print(r.text)
 
         # 网页请求OK或者请求得到的内容过少，判断为连接失败
         if (not r.ok) or len(r.content) < 500 or r.status_code > 400:
@@ -141,7 +141,7 @@ def get_data(link, headers=None, timeout=None, verify=False):
     except Exception:
         count = 0  # 重试次数
         while count < 5:
-            print(f"{link} 重试 {count+1} 次")
+            # print(f"{link} 重试 {count+1} 次")
             try:
                 r = requests.get(url=link, headers=headers, timeout=timeout, verify=verify)
                 # 获取网页编码格式，并修改为request.text的解码类型
@@ -154,7 +154,7 @@ def get_data(link, headers=None, timeout=None, verify=False):
                     return result
             except Exception:
                 count += 1
-                print(f"{link} 重试 {count + 1} 次 失败！")
+                # print(f"{link} 重试 {count + 1} 次 失败！")
         return result
 
 

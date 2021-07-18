@@ -73,50 +73,50 @@ def main():
         config = configs.yml
 
         # 执行主方法
-        print('----------------------')
-        print('-----------！！开始执行爬取文章任务！！----------')
-        print('----------------------')
-        print('\n')
+        # print('----------------------')
+        # print('-----------！！开始执行爬取文章任务！！----------')
+        # print('----------------------')
+        # print('\n')
         # 分离到handlers.coreDatas.py
         # today = datetime.datetime.today()
         # time_limit = 60
         friend_poor = []
         post_poor = []
-        print('----------------------')
-        print('-----------！！开始执行友链获取任务！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！开始执行友链获取任务！！----------')
+        # print('----------------------')
         if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
             try:
                 kang_api(friend_poor,config)
             except:
-                print('读取gitee友链失败')
+                # print('读取gitee友链失败')
         else:
-            print('未开启gitee友链获取')
+            # print('未开启gitee友链获取')
         if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
             try:
                 github_issuse(friend_poor,config)
             except:
-                print('读取github友链失败')
+                # print('读取github友链失败')
         else:
-            print('未开启gihub友链获取')
+            # print('未开启gihub友链获取')
         try:
             butterfly.butterfly_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是butterfly主题')
+            # print('不是butterfly主题')
         try:
             matery.matery_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是matery主题')
+            # print('不是matery主题')
         try:
             volantis.volantis_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是volantis主题或未配置gitee友链')
+            # print('不是volantis主题或未配置gitee友链')
         friend_poor = delete_same_link(friend_poor)
         friend_poor = block_link(friend_poor)
-        print('当前友链数量', len(friend_poor))
-        print('----------------------')
-        print('-----------！！结束友链获取任务！！----------')
-        print('----------------------')
+        # print('当前友链数量', len(friend_poor))
+        # print('----------------------')
+        # print('-----------！！结束友链获取任务！！----------')
+        # print('----------------------')
         total_count = 0
         error_count = 0
 
@@ -133,13 +133,13 @@ def main():
                 if error == 'true':
                     error = volantis.get_last_post_from_volantis(item, post_poor)
                 if error == 'true':
-                    print("-----------获取主页信息失败，采取sitemap策略----------")
+                    # print("-----------获取主页信息失败，采取sitemap策略----------")
                     error, post_poor = sitmap_get(item, post_poor)
             except Exception as e:
-                print('\n')
-                print(item, "运用主页及sitemap爬虫爬取失败！请检查")
-                print('\n')
-                print(e)
+                # print('\n')
+                # print(item, "运用主页及sitemap爬虫爬取失败！请检查")
+                # print('\n')
+                # print(e)
                 error_count += 1
             item.append(error)
             return item
@@ -172,27 +172,27 @@ def main():
             t.join()
         # ---------------------
 
-        print('\n')
-        print('----------------------')
-        print("一共进行%s次" % total_count)
-        print("一共失败%s次" % error_count)
-        print('----------------------')
-        print('\n')
-        print('----------------------')
-        print('-----------！！执行用户信息上传！！----------')
-        print('----------------------')
+        # print('\n')
+        # print('----------------------')
+        # print("一共进行%s次" % total_count)
+        # print("一共失败%s次" % error_count)
+        # print('----------------------')
+        # print('\n')
+        # print('----------------------')
+        # print('-----------！！执行用户信息上传！！----------')
+        # print('----------------------')
         leancloud_push_userinfo(friend_poor)
-        print('----------------------')
-        print('-----------！！用户信息上传完毕！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！用户信息上传完毕！！----------')
+        # print('----------------------')
         post_poor.sort(key=itemgetter('time'), reverse=True)
-        print('----------------------')
-        print('-----------！！执行文章信息上传！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！执行文章信息上传！！----------')
+        # print('----------------------')
         leancloud_push(post_poor)
-        print('----------------------')
-        print('-----------！！文章信息上传完毕！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！文章信息上传完毕！！----------')
+        # print('----------------------')
 
 if __name__ == '__main__':
     main()

@@ -13,10 +13,10 @@ __author__ = 'RaXianch'
 from handlers.coreSettings import configs as config
 
 # settings.py变量的使用
-print(config.BASE_PATH)
+# print(config.BASE_PATH)
 
 # 载入的yml文件的使用
-print(config.yml)
+# print(config.yml)
 
 if __name__ == '__main__':
     pass

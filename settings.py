@@ -11,10 +11,10 @@
 from handlers.coreSettings import config
 
 # settings.py变量的使用
-print(config.BASE_PATH)
+# print(config.BASE_PATH)
 
 # 载入的yml文件的使用,数据结构与原来一致
-print(config.yml)
+# print(config.yml)
 
 """
 import os
@@ -45,7 +45,7 @@ FRIENPAGE_LINK = "https://zhangyazhuang.gitee.io/link/"
 # 超时(单位:秒)
 TIMEOUT = 10
 SSL = False
-RETRY_MAX = 5
+RETRY_MAX = 3
 
 
 
@@ -89,7 +89,6 @@ BLOCK_WORD = [
 BLOCK_CHARS = [
     "|",
     "::",
-    "-",
     "·",
 ]
 

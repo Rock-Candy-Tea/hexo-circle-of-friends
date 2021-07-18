@@ -54,4 +54,4 @@ if __name__ == '__main__':
     urls = ["www.baidu.com", "www.bilibili.com"]
     request = reRequest()
     res = request.thread_load_web(urls)
-    print(res)
+    # print(res)

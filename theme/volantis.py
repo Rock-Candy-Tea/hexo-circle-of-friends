@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import datetime
 import yaml
-from request_data import request
+from component import getWeb as request
 
 def load_config():
     f = open('_config.yml', 'r',encoding='utf-8')
@@ -13,17 +13,17 @@ def load_config():
     return ymllist
 
 def github_issuse(friend_poor):
-    print('\n')
-    print('-------获取volantis-github友链----------')
+    # print('\n')
+    # print('-------获取volantis-github友链----------')
     baselink = 'https://github.com/'
     errortimes = 0
     config = load_config()
-    print('owner:', config['setting']['github_friends_links']['owner'])
-    print('repo:', config['setting']['github_friends_links']['repo'])
-    print('state:', config['setting']['github_friends_links']['state'])
+    # print('owner:', config['setting']['github_friends_links']['owner'])
+    # print('repo:', config['setting']['github_friends_links']['repo'])
+    # print('state:', config['setting']['github_friends_links']['state'])
     try:
         for number in range(1, 100):
-            print(number)
+            # print(number)
             github = request.get_data('https://github.com/' +
                              config['setting']['github_friends_links']['owner'] +
                              '/' +
@@ -33,8 +33,8 @@ def github_issuse(friend_poor):
             main_content = soup.find_all('div',{'aria-label': 'Issues'})
             linklist = main_content[0].find_all('a', {'class': 'Link--primary'})
             if len(linklist) == 0:
-                print('爬取完毕')
-                print('失败了%r次' % errortimes)
+                # print('爬取完毕')
+                # print('失败了%r次' % errortimes)
                 break
             for item in linklist:
                 issueslink = baselink + item['href']
@@ -52,48 +52,49 @@ def github_issuse(friend_poor):
                     errortimes += 1
                     continue
     except Exception as e:
-        print('爬取完毕', e)
-        print(e.__traceback__.tb_frame.f_globals["__file__"])
-        print(e.__traceback__.tb_lineno)
+        pass
+        # print('爬取完毕', e)
+        # print(e.__traceback__.tb_frame.f_globals["__file__"])
+        # print(e.__traceback__.tb_lineno)
 
-    print('------结束volantis-github友链获取----------')
-    print('\n')
+    # print('------结束volantis-github友链获取----------')
+    # print('\n')
 
 # gitee适配
 def reg(info_list, user_info, source):
-    print('----')
+    # print('----')
     for item in info_list:
         reg = re.compile('(?<=' + item + ': ).*')
         result = re.findall(reg, str(source))
         result = result[0].replace('\r', '')
-        print(result)
+        # print(result)
         user_info.append(result)
 
 
 def reg_volantis(info_list, user_info, source):
-    print('----')
+    # print('----')
     for item in info_list:
         reg = re.compile('(?<=' + item + '": ).*')
         result = re.findall(reg, str(source))
         result = result[0].replace('\r', '')
         result = result.replace('"', '')
         result = result.replace(',', '')
-        print(result)
+        # print(result)
         user_info.append(result)
 
 
 def gitee_issuse(friend_poor):
-    print('\n')
-    print('-------获取volantis-gitee友链----------')
+    # print('\n')
+    # print('-------获取volantis-gitee友链----------')
     baselink = 'https://gitee.com'
     errortimes = 0
     config = load_config()
-    print('owner:', config['setting']['gitee_friends_links']['owner'])
-    print('repo:', config['setting']['gitee_friends_links']['repo'])
-    print('state:', config['setting']['gitee_friends_links']['state'])
+    # print('owner:', config['setting']['gitee_friends_links']['owner'])
+    # print('repo:', config['setting']['gitee_friends_links']['repo'])
+    # print('state:', config['setting']['gitee_friends_links']['state'])
     try:
         for number in range(1, 100):
-            print(number)
+            # print(number)
             gitee = request.get_data('https://gitee.com/' +
                              config['setting']['gitee_friends_links']['owner'] +
                              '/' +
@@ -103,8 +104,8 @@ def gitee_issuse(friend_poor):
             main_content = soup.find_all(id='git-issues')
             linklist = main_content[0].find_all('a', {'class': 'title'})
             if len(linklist) == 0:
-                print('爬取完毕')
-                print('失败了%r次' % errortimes)
+                # print('爬取完毕')
+                # print('失败了%r次' % errortimes)
                 break
             for item in linklist:
                 issueslink = baselink + item['href']
@@ -122,12 +123,13 @@ def gitee_issuse(friend_poor):
                     errortimes += 1
                     continue
     except Exception as e:
-        print('爬取完毕', e)
-        print(e.__traceback__.tb_frame.f_globals["__file__"])
-        print(e.__traceback__.tb_lineno)
+        pass
+        # print('爬取完毕', e)
+        # print(e.__traceback__.tb_frame.f_globals["__file__"])
+        # print(e.__traceback__.tb_lineno)
 
-    print('------结束volantis-gitee友链获取----------')
-    print('\n')
+    # print('------结束volantis-gitee友链获取----------')
+    # print('\n')
 
 
 # Volantis  友链规则
@@ -138,17 +140,17 @@ def get_friendlink(friendpage_link, friend_poor):
     # Volantis sites
     if len(soup.find_all('a', {"class": "site-card"})) > 0:
         main_content = soup.find_all('a', {"class": "site-card"})
-        print('使用Volantis simple')
+        # print('使用Volantis simple')
     # Volantis simple
     elif len(soup.find_all('a', {"class": "simpleuser"})) > 0:
         main_content = soup.find_all('a', {"class": "simpleuser"})
-        print('使用Volantis traditional')
+        # print('使用Volantis traditional')
     # Volantis traditional
     elif len(soup.find_all('a', {"class": "friend-card"})) > 0:
         main_content = soup.find_all('a', {"class": "friend-card"})
-        print('使用Volantis sites')
-    else:
-        print('不包含标准volantis友链！')
+        # print('使用Volantis sites')
+    # else:
+        # print('不包含标准volantis友链！')
     for item in main_content:
         if len(item.find_all('img')) > 1:
             img = item.find_all('img')[1].get('src')
@@ -184,9 +186,9 @@ def get_friendlink(friendpage_link, friend_poor):
 def get_last_post(user_info, post_poor):
     error_sitmap = False
     link = user_info[1]
-    print('\n')
-    print('-------执行volantis主页规则----------')
-    print('执行链接：', link)
+    # print('\n')
+    # print('-------执行volantis主页规则----------')
+    # print('执行链接：', link)
     result = request.get_data(link)
     soup = BeautifulSoup(result, 'html.parser')
     main_content = soup.find_all('section', {"class": "post-list"})
@@ -203,7 +205,7 @@ def get_last_post(user_info, post_poor):
             if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                 lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
         lasttime = lasttime.strftime('%Y-%m-%d')
-        print('最新时间是', lasttime)
+        # print('最新时间是', lasttime)
         last_post_list = main_content[0].find_all('div', {"class": "post-wrapper"})
         for item in last_post_list:
             if item.find('time'):
@@ -212,27 +214,28 @@ def get_last_post(user_info, post_poor):
                 time_created = ''
             if time_created == lasttime:
                 error_sitmap = False
-                print(lasttime)
+                # print(lasttime)
                 a = item.find('a')
                 alink = a['href']
                 alinksplit = alink.split("/", 1)
                 stralink = alinksplit[1].strip()
                 if link[-1] != '/':
                     link = link + '/'
-                print(item.find('h2', {"class": "article-title"}).text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
-                print(link + stralink)
-                print("-----------获取到匹配结果----------")
+                # print(item.find('h2', {"class": "article-title"}).text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
+                # print(link + stralink)
+                # print("-----------获取到匹配结果----------")
                 post_info = {
                     'title': item.find('h2', {"class": "article-title"}).text.strip(),
                     'time': lasttime,
                     'link': link + stralink,
                     'name': user_info[0],
-                    'img': user_info[2]
+                    'img': user_info[2],
+                    'rule': "volantis"
                 }
                 post_poor.append(post_info)
     else:
         error_sitmap = True
-        print('貌似不是类似volantis主题！')
-    print("-----------结束主页规则----------")
-    print('\n')
+        # print('貌似不是类似volantis主题！')
+    # print("-----------结束主页规则----------")
+    # print('\n')
     return error_sitmap

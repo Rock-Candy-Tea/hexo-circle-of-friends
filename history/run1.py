@@ -31,19 +31,19 @@ def main():
                 time = re.findall(timere, str)[0]
                 timelist = time.split('-')
                 time = timelist[0] + '-' + time_zero_plus(timelist[1]) + '-' + time_zero_plus(timelist[2])
-                print('获得标准时间', time)
+                # print('获得标准时间', time)
             except:
                 try:
                     timere_ch = re.compile(r'[0-9]{4}\s*年\s*[0-9]{1,2}\s*月\s*[0-9]{1,2}\s*日', re.S)
                     time_ch = re.findall(timere_ch, str)[0]
-                    print('找到中文时间', time_ch)
+                    # print('找到中文时间', time_ch)
                     year = time_ch.split('年')[0].strip()
                     month = time_zero_plus(time_ch.split('年')[1].split('月')[0].strip())
                     day = time_zero_plus(time_ch.split('年')[1].split('月')[1].split('日')[0].strip())
                     time = year + '-' + month + '-' + day
-                    print('获得标准时间', time)
+                    # print('获得标准时间', time)
                 except:
-                    print('没找到符合要求的时间')
+                    # print('没找到符合要求的时间')
                     time = ''
             return time
 
@@ -56,9 +56,9 @@ def main():
                     friend_poortitle.append(item['title'])
                     friend_postpoor.append(item)
                 else:
-                    print('-----------------')
-                    print('重复1篇文章标题，已删除')
-                    print('-----------------')
+                    # print('-----------------')
+                    # print('重复1篇文章标题，已删除')
+                    # print('-----------------')
             return  friend_postpoor
 
         # 友链链接去重
@@ -70,9 +70,9 @@ def main():
                     friend_poorlink.append(item[1])
                     friend_poordic.append(item)
                 else:
-                    print('-----------------')
-                    print('重复1条友链链接，已删除')
-                    print('-----------------')
+                    # print('-----------------')
+                    # print('重复1条友链链接，已删除')
+                    # print('-----------------')
             return  friend_poordic
 
         # 链接屏蔽
@@ -82,34 +82,34 @@ def main():
                 if item[1] not in config['setting']['block_site']:
                     friend_poordic.append(item)
                 else:
-                    print('-----------------')
-                    print('屏蔽1条友链链接，屏蔽链接为：',item[1])
-                    print('-----------------')
+                    # print('-----------------')
+                    # print('屏蔽1条友链链接，屏蔽链接为：',item[1])
+                    # print('-----------------')
             return  friend_poordic
 
         # gitee适配
         def reg(info_list, user_info, source):
-            print('----')
+            # print('----')
             for item in info_list:
                 reg = re.compile('(?<=' + item + ': ).*')
                 result = re.findall(reg, str(source))
                 result = result[0].replace('\r', '')
-                print(result)
+                # print(result)
                 user_info.append(result)
 
         # 从github获取friendlink
         def github_issuse(friend_poor):
-            print('\n')
-            print('-------获取github友链----------')
+            # print('\n')
+            # print('-------获取github友链----------')
             baselink = 'https://github.com/'
             errortimes = 0
             config = load_config()
-            print('owner:', config['setting']['github_friends_links']['owner'])
-            print('repo:', config['setting']['github_friends_links']['repo'])
-            print('state:', config['setting']['github_friends_links']['state'])
+            # print('owner:', config['setting']['github_friends_links']['owner'])
+            # print('repo:', config['setting']['github_friends_links']['repo'])
+            # print('state:', config['setting']['github_friends_links']['state'])
             try:
                 for number in range(1, 100):
-                    print(number)
+                    # print(number)
                     github = request.get_data('https://github.com/' +
                                               config['setting']['github_friends_links']['owner'] +
                                               '/' +
@@ -120,8 +120,8 @@ def main():
                     main_content = soup.find_all('div', {'aria-label': 'Issues'})
                     linklist = main_content[0].find_all('a', {'class': 'Link--primary'})
                     if len(linklist) == 0:
-                        print('爬取完毕')
-                        print('失败了%r次' % errortimes)
+                        # print('爬取完毕')
+                        # print('失败了%r次' % errortimes)
                         break
                     for item in linklist:
                         issueslink = baselink + item['href']
@@ -139,25 +139,25 @@ def main():
                             errortimes += 1
                             continue
             except Exception as e:
-                print('爬取完毕', e)
-                print(e.__traceback__.tb_frame.f_globals["__file__"])
-                print(e.__traceback__.tb_lineno)
+                # print('爬取完毕', e)
+                # print(e.__traceback__.tb_frame.f_globals["__file__"])
+                # print(e.__traceback__.tb_lineno)
 
-            print('------结束github友链获取----------')
-            print('\n')
+            # print('------结束github友链获取----------')
+            # print('\n')
 
         # 从gitee获取friendlink
         def kang_api(friend_poor):
-            print('\n')
-            print('-------获取gitee友链----------')
+            # print('\n')
+            # print('-------获取gitee友链----------')
             baselink = 'https://gitee.com'
             errortimes = 0
-            print('owner:',config['setting']['gitee_friends_links']['owner'])
-            print('repo:', config['setting']['gitee_friends_links']['repo'])
-            print('state:', config['setting']['gitee_friends_links']['state'])
+            # print('owner:',config['setting']['gitee_friends_links']['owner'])
+            # print('repo:', config['setting']['gitee_friends_links']['repo'])
+            # print('state:', config['setting']['gitee_friends_links']['state'])
             try:
                 for number in range(1, 100):
-                    print(number)
+                    # print(number)
                     gitee = request.get_data('https://gitee.com/' +
                                      config['setting']['gitee_friends_links']['owner'] +
                                      '/' +
@@ -167,8 +167,8 @@ def main():
                     main_content = soup.find_all(id='git-issues')
                     linklist = main_content[0].find_all('a', {'class': 'title'})
                     if len(linklist) == 0:
-                        print('爬取完毕')
-                        print('失败了%r次' % errortimes)
+                        # print('爬取完毕')
+                        # print('失败了%r次' % errortimes)
                         break
                     for item in linklist:
                         issueslink = baselink + item['href']
@@ -180,19 +180,19 @@ def main():
                             user_info = []
                             info_list = ['name', 'link', 'avatar']
                             reg(info_list, user_info, source)
-                            print(user_info)
+                            # print(user_info)
                             if user_info[1] != '你的链接':
                                 friend_poor.append(user_info)
                         except:
                             errortimes += 1
                             continue
             except Exception as e:
-                print('爬取完毕', e)
-                print(e.__traceback__.tb_frame.f_globals["__file__"])
-                print(e.__traceback__.tb_lineno)
+                # print('爬取完毕', e)
+                # print(e.__traceback__.tb_frame.f_globals["__file__"])
+                # print(e.__traceback__.tb_lineno)
 
-            print('------结束gitee友链获取----------')
-            print('\n')
+            # print('------结束gitee友链获取----------')
+            # print('\n')
         # 全部删除
         def deleteall():
             Friendlist = leancloud.Object.extend('friend_list')
@@ -208,7 +208,7 @@ def main():
                     # 限定数量
                     query_list = query.find()
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     query_list = []
                 return query_list
 
@@ -219,9 +219,9 @@ def main():
 
         # 过期文章删除
         def outdate(query_list, Friendspoor, days):
-            print('\n')
-            print('-------执行过期删除规则----------')
-            print('\n')
+            # print('\n')
+            # print('-------执行过期删除规则----------')
+            # print('\n')
             out_date_post = 0
             for query_i in query_list:
                 time = query_i.get('time')
@@ -235,11 +235,11 @@ def main():
                     delete = Friendspoor.create_without_data(query_i.get('objectId'))
                     delete.destroy()
                     out_date_post += 1
-                    print(e)
-            print('\n')
-            print('共删除了%s篇文章' % out_date_post)
-            print('\n')
-            print('-------结束删除规则----------')
+                    # print(e)
+            # print('\n')
+            # print('共删除了%s篇文章' % out_date_post)
+            # print('\n')
+            # print('-------结束删除规则----------')
 
 
         # leancloud数据  用户信息存储
@@ -248,9 +248,9 @@ def main():
 
             # 清除上一次数据
             deleteall()
-            print('\n')
-            print('-------清空友链列表----------')
-            print('\n')
+            # print('\n')
+            # print('-------清空友链列表----------')
+            # print('\n')
 
             # 定义查询函数
             def query_leancloud():
@@ -264,7 +264,7 @@ def main():
                     # 限定数量
                     query_list = query.find()
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     query_list = []
                 return query_list
 
@@ -292,11 +292,11 @@ def main():
                     try:
                         friendpoor.save()
                     except Exception as e:
-                        print(e)
+                        # print(e)
                         friendpoor.save()
-                    print("已上传第%s" % str(index + 1))
+                    # print("已上传第%s" % str(index + 1))
                 else:
-                    print("已上传第%s，但友链重复了" % str(index + 1))
+                    # print("已上传第%s，但友链重复了" % str(index + 1))
 
         # leancloud数据  文章存储
         def leancloud_push(post_poor):
@@ -316,7 +316,7 @@ def main():
                     # 限定数量
                     query_list = query.find()
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     query_list = []
                 return query_list
 
@@ -345,11 +345,11 @@ def main():
                     try:
                         friendpoor.save()
                     except Exception as e:
-                        print(e)
+                        # print(e)
                         friendpoor.save()
-                    print("已上传第%s" % str(index + 1))
+                    # print("已上传第%s" % str(index + 1))
                 else:
-                    print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
+                    # print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
             query_list = query_leancloud()
             outdate(query_list, Friendspoor, time_limit)
 
@@ -357,9 +357,9 @@ def main():
 
         # 通过sitemap请求
         def sitmap_get(user_info):
-            print('\n')
-            print('-------执行sitemap规则----------')
-            print('执行链接：', user_info[1])
+            # print('\n')
+            # print('-------执行sitemap规则----------')
+            # print('执行链接：', user_info[1])
             link = user_info[1]
             error_sitmap = 'false'
             try:
@@ -385,7 +385,7 @@ def main():
                 new_link_list.sort(key=takeSecond, reverse=True)
                 if len(url) == 0:
                     error_sitmap = 'true'
-                    print('该网站可能没有sitemap')
+                    # print('该网站可能没有sitemap')
                 block_word = config['setting']['block_word']
                 new_loc = []
                 new_loc_time = []
@@ -426,9 +426,9 @@ def main():
                         else:
                             new_loc.append(loc_item)
                             new_loc_time.append(time)
-                print('该网站最新的五条sitemap为：', new_loc[0:5])
-                print('该网站最新的五个时间戳为：', new_loc_time[0:5])
-                print('-------开始详情页面爬取----------')
+                # print('该网站最新的五条sitemap为：', new_loc[0:5])
+                # print('该网站最新的五个时间戳为：', new_loc_time[0:5])
+                # print('-------开始详情页面爬取----------')
                 if len(new_loc) != 0:
                     for i, new_loc_item in enumerate(new_loc[0:5]):
                         post_link = new_loc_item.text
@@ -439,7 +439,7 @@ def main():
                             time = find_time(str(result))
                             if time == '':
                                 time = str(new_loc_time[i])[9:19]
-                                print('采用sitemap时间', time)
+                                # print('采用sitemap时间', time)
                             soup = BeautifulSoup(result, 'html.parser')
                             title = soup.find('title')
                             strtitle = title.text
@@ -454,25 +454,25 @@ def main():
                                 'name': user_info[0],
                                 'img': user_info[2]
                             }
-                            print(strtitle.encode("gbk", 'ignore').decode('gbk', 'ignore'))
-                            print(time)
-                            print(post_link)
+                            # print(strtitle.encode("gbk", 'ignore').decode('gbk', 'ignore'))
+                            # print(time)
+                            # print(post_link)
                             post_poor.append(post_info)
-                            print("-----------获取到匹配结果----------")
+                            # print("-----------获取到匹配结果----------")
                         except Exception as e:
-                            print(e)
-                            print(e.__traceback__.tb_frame.f_globals["__file__"])
-                            print(e.__traceback__.tb_lineno)
-                            print('网站不包含规范的时间格式！')
+                            # print(e)
+                            # print(e.__traceback__.tb_frame.f_globals["__file__"])
+                            # print(e.__traceback__.tb_lineno)
+                            # print('网站不包含规范的时间格式！')
                             error_sitmap = 'true'
             except Exception as e:
-                print('无法请求sitemap')
-                print(e)
-                print(e.__traceback__.tb_frame.f_globals["__file__"])
-                print(e.__traceback__.tb_lineno)
+                # print('无法请求sitemap')
+                # print(e)
+                # print(e.__traceback__.tb_frame.f_globals["__file__"])
+                # print(e.__traceback__.tb_lineno)
                 error_sitmap = 'true'
-            print('-----------结束sitemap规则----------')
-            print('\n')
+            # print('-----------结束sitemap规则----------')
+            # print('\n')
             return error_sitmap
 
         # 引入leancloud验证
@@ -489,49 +489,49 @@ def main():
 
 
         # 执行主方法
-        print('----------------------')
-        print('-----------！！开始执行爬取文章任务！！----------')
-        print('----------------------')
-        print('\n')
+        # print('----------------------')
+        # print('-----------！！开始执行爬取文章任务！！----------')
+        # print('----------------------')
+        # print('\n')
         today = datetime.datetime.today()
         time_limit = 60
         friend_poor = []
         post_poor = []
-        print('----------------------')
-        print('-----------！！开始执行友链获取任务！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！开始执行友链获取任务！！----------')
+        # print('----------------------')
         if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
             try:
                 kang_api(friend_poor)
             except:
-                print('读取gitee友链失败')
+                # print('读取gitee友链失败')
         else:
-            print('未开启gitee友链获取')
+            # print('未开启gitee友链获取')
         if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
             try:
                 github_issuse(friend_poor)
             except:
-                print('读取github友链失败')
+                # print('读取github友链失败')
         else:
-            print('未开启gihub友链获取')
+            # print('未开启gihub友链获取')
         try:
             butterfly.butterfly_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是butterfly主题')
+            # print('不是butterfly主题')
         try:
             matery.matery_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是matery主题')
+            # print('不是matery主题')
         try:
             volantis.volantis_get_friendlink(friendpage_link,friend_poor)
         except:
-            print('不是volantis主题或未配置gitee友链')
+            # print('不是volantis主题或未配置gitee友链')
         friend_poor = delete_same_link(friend_poor)
         friend_poor = block_link(friend_poor)
-        print('当前友链数量',len( friend_poor))
-        print('----------------------')
-        print('-----------！！结束友链获取任务！！----------')
-        print('----------------------')
+        # print('当前友链数量',len( friend_poor))
+        # print('----------------------')
+        # print('-----------！！结束友链获取任务！！----------')
+        # print('----------------------')
         total_count = 0
         error_count = 0
         for index, item in enumerate(friend_poor):
@@ -544,36 +544,36 @@ def main():
                 if error == 'true':
                     error = volantis.get_last_post_from_volantis(item,post_poor)
                 if error == 'true':
-                    print("-----------获取主页信息失败，采取sitemap策略----------")
+                    # print("-----------获取主页信息失败，采取sitemap策略----------")
                     error = sitmap_get(item)
             except Exception as e:
-                print('\n')
-                print(item, "运用主页及sitemap爬虫爬取失败！请检查")
-                print('\n')
-                print(e)
+                # print('\n')
+                # print(item, "运用主页及sitemap爬虫爬取失败！请检查")
+                # print('\n')
+                # print(e)
                 error_count += 1
             item.append(error)
-        print('\n')
-        print('----------------------')
-        print("一共进行%s次" % total_count)
-        print("一共失败%s次" % error_count)
-        print('----------------------')
-        print('\n')
-        print('----------------------')
-        print('-----------！！执行用户信息上传！！----------')
-        print('----------------------')
+        # print('\n')
+        # print('----------------------')
+        # print("一共进行%s次" % total_count)
+        # print("一共失败%s次" % error_count)
+        # print('----------------------')
+        # print('\n')
+        # print('----------------------')
+        # print('-----------！！执行用户信息上传！！----------')
+        # print('----------------------')
         leancloud_push_userinfo(friend_poor)
-        print('----------------------')
-        print('-----------！！用户信息上传完毕！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！用户信息上传完毕！！----------')
+        # print('----------------------')
         post_poor.sort(key=itemgetter('time'), reverse=True)
-        print('----------------------')
-        print('-----------！！执行文章信息上传！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！执行文章信息上传！！----------')
+        # print('----------------------')
         leancloud_push(post_poor)
-        print('----------------------')
-        print('-----------！！文章信息上传完毕！！----------')
-        print('----------------------')
+        # print('----------------------')
+        # print('-----------！！文章信息上传完毕！！----------')
+        # print('----------------------')
 
 if __name__ == '__main__':
     main()

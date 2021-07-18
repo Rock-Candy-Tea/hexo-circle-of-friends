@@ -19,8 +19,8 @@ def delete_same_article(orign_friend_postpoor):
         if item['title'] not in friend_poortitle:
             friend_poortitle.append(item['title'])
             friend_postpoor.append(item)
-        else:
-            print('-----------------')
-            print('重复1篇文章标题，已删除')
-            print('-----------------')
+        # else:
+            # print('-----------------')
+            # print('重复1篇文章标题，已删除')
+            # print('-----------------')
     return friend_postpoor

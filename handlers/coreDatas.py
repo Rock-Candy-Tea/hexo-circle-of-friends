@@ -19,7 +19,7 @@ def deleteall():
             # 限定数量
             query_list = query.find()
         except Exception as e:
-            print(e)
+            # print(e)
             query_list = []
         return query_list
 
@@ -31,9 +31,9 @@ def deleteall():
 
 # 过期文章删除
 def outdate(query_list, Friendspoor, days):
-    print('\n')
-    print('-------执行过期删除规则----------')
-    print('\n')
+    # print('\n')
+    # print('-------执行过期删除规则----------')
+    # print('\n')
     out_date_post = 0
     for query_i in query_list:
         time = query_i.get('time')
@@ -47,11 +47,11 @@ def outdate(query_list, Friendspoor, days):
             delete = Friendspoor.create_without_data(query_i.get('objectId'))
             delete.destroy()
             out_date_post += 1
-            print(e)
-    print('\n')
-    print('共删除了%s篇文章' % out_date_post)
-    print('\n')
-    print('-------结束删除规则----------')
+            # print(e)
+    # print('\n')
+    # print('共删除了%s篇文章' % out_date_post)
+    # print('\n')
+    # print('-------结束删除规则----------')
 
 
 # leancloud数据  用户信息存储
@@ -60,9 +60,9 @@ def leancloud_push_userinfo(friend_poordic):
 
     # 清除上一次数据
     deleteall()
-    print('\n')
-    print('-------清空友链列表----------')
-    print('\n')
+    # print('\n')
+    # print('-------清空友链列表----------')
+    # print('\n')
 
     # 定义查询函数
     def query_leancloud():
@@ -76,7 +76,7 @@ def leancloud_push_userinfo(friend_poordic):
             # 限定数量
             query_list = query.find()
         except Exception as e:
-            print(e)
+            # print(e)
             query_list = []
         return query_list
 
@@ -104,11 +104,11 @@ def leancloud_push_userinfo(friend_poordic):
             try:
                 friendpoor.save()
             except Exception as e:
-                print(e)
+                # print(e)
                 friendpoor.save()
-            print("已上传第%s" % str(index + 1))
-        else:
-            print("已上传第%s，但友链重复了" % str(index + 1))
+            # print("已上传第%s" % str(index + 1))
+        # else:
+            # print("已上传第%s，但友链重复了" % str(index + 1))
 
 
 # leancloud数据  文章存储
@@ -128,7 +128,7 @@ def leancloud_push(post_poor):
             # 限定数量
             query_list = query.find()
         except Exception as e:
-            print(e)
+            # print(e)
             query_list = []
         return query_list
 
@@ -152,15 +152,16 @@ def leancloud_push(post_poor):
         friendpoor.set('link', item['link'])
         friendpoor.set('author', item['name'])
         friendpoor.set('headimg', item['img'])
+        friendpoor.set('rule', item['rule'])
         upload = repeat(item['link'])
         if upload == 'true':
             try:
                 friendpoor.save()
             except Exception as e:
-                print(e)
+                # print(e)
                 friendpoor.save()
-            print("已上传第%s" % str(index + 1))
-        else:
-            print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
+            # print("已上传第%s" % str(index + 1))
+        # else:
+            # print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
     query_list = query_leancloud()
     outdate(query_list, Friendspoor, time_limit)

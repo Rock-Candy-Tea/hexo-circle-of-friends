@@ -2,7 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 import datetime
-from request_data import request
+from component import getWeb as request
 import re
 
 # sakura 友链规则
@@ -34,9 +34,9 @@ def get_friendlink(friendpage_link, friend_poor):
 def get_last_post(user_info,post_poor):
             error_sitmap = False
             link = user_info[1]
-            print('\n')
-            print('-------执行sakura主页规则----------')
-            print('执行链接：', link)
+            # print('\n')
+            # print('-------执行sakura主页规则----------')
+            # print('执行链接：', link)
             result = request.get_data(link)
             soup = BeautifulSoup(result, 'html.parser')
             main_content = soup.find_all(id='main')
@@ -51,7 +51,7 @@ def get_last_post(user_info,post_poor):
                     if lasttime < datetime.datetime.strptime(time, "%Y-%m-%d"):
                         lasttime = datetime.datetime.strptime(time, "%Y-%m-%d")
                 lasttime = lasttime.strftime('%Y-%m-%d')
-                print('最新时间是', lasttime)
+                # print('最新时间是', lasttime)
                 last_post_list = main_content[0].find_all('article', {"class": "post"})
                 for item in last_post_list:
                     time_created = item.find('div', {"class": "post-date"}).text.strip()
@@ -59,29 +59,30 @@ def get_last_post(user_info,post_poor):
                     time_created = datetime.datetime.strptime(time_created, "%Y-%m-%d").strftime("%Y-%m-%d")
                     if time_created == lasttime:
                         error_sitmap = False
-                        print(lasttime)
+                        # print(lasttime)
                         a = item.find('a')
-                        # print(item.find('a'))
+                        # # print(item.find('a'))
                         alink = a['href']
                         alinksplit = alink.split("/", 1)
                         stralink = alinksplit[1].strip()
                         if link[-1] != '/':
                             link = link + '/'
-                        print(item.find('h3').text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
+                        # print(item.find('h3').text.strip().encode("gbk", 'ignore').decode('gbk', 'ignore'))
                         link = link.split('/')[0]
-                        print(link + '/' + stralink)
-                        print("-----------获取到匹配结果----------")
+                        # print(link + '/' + stralink)
+                        # print("-----------获取到匹配结果----------")
                         post_info = {
                             'title': item.find('h3').text.strip(),
                             'time': lasttime,
                             'link': link + '/' + stralink,
                             'name': user_info[0],
-                            'img': user_info[2]
+                            'img': user_info[2],
+                            'rule': "sakura"
                         }
                         post_poor.append(post_info)
             else:
                 error_sitmap = True
-                print('貌似不是类似sakura主题！')
-            print("-----------结束sakura主页规则----------")
-            print('\n')
+                # print('貌似不是类似sakura主题！')
+            # print("-----------结束sakura主页规则----------")
+            # print('\n')
             return error_sitmap
