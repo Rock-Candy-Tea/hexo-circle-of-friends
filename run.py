@@ -52,6 +52,7 @@ from handlers.coreLink import kang_api
 from handlers.coreLink import github_issuse
 from handlers.coreLink import atom_get
 from handlers.coreLink import rss2_get
+from handlers.coreLink import config_friendlink
 from handlers.coreDatas import leancloud_push_userinfo
 from handlers.coreDatas import leancloud_push
 
@@ -83,25 +84,23 @@ def verification():
 def get_link(friendpage_link, config):
     friend_poor = []
 
+    #  get setting.py_links
+    if configs.CONFIG_FRIENDS_LINKS['enable']:
+        config_friendlink(friend_poor, config)
+
     #　get gitee_issue
-    # if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'normal':
     if configs.GITEE_FRIENDS_LINKS['enable'] and configs.GITEE_FRIENDS_LINKS['type'] == 'normal':
         try:
             kang_api(friend_poor, config)
         except:
             pass
-            # print('读取gitee友链失败')
-    # else:
-        # print('未开启gitee友链获取')
     
     # get github_issue
-    # if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'normal':
     if configs.GITHUB_FRIENDS_LINKS['enable'] and configs.GITHUB_FRIENDS_LINKS['type'] == 'normal':
         try:
             github_issuse(friend_poor, config)
         except:
             pass
-            # print('读取github友链失败')
 
     # get theme_link
     for themelinkfun in themes:

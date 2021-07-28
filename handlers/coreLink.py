@@ -158,6 +158,17 @@ def kang_api(friend_poor, config=None):
     # print('\n')
 
 
+# 从setting.py获取friendlink
+def config_friendlink(friend_poor, config=None):
+    from handlers.coreSettings import configs
+    for user_info in configs.CONFIG_FRIENDS_LINKS['list']:
+        print('----------------------')
+        print('好友名%r' % user_info[0])
+        print('头像链接%r' % user_info[2])
+        print('主页链接%r' % user_info[1])
+        friend_poor.append(user_info)
+
+
 # 请求连接
 # 通过sitemap请求
 def sitmap_get(user_info, post_poor, config=config.yml):
