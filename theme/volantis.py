@@ -7,7 +7,7 @@ import yaml
 from component import getWeb as request
 
 def load_config():
-    f = open('_config.yml', 'r',encoding='utf-8')
+    f = open('_', 'r',encoding='utf-8')
     ystr = f.read()
     ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
     return ymllist
@@ -227,6 +227,7 @@ def get_last_post(user_info, post_poor):
                 post_info = {
                     'title': item.find('h2', {"class": "article-title"}).text.strip(),
                     'time': lasttime,
+                    'updated': lasttime,
                     'link': link + stralink,
                     'name': user_info[0],
                     'img': user_info[2],

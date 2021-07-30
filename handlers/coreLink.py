@@ -170,9 +170,8 @@ def config_friendlink(friend_poor, config=None):
 
 
 # 请求连接
-# 通过sitemap请求
+# 通过sitemap请求（重写中...（我放弃了））
 def sitmap_get(user_info, post_poor, config=config.yml):
-    from handlers.coreSettings import configs
     # print('\n')
     # print('-------执行sitemap规则----------')
     # print('执行链接：', user_info[1])
@@ -181,117 +180,35 @@ def sitmap_get(user_info, post_poor, config=config.yml):
     try:
         result = request.get_data(link + '/sitemap.xml')
         soup = BeautifulSoup(result, 'html.parser')
-        url = soup.find_all('url')
-        if len(url) == 0:
+        items = soup.find_all('url')
+        if len(items) == 0:
             result = request.get_data(link + '/baidusitemap.xml')
             soup = BeautifulSoup(result, 'html.parser')
-            url = soup.find_all('url')
-        new_link_list = []
-        for item in url:
-            box = []
-            url_link = item.find('loc')
-            url_date = item.find('lastmod')
-            box.append(url_link)
-            box.append(url_date)
-            new_link_list.append(box)
-
-        def takeSecond(elem):
-            return str(elem[1])[9:19]
-
-        new_link_list.sort(key=takeSecond, reverse=True)
-        if len(url) == 0:
-            error_sitmap = True
-            # print('该网站可能没有sitemap')
-        # block_word = config['setting']['block_word']
-        block_word = configs.BLOCK_WORD
+            items = soup.find_all('url')
+        l = 5
         new_loc = []
         new_loc_time = []
-        for item in new_link_list:
-            loc_item = item[0]
-            time = item[1]
-            if loc_item.text[-1] == '/':
-                limit_number = 5
-            else:
-                limit_number = 4
-            block = False
-            for item in block_word:
-                if item in loc_item.text:
-                    block = True
-            if block:
-                pass
-            elif loc_item.text.count('/') < limit_number:
-                pass
-            else:
-                new_loc.append(loc_item)
-                new_loc_time.append(time)
-        if len(new_loc) < 1:
-            for item in new_link_list:
-                loc_item = item[0]
-                time = item[1]
-                if loc_item.text[-1] == '/':
-                    limit_number = 3
-                else:
-                    limit_number = 2
-                block = False
-                for item in block_word:
-                    if item in loc_item.text:
-                        block = True
-                if block:
-                    pass
-                elif loc_item.text.count('/') == limit_number:
-                    pass
-                else:
-                    new_loc.append(loc_item)
-                    new_loc_time.append(time)
-        # print('该网站最新的五条sitemap为：', new_loc[0:5])
-        # print('该网站最新的五个时间戳为：', new_loc_time[0:5])
-        # print('-------开始详情页面爬取----------')
-        if len(new_loc) != 0:
-            for i, new_loc_item in enumerate(new_loc[0:5]):
-                post_link = new_loc_item.text
-                result = request.get_data(post_link)
-                if result == 'error':
-                    continue
-                try:
-                    time = find_time(str(result))
-                    if time == '':
-                        time = str(new_loc_time[i])[9:19]
-                        # print('采用sitemap时间', time)
-                    soup = BeautifulSoup(result, 'html.parser')
-                    title = soup.find('title')
-                    strtitle = title.text
-                    # block_chars = config['setting']['block_chars']
-                    block_chars = configs.BLOCK_CHARS
-                    for item in block_chars:
-                        titlesplit = strtitle.split(item, 1)
-                        strtitle = titlesplit[0].strip()
-                    post_info = {
-                        'title': strtitle,
-                        'time': time,
-                        'link': post_link,
-                        'name': user_info[0],
-                        'img': user_info[2],
-                        'rule': "sitemap"
-                    }
-                    # print(strtitle.encode("gbk", 'ignore').decode('gbk', 'ignore'))
-                    # print(time)
-                    # print(post_link)
-                    post_poor.append(post_info)
-                    # print("-----------获取到匹配结果----------")
-                except Exception as e:
-                    # print(e)
-                    # print(e.__traceback__.tb_frame.f_globals["__file__"])
-                    # print(e.__traceback__.tb_lineno)
-                    # print('网站不包含规范的时间格式！')
-                    error_sitmap = True
+        if len(items) < 5: l = len(items)
+        if l == 0:
+            error_sitmap = True
+            # print('该网站可能没有rss')
+        else:
+            for i in range(l):
+                post_info = {}
+                item = items[i]
+                
+                # new_loc.append(url)
+                # new_loc_time.append(time)
+                # post_poor.append(post_info)
+            # print('该网站最新的{}条rss为：'.format(l), new_loc[0:5])
+            # print('该网站最新的{}个时间为：'.format(l), new_loc_time[0:5])
+            
     except Exception as e:
         # print('无法请求sitemap')
         # print(e)
         # print(e.__traceback__.tb_frame.f_globals["__file__"])
         # print(e.__traceback__.tb_lineno)
         error_sitmap = True
-    # print('-----------结束sitemap规则----------')
-    # print('\n')
     return error_sitmap, post_poor
 
 
@@ -322,8 +239,10 @@ def atom_get(user_info, post_poor, config=config.yml):
                 title = item.find("title").text
                 url = item.find("link")['href']
                 time = item.find("published").text[:10]
+                updated = item.find("updated").text[:10]
                 post_info['title'] = title
                 post_info['time'] = time
+                post_info['updated'] = updated
                 post_info['link'] = url
                 post_info['name'] = user_info[0]
                 post_info['img'] = user_info[2]
@@ -377,6 +296,7 @@ def rss2_get(user_info, post_poor, config=config.yml):
                 time = "{:02d}-{:02d}-{:02d}".format(y,m,d)
                 post_info['title'] = title
                 post_info['time'] = time
+                post_info['updated'] = time
                 post_info['link'] = url
                 post_info['name'] = user_info[0]
                 post_info['img'] = user_info[2]

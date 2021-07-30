@@ -1,10 +1,11 @@
+from re import escape
 import leancloud
 import datetime
 
 today = datetime.datetime.today()
 time_limit = 60
 
-# 全部删除
+# 友链删库
 def deleteall():
     Friendlist = leancloud.Object.extend('friend_list')
 
@@ -122,7 +123,7 @@ def leancloud_push(post_poor):
             # 查询已有的数据
             query = Friendspoor.query
             # 为查询创建别名
-            query.select('title', 'time', 'link')
+            query.select('title', 'time', 'link', 'updated')
             # 选择类
             query.limit(1000)
             # 限定数量
@@ -135,6 +136,31 @@ def leancloud_push(post_poor):
     # 查询
     query_list = query_leancloud()
 
+    # 数据上传
+    for index, item in enumerate(post_poor):
+        friendpoor = Friendspoor()
+        for query_item in query_list:
+            try:
+                if item['link'] == query_item.get('link'):
+                    item['time'] = min(item['time'], query_item.get('time'))
+                    delete = Friendspoor.create_without_data(query_item.get('objectId'))
+                    delete.destroy()
+            except:
+                pass
+        friendpoor.set('title', item['title'])
+        friendpoor.set('time', item['time'])
+        friendpoor.set('updated', item['updated'])
+        friendpoor.set('link', item['link'])
+        friendpoor.set('author', item['name'])
+        friendpoor.set('headimg', item['img'])
+        friendpoor.set('rule', item['rule'])
+        friendpoor.save()
+
+    query_list = query_leancloud()
+    outdate(query_list, Friendspoor, time_limit)
+
+
+    """
     # 重复审查
     def repeat(link):
         upload = 'true'
@@ -143,25 +169,4 @@ def leancloud_push(post_poor):
             if link == url:
                 upload = 'false'
         return upload
-
-    # 数据上传
-    for index, item in enumerate(post_poor):
-        friendpoor = Friendspoor()
-        friendpoor.set('title', item['title'])
-        friendpoor.set('time', item['time'])
-        friendpoor.set('link', item['link'])
-        friendpoor.set('author', item['name'])
-        friendpoor.set('headimg', item['img'])
-        friendpoor.set('rule', item['rule'])
-        upload = repeat(item['link'])
-        if upload == 'true':
-            try:
-                friendpoor.save()
-            except Exception as e:
-                # print(e)
-                friendpoor.save()
-            # print("已上传第%s" % str(index + 1))
-        # else:
-            # print("已上传第%s，该文章名称重复不予上传" % str(index + 1))
-    query_list = query_leancloud()
-    outdate(query_list, Friendspoor, time_limit)
+    """

@@ -106,6 +106,7 @@ def get_last_post(user_info,post_poor):
                         post_info = {
                             'title': a.text,
                             'time': lasttime,
+                            'updated': lasttime,
                             'link': link + stralink,
                             'name': user_info[0],
                             'img': user_info[2],
