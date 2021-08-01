@@ -4,20 +4,14 @@ from bs4 import BeautifulSoup
 import re
 import datetime
 import yaml
+from handlers.coreSettings import configs
 from component import getWeb as request
-
-def load_config():
-    f = open('_', 'r',encoding='utf-8')
-    ystr = f.read()
-    ymllist = yaml.load(ystr, Loader=yaml.FullLoader)
-    return ymllist
 
 def github_issuse(friend_poor):
     # print('\n')
     # print('-------获取volantis-github友链----------')
     baselink = 'https://github.com/'
     errortimes = 0
-    config = load_config()
     # print('owner:', config['setting']['github_friends_links']['owner'])
     # print('repo:', config['setting']['github_friends_links']['repo'])
     # print('state:', config['setting']['github_friends_links']['state'])
@@ -25,10 +19,10 @@ def github_issuse(friend_poor):
         for number in range(1, 100):
             # print(number)
             github = request.get_data('https://github.com/' +
-                             config['setting']['github_friends_links']['owner'] +
+                             configs.GITHUB_FRIENDS_LINKS['owner'] +
                              '/' +
-                             config['setting']['github_friends_links']['repo'] +
-                             '/issues?q=is%3A' + config['setting']['github_friends_links']['state'] + '&page=' + str(number))
+                             configs.GITHUB_FRIENDS_LINKS['repo'] +
+                             '/issues?q=is%3A' + configs.GITHUB_FRIENDS_LINKS['state'] + '&page=' + str(number))
             soup = BeautifulSoup(github, 'html.parser')
             main_content = soup.find_all('div',{'aria-label': 'Issues'})
             linklist = main_content[0].find_all('a', {'class': 'Link--primary'})
@@ -88,7 +82,6 @@ def gitee_issuse(friend_poor):
     # print('-------获取volantis-gitee友链----------')
     baselink = 'https://gitee.com'
     errortimes = 0
-    config = load_config()
     # print('owner:', config['setting']['gitee_friends_links']['owner'])
     # print('repo:', config['setting']['gitee_friends_links']['repo'])
     # print('state:', config['setting']['gitee_friends_links']['state'])
@@ -96,10 +89,10 @@ def gitee_issuse(friend_poor):
         for number in range(1, 100):
             # print(number)
             gitee = request.get_data('https://gitee.com/' +
-                             config['setting']['gitee_friends_links']['owner'] +
+                             configs.GITEE_FRIENDS_LINKS['owner'] +
                              '/' +
-                             config['setting']['gitee_friends_links']['repo'] +
-                             '/issues?state=' + config['setting']['gitee_friends_links']['state'] + '&page=' + str(number))
+                             configs.GITEE_FRIENDS_LINKS['repo'] +
+                             '/issues?state=' + configs.GITEE_FRIENDS_LINKS['state'] + '&page=' + str(number))
             soup = BeautifulSoup(gitee, 'html.parser')
             main_content = soup.find_all(id='git-issues')
             linklist = main_content[0].find_all('a', {'class': 'title'})
@@ -176,10 +169,9 @@ def get_friendlink(friendpage_link, friend_poor):
             print('头像链接%r' % img)
             print('主页链接%r' % link)
             friend_poor.append(user_info)
-    config = load_config()
-    if config['setting']['gitee_friends_links']['enable'] and config['setting']['gitee_friends_links']['type'] == 'volantis':
+    if configs.GITEE_FRIENDS_LINKS['enable'] and configs.GITEE_FRIENDS_LINKS['type'] == 'volantis':
         gitee_issuse(friend_poor)
-    if config['setting']['github_friends_links']['enable'] and config['setting']['github_friends_links']['type'] == 'volantis':
+    if configs.GITHUB_FRIENDS_LINKS['enable'] and configs.GITHUB_FRIENDS_LINKS['type'] == 'volantis':
         github_issuse(friend_poor)
 
 
