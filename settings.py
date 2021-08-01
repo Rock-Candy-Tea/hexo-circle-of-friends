@@ -76,29 +76,6 @@ BLOCK_SITE = [
     "https://blog.cyfan.top/"
 ]
 
-# 屏蔽sitemap链接关键词
-BLOCK_WORD = [
-    "index",
-    "json",
-    "tags",
-    "categories",
-    "record",
-    "sort",
-]
-
-# 屏蔽sitemap获取标题的分割字符
-BLOCK_CHARS = [
-    "|",
-    "::",
-    "·",
-]
-
-"""
-其他设置
-"""
-# TODAY = datetime.datetime.today()
-# TIME_limit = 60
-
 # 友链列表配置文件
 CONFIG_FRIENDS_LINKS = {
     "enable": False, # 是否启用配置项友链 True/False（此项用于针对还未适配的主题用户）
