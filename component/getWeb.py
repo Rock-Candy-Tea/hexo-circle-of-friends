@@ -118,7 +118,7 @@ def get_data(link, headers=None, timeout=None, verify=False):
     headers = {
         'Accept-Encoding': 'deflate',
         "Referer": f"{urlInfo.scheme}://{urlInfo.netloc}",
-        'User_Agent': ua.roll_ua()
+        'User-Agent': ua.roll_ua()
     } if not headers else headers
     # 回调
     result = "error"
