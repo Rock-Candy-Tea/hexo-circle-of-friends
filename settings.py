@@ -54,10 +54,10 @@ RETRY_MAX = 3
 """
 # github友链配置
 GITHUB_FRIENDS_LINKS = {
-    "enable": False,    # True 开启gitee issue兼容
+    "enable": true,    # True 开启gitee issue兼容
     "type": "normal",  # volantis用户请在这里填写 volantis
-    "owner": "Zfour",  # 填写你的github用户名
-    "repo": "zfour-friends",  # 填写你的github仓库名
+    "owner": "webyang-male",  # 填写你的github用户名
+    "repo": "butterflyblog",  # 填写你的github仓库名
     "state": "open"  # 填写抓取的issue状态(open/closed)
 }
 
@@ -73,7 +73,6 @@ GITEE_FRIENDS_LINKS = {
 # 屏蔽站点
 BLOCK_SITE = [
     "https://example.com/",
-    "https://blog.cyfan.top/"
 ]
 
 # 屏蔽sitemap链接关键词
