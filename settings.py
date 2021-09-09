@@ -83,6 +83,7 @@ CONFIG_FRIENDS_LINKS = {
         # 格式：["name", "link", "avatar"]，除最后一行外每行后面加","，"[]"不可省略
         # link的结尾最好加上'/'
         # 例如：
+        ["聖目大鵝", "https://blog.conoha.vip/", "https://conoha.vip/img/header.jpg),url(https://cdn.jsdelivr.net/gh/zc998800/cdn/image/moren.jpg"],
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
         ["小冰博客", "https://zfe.space/", "https://zfe.space/images/headimage.png"]
     ]
