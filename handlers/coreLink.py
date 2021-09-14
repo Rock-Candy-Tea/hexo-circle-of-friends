@@ -225,7 +225,7 @@ def atom_get(user_info, post_poor, config=config.yml):
         soup = BeautifulSoup(html, 'html.parser')
         items = soup.find_all("entry")
         if len(items) == 0:
-            html = request.get_data(link + "/feed/atom.xml")
+            html = request.get_data(link + "/feed/atom")
             soup = BeautifulSoup(html, 'html.parser')
             items = soup.find_all("entry")
         l = 5
