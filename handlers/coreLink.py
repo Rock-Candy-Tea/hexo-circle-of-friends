@@ -224,6 +224,10 @@ def atom_get(user_info, post_poor, config=config.yml):
         # # print(html)
         soup = BeautifulSoup(html, 'html.parser')
         items = soup.find_all("entry")
+        if len(items) == 0:
+            html = request.get_data(link + "/feed/atom.xml")
+            soup = BeautifulSoup(html, 'html.parser')
+            items = soup.find_all("entry")
         l = 5
         new_loc = []
         new_loc_time = []
