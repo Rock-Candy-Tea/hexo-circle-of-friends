@@ -5,6 +5,7 @@
 """
 from bs4 import BeautifulSoup
 import re
+import calendar
 
 from handlers.coreSettings import configs as config
 from component import getWeb as request
@@ -196,13 +197,13 @@ def sitmap_get(user_info, post_poor, config=config.yml):
             for i in range(l):
                 post_info = {}
                 item = items[i]
-                
+
                 # new_loc.append(url)
                 # new_loc_time.append(time)
                 # post_poor.append(post_info)
             # print('该网站最新的{}条rss为：'.format(l), new_loc[0:5])
             # print('该网站最新的{}个时间为：'.format(l), new_loc_time[0:5])
-            
+
     except Exception as e:
         # print('无法请求sitemap')
         # print(e)
@@ -282,6 +283,19 @@ def rss2_get(user_info, post_poor, config=config.yml):
             html = request.get_data(link + "/rss2.xml")
             soup = BeautifulSoup(html, 'html.parser')
             items = soup.find_all("item")
+
+        # 开启了伪静态
+        if len(items) == 0:
+            html = request.get_data(link + "/feed")
+            soup = BeautifulSoup(html, 'html.parser')
+            items = soup.find_all("item")
+
+        # 未开启了伪静态
+        if len(items) == 0:
+            html = request.get_data(link + "?feed=rss")
+            soup = BeautifulSoup(html, 'html.parser')
+            items = soup.find_all("item")
+
         l = 5
         new_loc = []
         new_loc_time = []
@@ -295,7 +309,7 @@ def rss2_get(user_info, post_poor, config=config.yml):
                 item = items[i]
                 title = item.find("title").text
                 url = item.find("link").text
-                timedata = item.find("pubDate").text.split(" ")
+                timedata = item.find("pubdate").text.split(" ")
                 y, m, d = int(timedata[3]), list(calendar.month_abbr).index(timedata[2]), int(timedata[1])
                 time = "{:02d}-{:02d}-{:02d}".format(y,m,d)
                 post_info['title'] = title
