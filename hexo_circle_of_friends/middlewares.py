@@ -21,14 +21,14 @@ class RandomUserAgentMiddleware:
 
 class BlockSiteMiddleware:
     def process_request(self, request, spider):
-
-        try:
-            for url in settings.BLOCK_SITE:
-                if re.match(url,request.url):
-                    print("block----------------->%s"%url)
-                    raise IgnoreRequest("url block")
-        except:
-            pass
+        # print(request.url)
+        if "theme" in request.meta:
+            return None
+        for url in settings.BLOCK_SITE:
+            if re.match(url,request.url):
+                # print("block----------------->%s"%url)
+                raise IgnoreRequest("url block")
+        # print("now is %s"%request.url)
         return None
 
 class HexoCircleOfFriendsSpiderMiddleware:
