@@ -1,23 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Author    : RaXianch
-# CreatDATE : 2021/3/6
-# CreatTIME : 16:17 
-# Blog      : https://blog.raxianch.moe/
-# Github    : https://github.com/DeSireFire
-__author__ = 'RaXianch'
-
-import random
-from urllib.parse import unquote, urlparse
-
-
-class RandomUserAgentMiddleware(object):
-    '''
-    自定义随机UA中间件
-    '''
-
-    def __init__(self):
-        self.user_agents = [
+BOT_NAME = 'hexo_circle_of_friends'
+LOG_LEVEL = "ERROR"
+SPIDER_MODULES = ['hexo_circle_of_friends.spiders']
+NEWSPIDER_MODULE = 'hexo_circle_of_friends.spiders'
+USER_AGENT_LIST = [
             "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
             "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
             "Mozilla/4.0 (compatible; MSIE 7.0; AOL 9.5; AOLBuild 4337.35; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
@@ -53,35 +38,94 @@ class RandomUserAgentMiddleware(object):
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11",
             "Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10",
         ]
+ROBOTSTXT_OBEY = False
+CONCURRENT_REQUESTS = 128
+DOWNLOAD_TIMEOUT = 15
+COOKIES_ENABLED = False
+DOWNLOADER_MIDDLEWARES = {
+   # 'hexo_circle_of_friends.middlewares.HexoCircleOfFriendsDownloaderMiddleware': 543,
+   'hexo_circle_of_friends.middlewares.RandomUserAgentMiddleware': 400,
+   'hexo_circle_of_friends.middlewares.BlockSiteMiddleware': 300,
 
-    def roll_ua(self):
-        '''
-        从UA列表中随机选择一个UA来发送请求
-        :return: str, user_agents
-        '''
-        return random.choice(self.user_agents)
+}
+
+ITEM_PIPELINES = {
+   'hexo_circle_of_friends.pipelines.HexoCircleOfFriendsPipeline': 300,
+   'hexo_circle_of_friends.pipelines.DuplicatesPipeline': 200,
+}
+
+# debug
+# debug模式
+DEBUG = False
+
+# lc
+# debug模式使用
+LC_APPID = "MTXYma4yaiLLO9VafgeAn6f-MdYXbMMI"
+LC_APPKEY = "08N7lfbBExsLkpy7Wp9amsiA"
+
+# debug blog link url
+# debug模式使用
+# FRIENPAGE_LINK = ["https://xmuli.tech/links/","https://chitang.1919810.com/links/","https://misaka-9936.github.io/links/","https://www.yyyzyyyz.cn/link/","https://zhangyazhuang.gitee.io/link/","https://akilar.top/link/","https://blog.raxianch.moe/link","https://hotarugali.github.io/link/","https://kaleb.top/link/"]
+FRIENPAGE_LINK = ["https://blog.ccknbc.cc/blogroll/"]
+
+################################以上禁止修改################################
 
 
-class contentChardetMiddleware(object):
-    """
-    编码处理中间件
-    """
-    def __init__(self):
-        self.encoderDict = {
-            "utf-8": "utf-8",
-            "UTF-8": "UTF-8",
-            "Windows-1254": "UTF-8",
-            "GBK": "GBK",
-            "gbk": "GBK",
-            "GB2312": "GB2312",
-            "gb2312": "GB2312",
-        }
 
-    def encoding_2_encoding(self, encodeName: str):
-        """
-        编码映射修正
-        :param encodeName: str, 获取的编码名称
-        :return:
-        """
-        return self.encoderDict.get("encodeName", "") \
-            if self.encoderDict.get("encodeName", "") else "utf-8"
+
+################################以下可以修改################################
+# leancloud post data outdate_clean
+# 过期文章清除（天）
+OUTDATE_CLEAN = 60
+
+
+# get links from settings
+SETTINGS_FRIENDS_LINKS={
+    "enable": False, # 是否启用配置项友链 True/False（此项用于针对还未适配的主题用户）
+    "list":[
+        # 格式：["name", "link", "avatar"]，除最后一行外每行后面加","，"[]"不可省略
+        # link的结尾最好加上'/'
+        # 例如：
+        ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
+        ["akilar", "https://akilar.top/link/", "https://akilar.top/images/headimage.png"]
+    ]
+}
+
+
+# get links from gitee
+# get links from gitee
+GITEE_FRIENDS_LINKS={
+    "enable": False,    # True 开启gitee issue兼容
+    "type": "normal",  # volantis用户请在这里填写 volantis
+    "owner": "ccknbc",  # 填写你的gitee用户名
+    "repo": "blogroll",  # 填写你的gitee仓库名
+    "state": "open"  # 填写抓取的issue状态(open/closed)
+}
+
+
+# get links from github
+GITHUB_FRIENDS_LINKS = {
+    "enable": False,    # True 开启github issue兼容
+    "type": "normal",  # volantis用户请在这里填写 volantis
+    "owner": "ccknbc-actions",  # 填写你的github用户名
+    "repo": "blogroll",  # 填写你的github仓库名
+    "state": "open"  # 填写抓取的issue状态(open/closed)
+}
+
+# retry allowed
+# 爬取url失败是否重试
+RETRY_ENABLED=False
+
+# block site list
+# 添加屏蔽站点
+BLOCK_SITE=[
+    # "https://example.com/",
+    # "https://example.com/",
+]
+
+# 除了在github配置的友链页面，支持添加更多友链页面，同时爬取
+# 但是数据保存在一起
+EXTRA_FRIENPAGE_LINK = [
+    # "https://noionion.top/",
+    # "https://kaleb.top/link/",
+]

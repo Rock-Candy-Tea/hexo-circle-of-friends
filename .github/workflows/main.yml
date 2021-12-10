@@ -1,19 +1,14 @@
-# 文章更新
 name: update-friends-posts
 
 on: 
-  release:
-    types: [published]
   push:
-    tags:
-    - 'v*'
-  #  branches: 
-  #    - master
+    branches: 
+     - master
   schedule:
-    - cron: "*/30 0,4,9,14 * * *"
+    - cron: "0 0,4,14,18,21 * * *"
   watch:
     types: [started]
-   
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,13 +20,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - name: Install requirements #安装requests
+    - name: Install requirements 
+      working-directory: ./hexo_circle_of_friends
       run: |
-        pip install -r requirements.txt
+        pip install -r requirement.txt
     - name: Update posts #更新
       env:
         $APP_ID: ${{ secrets.APPID }} 
         $APP_KEY: ${{ secrets.APPKEY }}
         $LINK: ${{ secrets.LINK }} 
+      working-directory: ./hexo_circle_of_friends
       run: | 
-        python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }}  ${{ secrets.LINK }}
+        python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }} ${{ secrets.LINK }}

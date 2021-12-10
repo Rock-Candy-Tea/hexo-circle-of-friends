@@ -1,7 +1,0 @@
-setting:
-  request: # 网络请求设置
-    timeout: 10 # gitee友链配置
-    ssl: false  # gitee友链配置
-
-# 这里说明，此config的大部分设置已迁移至setting.py，请到setting.py做相应修改
-
