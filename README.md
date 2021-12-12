@@ -17,9 +17,18 @@
 - 支持爬取wordpress类型的博客
 - 优化文章去重规则
 - 新增额外的友链页同时爬取，在配置项选择开启
+
+bug修复：
+- wordpress类型博客的时间格式问题
 ```
 
-预览链接：https://noionion.top/friendcircle/
+# 相关链接
+部署教程：https://noionion.top/47095.html
 
-教程请查阅：https://noionion.top/47095.html
+效果预览：https://noionion.top/friendcircle/
+
+提交bug：https://www.yyyzyyyz.cn/posts/b30617f07b86/
+
+前端样式：https://github.com/Akilarlxh/hexo-filter-fcircle
+
 

@@ -243,8 +243,8 @@ class FriendpageLinkSpider(scrapy.Spider):
             try:
                 for i in range(l):
                     m = pubDate[i].split(" ")
-                    mon = time.strptime(m[2], "%b").tm_mon
-                    date = m[3] + "-" + str(mon) + "-" + m[1]
+                    ts = time.strptime(m[3] + "-" + m[2] + "-" + m[1], "%Y-%b-%d")
+                    date = time.strftime("%Y-%m-%d", ts)
                     post_info = {
                         'title': title[i],
                         'time': date,
