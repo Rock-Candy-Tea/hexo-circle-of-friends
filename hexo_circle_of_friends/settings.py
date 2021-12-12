@@ -40,7 +40,7 @@ USER_AGENT_LIST = [
         ]
 ROBOTSTXT_OBEY = False
 CONCURRENT_REQUESTS = 128
-DOWNLOAD_TIMEOUT = 15
+DOWNLOAD_TIMEOUT = 30
 COOKIES_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
    # 'hexo_circle_of_friends.middlewares.HexoCircleOfFriendsDownloaderMiddleware': 543,
@@ -114,7 +114,7 @@ GITHUB_FRIENDS_LINKS = {
 
 # retry allowed
 # 爬取url失败是否重试
-RETRY_ENABLED=False
+RETRY_ENABLED=True
 
 # block site list
 # 添加屏蔽站点
