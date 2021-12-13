@@ -40,7 +40,7 @@ USER_AGENT_LIST = [
         ]
 ROBOTSTXT_OBEY = False
 CONCURRENT_REQUESTS = 128
-DOWNLOAD_TIMEOUT = 30
+DOWNLOAD_TIMEOUT = 15
 COOKIES_ENABLED = False
 DOWNLOADER_MIDDLEWARES = {
    # 'hexo_circle_of_friends.middlewares.HexoCircleOfFriendsDownloaderMiddleware': 543,

@@ -134,7 +134,7 @@ class FriendpageLinkSpider(scrapy.Spider):
             yield Request(friend[1] + "atom.xml", callback=self.post_atom_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
             yield Request(friend[1] + "feed/atom", callback=self.post_atom_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
+                          dont_filter=True, errback=self.typecho_errback_handler)
             yield Request(friend[1] + "rss.xml", callback=self.post_rss2_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
             yield Request(friend[1] + "rss2.xml", callback=self.post_rss2_parse, meta={"friend": friend},
@@ -556,6 +556,8 @@ class FriendpageLinkSpider(scrapy.Spider):
         # request = error.request
         # meta = error.request.meta
         pass
+    def typecho_errback_handler(self,error):
+        yield Request(error.request.url,callback=self.post_atom_parse,dont_filter=True,meta=error.request.meta,errback=self.errback_handler)
 
 
 def reg(info_list, user_info, source):
