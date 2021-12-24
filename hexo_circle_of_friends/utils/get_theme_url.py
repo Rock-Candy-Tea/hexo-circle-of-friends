@@ -7,6 +7,8 @@ def get_avatar_url(response):
         avatar = response.css('.flink-list a img::attr(data-lazy-src)').extract()
     if not avatar:
         avatar = response.css('.flink-list a .info img::attr(src)').extract()
+    if not avatar:
+        avatar = response.css('.flink-list a img::attr(src)').extract()
     # ------------- butterfly end --------------- #
 
     # ------------- fluid begin --------------- #
