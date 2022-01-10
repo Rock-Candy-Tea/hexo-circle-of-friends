@@ -3,13 +3,13 @@
 import calendar
 import datetime
 import time
-import re
 import scrapy
 import queue
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
 from bs4 import BeautifulSoup
 from hexo_circle_of_friends.utils.get_theme_url import *
+from hexo_circle_of_friends.utils.regulations import *
 import sys
 
 
@@ -34,14 +34,14 @@ class FriendpageLinkSpider(scrapy.Spider):
                 # print('头像链接%r' % user_info[2])
                 # print('主页链接%r' % user_info[1])
                 self.friend_poor.put(user_info)
-        if settings.GITEE_FRIENDS_LINKS['enable'] and settings.GITEE_FRIENDS_LINKS['type'] == 'normal':
+        if settings.GITEE_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://gitee.com'
                 dic = settings.GITEE_FRIENDS_LINKS
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + '/issues?state=' + dic[
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"gitee": {"domain": domain}})
-        if settings.GITHUB_FRIENDS_LINKS['enable'] and settings.GITHUB_FRIENDS_LINKS['type'] == 'normal':
+        if settings.GITHUB_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://github.com'
                 dic = settings.GITHUB_FRIENDS_LINKS
@@ -74,10 +74,14 @@ class FriendpageLinkSpider(scrapy.Spider):
             try:
                 content = ''.join(response.css("code *::text").extract())
                 user_info = []
-                info_list = ['name', 'link', 'avatar']
-                reg(info_list, user_info, content)
-                if user_info[1] != '你的链接':
+                if settings.GITHUB_FRIENDS_LINKS["type"] == "volantis":
+                    reg_volantis(user_info, content)
                     self.friend_poor.put(user_info)
+                else:
+                    info_list = ['name', 'link', 'avatar']
+                    reg_normal(info_list, user_info, content)
+                    if user_info[1] != '你的链接':
+                        self.friend_poor.put(user_info)
             except:
                 pass
 
@@ -92,10 +96,14 @@ class FriendpageLinkSpider(scrapy.Spider):
                 content = ''.join(response.css("pre *::text").extract())
                 if content!='':
                     user_info = []
-                    info_list = ['name', 'link', 'avatar']
-                    reg(info_list, user_info, content)
-                    if user_info[1] != '你的链接':
+                    if settings.GITHUB_FRIENDS_LINKS["type"] == "volantis":
+                        reg_volantis(user_info, content)
                         self.friend_poor.put(user_info)
+                    else:
+                        info_list = ['name', 'link', 'avatar']
+                        reg_normal(info_list, user_info, content)
+                        if user_info[1] != '你的链接':
+                            self.friend_poor.put(user_info)
             except:
                 pass
 
@@ -157,8 +165,9 @@ class FriendpageLinkSpider(scrapy.Spider):
                           errback=self.errback_handler)
             yield Request(friend[1], callback=self.theme_stun_parse, meta={"friend": friend}, dont_filter=True,
                           errback=self.errback_handler)
-
-        # friend = ['小冰博客', 'https://zfe.space/', 'https://zfe.space/images/headimage.png']
+            yield Request(friend[1], callback=self.theme_stellar_parse, meta={"friend": friend}, dont_filter=True,
+                          errback=self.errback_handler)
+        # friend = ['小冰博客', 'https://example.com', 'https://zfe.space/images/headimage.png']
         # [[1,1,1],[2,3,2]]
         # 将获取到的朋友列表传递到管道
         while not self.friend_list.empty():
@@ -290,16 +299,19 @@ class FriendpageLinkSpider(scrapy.Spider):
                     a = item.find('a').get("href")
                     alinksplit = a.split("/", 1)
                     stralink = alinksplit[1].strip()
-                    post_info = {
-                        'title': title,
-                        'time': lasttime,
-                        'updated': lasttime,
-                        'link': link + stralink,
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "butterfly"
-                    }
-                    yield post_info
+                    try:
+                        post_info = {
+                            'title': title,
+                            'time': lasttime,
+                            'updated': lasttime,
+                            'link': link + stralink,
+                            'name': friend[0],
+                            'img': friend[2],
+                            'rule': "butterfly"
+                        }
+                        yield post_info
+                    except:
+                        pass
 
     def theme_fluid_parse(self, response):
         # print("theme_fluid_parse---------->" + response.url)
@@ -332,16 +344,19 @@ class FriendpageLinkSpider(scrapy.Spider):
                     stralink = a['href']
                     if link[-1] != '/':
                         link = link + '/'
-                    post_info = {
-                        'title': item.find('h1', {"class": "index-header"}).text.strip(),
-                        'time': lasttime,
-                        'updated': lasttime,
-                        'link': link + stralink,
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "fluid"
-                    }
-                    yield post_info
+                    try:
+                        post_info = {
+                            'title': item.find('h1', {"class": "index-header"}).text.strip(),
+                            'time': lasttime,
+                            'updated': lasttime,
+                            'link': link + stralink,
+                            'name': friend[0],
+                            'img': friend[2],
+                            'rule': "fluid"
+                        }
+                        yield post_info
+                    except:
+                        pass
 
     def theme_matery_parse(self, response):
         # print("theme_matery_parse---------->" + response.url)
@@ -416,16 +431,19 @@ class FriendpageLinkSpider(scrapy.Spider):
                     if link[-1] != '/':
                         link = link + '/'
                     link = link.split('/')[0]
-                    post_info = {
-                        'title': item.find('h3').text.strip(),
-                        'time': lasttime,
-                        'updated': lasttime,
-                        'link': link + '/' + stralink,
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "sakura"
-                    }
-                    yield post_info
+                    try:
+                        post_info = {
+                            'title': item.find('h3').text.strip(),
+                            'time': lasttime,
+                            'updated': lasttime,
+                            'link': link + '/' + stralink,
+                            'name': friend[0],
+                            'img': friend[2],
+                            'rule': "sakura"
+                        }
+                        yield post_info
+                    except:
+                        pass
 
     def theme_volantis_parse(self, response):
         # print("theme_volantis_parse---------->" + response.url)
@@ -548,6 +566,30 @@ class FriendpageLinkSpider(scrapy.Spider):
                 except:
                     pass
 
+    def theme_stellar_parse(self, response):
+        # print("theme_stellar_parse---------->" + response.url)
+        friend = response.meta.get("friend")
+        partial_l = response.css(".post-list .post-card::attr(href)").extract()
+        title = response.css(".post-list .post-title::text").extract()
+        date = response.css("#post-meta time::attr(datetime)").extract()
+        if len(partial_l) == len(title) == len(date):
+            for i in range(len(partial_l)):
+                partial_l[i] = partial_l[i].lstrip("/")
+                date[i] = date[i].split("T")[0]
+                try:
+                    post_info = {
+                        'title': title[i],
+                        'time': date[i],
+                        'updated': date[i],
+                        'link': friend[1] + partial_l[i],
+                        'name': friend[0],
+                        'img': friend[2],
+                        'rule': "stellar"
+                    }
+                    yield post_info
+                except:
+                    pass
+
     def errback_handler(self, error):
         # 错误回调
         # todo error???
@@ -558,13 +600,3 @@ class FriendpageLinkSpider(scrapy.Spider):
         pass
     def typecho_errback_handler(self,error):
         yield Request(error.request.url,callback=self.post_atom_parse,dont_filter=True,meta=error.request.meta,errback=self.errback_handler)
-
-
-def reg(info_list, user_info, source):
-    # print('----')
-    for item in info_list:
-        reg = re.compile('(?<=' + item + ': ).*')
-        result = re.findall(reg, str(source))
-        result = result[0].replace('\r', '')
-        # print(result)
-        user_info.append(result)

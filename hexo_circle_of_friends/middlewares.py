@@ -31,6 +31,12 @@ class BlockSiteMiddleware:
         # print("now is %s"%request.url)
         return None
 
+class ProxyMiddleware(object):
+    def process_request(self, request, spider):
+        if settings.DEBUG and settings.HTTP_PROXY != "":
+            request.meta['proxy'] = settings.HTTP_PROXY
+        return None
+
 class HexoCircleOfFriendsSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the

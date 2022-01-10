@@ -46,6 +46,7 @@ DOWNLOADER_MIDDLEWARES = {
    # 'hexo_circle_of_friends.middlewares.HexoCircleOfFriendsDownloaderMiddleware': 543,
    'hexo_circle_of_friends.middlewares.RandomUserAgentMiddleware': 400,
    'hexo_circle_of_friends.middlewares.BlockSiteMiddleware': 300,
+   'hexo_circle_of_friends.middlewares.ProxyMiddleware': 299,
 
 }
 
@@ -62,6 +63,10 @@ DEBUG = False
 # debug模式使用
 LC_APPID = "MTXYma4yaiLLO9VafgeAn6f-MdYXbMMI"
 LC_APPKEY = "08N7lfbBExsLkpy7Wp9amsiA"
+
+# proxy
+# HTTP_PROXY = "192.168.1.106:10809"
+HTTP_PROXY = ""
 
 # debug blog link url
 # debug模式使用
@@ -96,7 +101,7 @@ SETTINGS_FRIENDS_LINKS={
 # get links from gitee
 GITEE_FRIENDS_LINKS={
     "enable": False,    # True 开启gitee issue兼容
-    "type": "normal",  # volantis用户请在这里填写 volantis
+    "type": "normal",  # volantis/stellar用户请在这里填写volantis
     "owner": "ccknbc",  # 填写你的gitee用户名
     "repo": "blogroll",  # 填写你的gitee仓库名
     "state": "open"  # 填写抓取的issue状态(open/closed)
@@ -106,9 +111,9 @@ GITEE_FRIENDS_LINKS={
 # get links from github
 GITHUB_FRIENDS_LINKS = {
     "enable": False,    # True 开启github issue兼容
-    "type": "normal",  # volantis用户请在这里填写 volantis
-    "owner": "ccknbc-actions",  # 填写你的github用户名
-    "repo": "blogroll",  # 填写你的github仓库名
+    "type": "normal",  # volantis/stellar用户请在这里填写volantis
+    "owner": "ccknbc",  # 填写你的github用户名
+    "repo": "ccknbc-actions",  # 填写你的github仓库名
     "state": "open"  # 填写抓取的issue状态(open/closed)
 }
 

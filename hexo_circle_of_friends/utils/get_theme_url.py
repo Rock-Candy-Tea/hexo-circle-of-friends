@@ -49,6 +49,11 @@ def get_avatar_url(response):
     if not avatar:
         avatar = response.css('.friends-plugin__item img::attr(data-src)').extract()
     # ------------- stun end --------------- #
+
+    # ------------- stellar begin --------------- #
+    if not avatar:
+        avatar = response.css('.card-link img::attr(data-src)').extract()
+    # ------------- stellar end --------------- #
     # print(avatar)
     return avatar
 
@@ -97,6 +102,11 @@ def get_link_url(response):
     if not link:
         link = response.css('.friends-plugin__item::attr(href)').extract()
     # ------------- stun end --------------- #
+
+    # ------------- stellar begin --------------- #
+    if not link:
+        link = response.css('.card-link::attr(href)').extract()
+    # ------------- stellar end --------------- #
     # print(link)
     return link
 
@@ -152,5 +162,10 @@ def get_name_url(response):
     if not name:
         name = response.css('.friends-plugin__item-info__name::attr(title)').extract()
     # ------------- stun end --------------- #
+
+    # ------------- stellar begin --------------- #
+    if not name:
+        name = response.css('.card-link span::text').extract()
+    # ------------- stellar end --------------- #
     # print(name)
     return name
