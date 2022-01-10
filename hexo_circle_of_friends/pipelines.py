@@ -126,10 +126,14 @@ class HexoCircleOfFriendsPipeline:
             if item[0] in self.nonerror_data:
                 # print("未失联的用户")
                 friendlist.set('error', "false")
-            else:
-                self.err_friend_num+=1
-                print("请求失败，请检查链接： %s"%item[1])
-                friendlist.set('error', "true")
+            elif settings.BLOCK_SITE:
+                for url in settings.BLOCK_SITE:
+                    if re.match(url, item[1]):
+                        friendlist.set('error', "false")
+                    else:
+                        self.err_friend_num += 1
+                        print("请求失败，请检查链接： %s" % item[1])
+                        friendlist.set('error', "true")
             friendlist.save()
             self.total_friend_num+=1
 
