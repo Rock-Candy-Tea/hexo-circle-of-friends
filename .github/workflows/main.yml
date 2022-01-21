@@ -28,7 +28,7 @@ jobs:
       env:
         $APP_ID: ${{ secrets.APPID }} 
         $APP_KEY: ${{ secrets.APPKEY }}
-        $LINK: ${{ secrets.LINK }} 
+        $PROXY: ${{ secrets.PROXY }} 
       working-directory: ./hexo_circle_of_friends
       run: | 
-        python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }} ${{ secrets.LINK }}
+        python run.py ${{ secrets.APPID }} ${{ secrets.APPKEY }} ${{ secrets.LINK }} ${{ secrets.PROXY }} 
