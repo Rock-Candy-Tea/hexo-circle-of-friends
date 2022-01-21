@@ -2,6 +2,7 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import sys
 
 from scrapy import signals
 from settings import USER_AGENT_LIST
@@ -33,8 +34,10 @@ class BlockSiteMiddleware:
 
 class ProxyMiddleware(object):
     def process_request(self, request, spider):
-        if settings.DEBUG and settings.HTTP_PROXY != "":
-            request.meta['proxy'] = settings.HTTP_PROXY
+        if settings.DEBUG and settings.HTTP_PROXY_URL != "":
+            request.meta['proxy'] = settings.HTTP_PROXY_URL
+        elif settings.HTTP_PROXY and len(sys.argv)>=5:
+            request.meta['proxy'] = sys.argv[4]
         return None
 
 class HexoCircleOfFriendsSpiderMiddleware:

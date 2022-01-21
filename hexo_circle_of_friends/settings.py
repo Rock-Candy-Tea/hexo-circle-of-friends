@@ -65,8 +65,8 @@ LC_APPID = "MTXYma4yaiLLO9VafgeAn6f-MdYXbMMI"
 LC_APPKEY = "08N7lfbBExsLkpy7Wp9amsiA"
 
 # proxy
-# HTTP_PROXY = "192.168.1.106:10809"
-HTTP_PROXY = ""
+# HTTP_PROXY_URL = "192.168.1.106:10809"
+HTTP_PROXY_URL = ""
 
 # debug blog link url
 # debug模式使用
@@ -98,7 +98,6 @@ SETTINGS_FRIENDS_LINKS={
 
 
 # get links from gitee
-# get links from gitee
 GITEE_FRIENDS_LINKS={
     "enable": False,    # True 开启gitee issue兼容
     "type": "normal",  # volantis/stellar用户请在这里填写volantis
@@ -127,6 +126,9 @@ BLOCK_SITE=[
     # "https://example.com/",
     # "https://example.com/",
 ]
+
+# 启用HTTP代理，此项设为True，并且需要在github仓库添加一个secret，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
+HTTP_PROXY = False
 
 # 除了在github配置的友链页面，支持添加更多友链页面，同时爬取
 # 但是数据保存在一起
