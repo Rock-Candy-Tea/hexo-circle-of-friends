@@ -223,20 +223,22 @@ class FriendpageLinkSpider(scrapy.Spider):
         friend = response.meta.get("friend")
         sel = scrapy.Selector(text=response.text)
         title = sel.css("item title::text").extract()
-        partial_l = [link.split("/",1)[1] for link in sel.css("item guid::text").extract()]
+        link = sel.css("item guid::text").extract()
         pubDate = sel.css("item pubDate::text").extract()
-        if len(partial_l)>0:
+        if len(link)>0:
             l = len(title) if len(title) < 5 else 5
             try:
                 for i in range(l):
                     m = pubDate[i].split(" ")
                     ts = time.strptime(m[3] + "-" + m[2] + "-" + m[1], "%Y-%b-%d")
                     date = time.strftime("%Y-%m-%d", ts)
+                    if link[i].startswith("/"):
+                        link[i] = friend[1] + link[i].split("/",1)[1]
                     post_info = {
                         'title': title[i],
                         'time': date,
                         'updated': date,
-                        'link': friend[1]+partial_l[i],
+                        'link': link[i],
                         'name': friend[0],
                         'img': friend[2],
                         'rule': "rss"
