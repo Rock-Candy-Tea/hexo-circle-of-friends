@@ -57,7 +57,7 @@ ITEM_PIPELINES = {
 
 # debug
 # debug模式
-DEBUG = False
+DEBUG = True
 
 # lc
 # debug模式使用
