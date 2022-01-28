@@ -196,24 +196,28 @@ class FriendpageLinkSpider(scrapy.Spider):
     def post_atom_parse(self, response):
         # print("post_atom_parse---------->" + response.url)
         friend = response.meta.get("friend")
-        sel = scrapy.Selector(text=response.text)
-        title = sel.css("entry title::text").extract()
-        link = sel.css("entry link::attr(href)").extract()
-        updated = sel.css("entry updated::text").extract()
-        if len(link)>0:
-            l = len(link) if len(link) < 5 else 5
+        soup = BeautifulSoup(response.text, "html.parser")
+        items = soup.find_all("entry")
+        if items:
+            if 0 < len(items) < 5:
+                l = len(items)
+            else:
+                l = 5
             try:
                 for i in range(l):
-                    date = updated[i][:10]
-                    post_info = {
-                        'title': title[i],
-                        'time': date,
-                        'updated': date,
-                        'link': link[i],
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "atom"
-                    }
+                    post_info = {}
+                    item = items[i]
+                    title = item.find("title").text
+                    url = item.find("link")['href']
+                    date = item.find("published").text[:10]
+                    updated = item.find("updated").text[:10]
+                    post_info['title'] = title
+                    post_info['time'] = date
+                    post_info['updated'] = updated
+                    post_info['link'] = url
+                    post_info['name'] = friend[0]
+                    post_info['img'] = friend[2]
+                    post_info['rule'] = "atom"
                     yield post_info
             except:
                 pass
