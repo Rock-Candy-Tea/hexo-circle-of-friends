@@ -28,12 +28,13 @@ class FriendpageLinkSpider(scrapy.Spider):
     def start_requests(self):
         # 从配置文件导入友链列表
         if settings.SETTINGS_FRIENDS_LINKS['enable']:
-            for user_info in settings.SETTINGS_FRIENDS_LINKS["list"]:
+            for li in settings.SETTINGS_FRIENDS_LINKS["list"]:
+                # user_info = [li[0],li[1],li[2]]
                 # print('----------------------')
-                # print('好友名%r' % user_info[0])
-                # print('头像链接%r' % user_info[2])
-                # print('主页链接%r' % user_info[1])
-                self.friend_poor.put(user_info)
+                # print('好友名%r' % li[0])
+                # print('头像链接%r' % li[2])
+                # print('主页链接%r' % li[1])
+                self.friend_poor.put(li)
         if settings.GITEE_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://gitee.com'
@@ -116,7 +117,6 @@ class FriendpageLinkSpider(scrapy.Spider):
             # print(avatar)
             # print(name)
             if len(link) == len(avatar) == len(name):
-
                 for i in range(len(link)):
                     if link[i] == "":
                         continue
@@ -137,8 +137,22 @@ class FriendpageLinkSpider(scrapy.Spider):
         # 要添加主题扩展，在这里添加一个请求
         while not self.friend_poor.empty():
             friend = self.friend_poor.get()
-            self.friend_list.put(friend)
             friend[1] += "/" if not friend[1].endswith("/") else ""
+            if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend)==5:
+                url = friend[1]+friend[3]
+                rules = friend[4]
+                if rules == "atom":
+                    yield Request(url, callback=self.post_atom_parse, meta={"friend": friend},
+                          dont_filter=True, errback=self.errback_handler)
+                elif rules == "rss":
+                    yield Request(url, callback=self.post_rss2_parse, meta={"friend": friend},
+                                  dont_filter=True, errback=self.errback_handler)
+                elif rules == "wordpress":
+                    yield Request(url, callback=self.post_wordpress_parse, meta={"friend": friend},
+                                  dont_filter=True, errback=self.errback_handler)
+                self.friend_list.put(friend[:3])
+                continue
+            self.friend_list.put(friend)
             yield Request(friend[1] + "atom.xml", callback=self.post_atom_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
             yield Request(friend[1] + "feed/atom", callback=self.post_atom_parse, meta={"friend": friend},
@@ -182,28 +196,24 @@ class FriendpageLinkSpider(scrapy.Spider):
     def post_atom_parse(self, response):
         # print("post_atom_parse---------->" + response.url)
         friend = response.meta.get("friend")
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.find_all("entry")
-        if items:
-            if 0 < len(items) < 5:
-                l = len(items)
-            else:
-                l = 5
+        sel = scrapy.Selector(text=response.text)
+        title = sel.css("entry title::text").extract()
+        link = sel.css("entry link::attr(href)").extract()
+        updated = sel.css("entry updated::text").extract()
+        if len(link)>0:
+            l = len(link) if len(link) < 5 else 5
             try:
                 for i in range(l):
-                    post_info = {}
-                    item = items[i]
-                    title = item.find("title").text
-                    url = item.find("link")['href']
-                    date = item.find("published").text[:10]
-                    updated = item.find("updated").text[:10]
-                    post_info['title'] = title
-                    post_info['time'] = date
-                    post_info['updated'] = updated
-                    post_info['link'] = url
-                    post_info['name'] = friend[0]
-                    post_info['img'] = friend[2]
-                    post_info['rule'] = "atom"
+                    date = updated[i][:10]
+                    post_info = {
+                        'title': title[i],
+                        'time': date,
+                        'updated': date,
+                        'link': link[i],
+                        'name': friend[0],
+                        'img': friend[2],
+                        'rule': "atom"
+                    }
                     yield post_info
             except:
                 pass
@@ -211,31 +221,26 @@ class FriendpageLinkSpider(scrapy.Spider):
     def post_rss2_parse(self, response):
         # print("post_rss2_parse---------->" + response.url)
         friend = response.meta.get("friend")
-        soup = BeautifulSoup(response.text, "lxml")
-        items = soup.find_all("item")
-        if not items:
-            items = soup.find_all("entry")
-        if items:
-            if 0 < len(items) < 5:
-                l = len(items)
-            else:
-                l = 5
+        sel = scrapy.Selector(text=response.text)
+        title = sel.css("item title::text").extract()
+        partial_l = [link.split("/",1)[1] for link in sel.css("item guid::text").extract()]
+        pubDate = sel.css("item pubDate::text").extract()
+        if len(partial_l)>0:
+            l = len(title) if len(title) < 5 else 5
             try:
                 for i in range(l):
-                    post_info = {}
-                    item = items[i]
-                    title = item.find("title").text
-                    url = item.find("link").text
-                    timedata = item.find("pubdate").text.split(" ")
-                    y, m, d = int(timedata[3]), list(calendar.month_abbr).index(timedata[2]), int(timedata[1])
-                    date = "{:02d}-{:02d}-{:02d}".format(y, m, d)
-                    post_info['title'] = title
-                    post_info['time'] = date
-                    post_info['updated'] = date
-                    post_info['link'] = url
-                    post_info['name'] = friend[0]
-                    post_info['img'] = friend[2]
-                    post_info['rule'] = "rss2"
+                    m = pubDate[i].split(" ")
+                    ts = time.strptime(m[3] + "-" + m[2] + "-" + m[1], "%Y-%b-%d")
+                    date = time.strftime("%Y-%m-%d", ts)
+                    post_info = {
+                        'title': title[i],
+                        'time': date,
+                        'updated': date,
+                        'link': friend[1]+partial_l[i],
+                        'name': friend[0],
+                        'img': friend[2],
+                        'rule': "rss"
+                    }
                     yield post_info
             except:
                 pass
@@ -247,7 +252,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         title = sel.css("item title::text").extract()
         link = [comm.split("#comments")[0] for comm in sel.css("item link+comments::text").extract()]
         pubDate = sel.css("item pubDate::text").extract()
-        if len(title) == len(link) == len(pubDate):
+        if len(link)>0:
             l = len(title) if len(title) < 5 else 5
             try:
                 for i in range(l):

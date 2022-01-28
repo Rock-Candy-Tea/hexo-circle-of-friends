@@ -9,6 +9,8 @@ def get_avatar_url(response):
         avatar = response.css('.flink-list a .info img::attr(src)').extract()
     if not avatar:
         avatar = response.css('.flink-list a img::attr(src)').extract()
+    if not avatar:
+        avatar = response.css('.flink .site-card .info img::attr(data-lazy-src)').extract()
     # ------------- butterfly end --------------- #
 
     # ------------- fluid begin --------------- #
@@ -61,6 +63,8 @@ def get_avatar_url(response):
 def get_link_url(response):
     # ------------- butterfly begin --------------- #
     link = response.css('.flink-list a::attr(href)').extract()
+    if not link:
+        link = response.css('.flink .site-card::attr(href)').extract()
     # ------------- butterfly end --------------- #
 
     # ------------- fluid begin --------------- #
@@ -116,6 +120,8 @@ def get_name_url(response):
     name = response.css('.flink-list .flink-sitename::text').extract()
     if not name:
         name = response.css('.flink-list a .flink-item-name::text').extract()
+    if not name:
+        name = response.css('.flink .site-card .info .title::text').extract()
     # ------------- butterfly end --------------- #
 
     # ------------- fluid begin --------------- #

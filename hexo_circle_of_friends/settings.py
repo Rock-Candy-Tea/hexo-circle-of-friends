@@ -61,8 +61,8 @@ DEBUG = False
 
 # lc
 # debug模式使用
-LC_APPID = "MTXYma4yaiLLO9VafgeAn6f-MdYXbMMI"
-LC_APPKEY = "08N7lfbBExsLkpy7Wp9amsiA"
+LC_APPID = "MTXYmy79JiLLO9VafgeAn8A-MdYXbMMI"
+LC_APPKEY = "08N7lfcelf7Lkpy7Wp9amsiA"
 
 # proxy
 # HTTP_PROXY_URL = "192.168.1.106:10809"
@@ -71,7 +71,7 @@ HTTP_PROXY_URL = ""
 # debug blog link url
 # debug模式使用
 # FRIENPAGE_LINK = ["https://xmuli.tech/links/","https://chitang.1919810.com/links/","https://misaka-9936.github.io/links/","https://www.yyyzyyyz.cn/link/","https://zhangyazhuang.gitee.io/link/","https://akilar.top/link/","https://blog.raxianch.moe/link","https://hotarugali.github.io/link/","https://kaleb.top/link/"]
-FRIENPAGE_LINK = ["https://blog.ccknbc.cc/blogroll/"]
+FRIENPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
 
 ################################以上禁止修改################################
 
@@ -85,14 +85,23 @@ OUTDATE_CLEAN = 60
 
 
 # get links from settings
+# 格式：["name", "link", "avatar","suffix","rules"]，
+# 参数说明：
+# name：必填，友链的名字
+# link：必填，友链主页地址
+# avatar：必填，头像地址
+# suffix：选填，自定义订阅后缀，如果填写此项，需要配合rules一起使用
+# rules：选填，解析类型，如果填写此项，需要配合suffix一起使用。目前支持atom、rss、wordpress
 SETTINGS_FRIENDS_LINKS={
     "enable": False, # 是否启用配置项友链 True/False（此项用于针对还未适配的主题用户）
     "list":[
-        # 格式：["name", "link", "avatar"]，除最后一行外每行后面加","，"[]"不可省略
-        # link的结尾最好加上'/'
-        # 例如：
+        # 示例1：
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
-        ["akilar", "https://akilar.top/link/", "https://akilar.top/images/headimage.png"]
+        ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
+        # 示例2：使用suffix和rules的配置如下
+        # Q：何时使用？A：主要针对不规范的网站订阅后缀，比如 https://elizen.me/index.xml
+        ["elizen", "https://elizen.me/", "https://akilar.top/images/headimage.png","index.xml","rss"],
+        ["shuiba", "https://blog.shuiba.co/", "https://akilar.top/images/headimage.png","feed","atom"],
     ]
 }
 
@@ -117,7 +126,7 @@ GITHUB_FRIENDS_LINKS = {
 }
 
 # retry allowed
-# 爬取url失败是否重试
+# 爬取url失败是否重试（重试3次）
 RETRY_ENABLED=True
 
 # block site list
