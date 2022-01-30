@@ -118,9 +118,6 @@ def get_stellar_url(response,queue):
 
 def handle(avatar,link,name,queue):
     user_info = []
-    print(avatar)
-    print(link)
-    print(name)
     n = min(len(avatar),len(link),len(name))
     if n != 0:
         for i in range(n):
