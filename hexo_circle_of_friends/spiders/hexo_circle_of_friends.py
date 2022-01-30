@@ -1,6 +1,5 @@
 # -*- coding:utf-8 -*-
 
-import calendar
 import datetime
 import time
 import scrapy
@@ -8,7 +7,7 @@ import queue
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
 from bs4 import BeautifulSoup
-from hexo_circle_of_friends.utils.get_theme_url import *
+from hexo_circle_of_friends.utils.get_url import get_theme_url,Yun_async_link_handler
 from hexo_circle_of_friends.utils.regulations import *
 import sys
 
@@ -50,7 +49,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"github": {"domain": domain}})
         if settings.DEBUG:
-            friendpage_link = settings.FRIENPAGE_LINK
+            friendpage_link = settings.FRIENDPAGE_LINK
         else:
             friendpage_link = []
             friendpage_link.append(sys.argv[3])
@@ -109,30 +108,16 @@ class FriendpageLinkSpider(scrapy.Spider):
                 pass
 
         if "theme" in response.meta.keys():
-            user_info = []
-            link = get_link_url(response)
-            avatar = get_avatar_url(response)
-            name = get_name_url(response)
-            # print(link)
-            # print(avatar)
-            # print(name)
-            if len(link) == len(avatar) == len(name):
-                for i in range(len(link)):
-                    if link[i] == "":
-                        continue
-                    user_info.append(name[i])
-                    user_info.append(link[i])
-                    user_info.append(avatar[i])
-                    self.friend_poor.put(user_info)
-                    user_info = []
-                    # print("""------------------------\n
-                    # name:%s
-                    # avatar:%s
-                    # link_list:%s
-                    # """%(name[i],avatar[i],link[i]))
-                    # print("total:%d"%i)
-
-        # print(self.friend_poor)
+            if settings.FRIENDPAGE_STRATEGY["strategy"] =="default":
+                theme = settings.FRIENDPAGE_STRATEGY["theme"]
+                async_link = get_theme_url(theme,response,self.friend_poor)
+                if async_link:
+                    # Yun主题的async_link临时解决
+                    yield Request(async_link,callback=self.friend_poor_parse,meta={"async_link":async_link},dont_filter=True)
+            else:
+                pass
+        if "async_link" in response.meta.keys():
+            Yun_async_link_handler(response,self.friend_poor)
 
         # 要添加主题扩展，在这里添加一个请求
         while not self.friend_poor.empty():
@@ -230,7 +215,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         link = sel.css("item guid::text").extract()
         pubDate = sel.css("item pubDate::text").extract()
         if len(link)>0:
-            l = len(title) if len(title) < 5 else 5
+            l = len(link) if len(link) < 5 else 5
             try:
                 for i in range(l):
                     m = pubDate[i].split(" ")
@@ -259,7 +244,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         link = [comm.split("#comments")[0] for comm in sel.css("item link+comments::text").extract()]
         pubDate = sel.css("item pubDate::text").extract()
         if len(link)>0:
-            l = len(title) if len(title) < 5 else 5
+            l = len(link) if len(link) < 5 else 5
             try:
                 for i in range(l):
                     m = pubDate[i].split(" ")
@@ -420,29 +405,29 @@ class FriendpageLinkSpider(scrapy.Spider):
         main_content = soup.find_all(id='main')
         time_excit = soup.find_all('div', {"class": "post-date"})
         if main_content and time_excit:
-            link_list = main_content[0].find_all('div', {"class": "post-date"})
-            lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
-            for index, item in enumerate(link_list):
-                date = item.text
-                date = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", date).group(0)
-                if lasttime < datetime.datetime.strptime(date, "%Y-%m-%d"):
-                    lasttime = datetime.datetime.strptime(date, "%Y-%m-%d")
-            lasttime = lasttime.strftime('%Y-%m-%d')
-            # print('最新时间是', lasttime)
-            last_post_list = main_content[0].find_all('article', {"class": "post"})
-            for item in last_post_list:
-                time_created = item.find('div', {"class": "post-date"}).text.strip()
-                time_created = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", time_created).group(0)
-                time_created = datetime.datetime.strptime(time_created, "%Y-%m-%d").strftime("%Y-%m-%d")
-                if time_created == lasttime:
-                    a = item.find('a')
-                    alink = a['href']
-                    alinksplit = alink.split("/", 1)
-                    stralink = alinksplit[1].strip()
-                    if link[-1] != '/':
-                        link = link + '/'
-                    link = link.split('/')[0]
-                    try:
+            try:
+                link_list = main_content[0].find_all('div', {"class": "post-date"})
+                lasttime = datetime.datetime.strptime('1970-01-01', "%Y-%m-%d")
+                for index, item in enumerate(link_list):
+                    date = item.text
+                    date = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", date).group(0)
+                    if lasttime < datetime.datetime.strptime(date, "%Y-%m-%d"):
+                        lasttime = datetime.datetime.strptime(date, "%Y-%m-%d")
+                lasttime = lasttime.strftime('%Y-%m-%d')
+                # print('最新时间是', lasttime)
+                last_post_list = main_content[0].find_all('article', {"class": "post"})
+                for item in last_post_list:
+                    time_created = item.find('div', {"class": "post-date"}).text.strip()
+                    time_created = re.search(r"(\d{4}-\d{1,2}-\d{1,2})", time_created).group(0)
+                    time_created = datetime.datetime.strptime(time_created, "%Y-%m-%d").strftime("%Y-%m-%d")
+                    if time_created == lasttime:
+                        a = item.find('a')
+                        alink = a['href']
+                        alinksplit = alink.split("/", 1)
+                        stralink = alinksplit[1].strip()
+                        if link[-1] != '/':
+                            link = link + '/'
+                        link = link.split('/')[0]
                         post_info = {
                             'title': item.find('h3').text.strip(),
                             'time': lasttime,
@@ -453,8 +438,8 @@ class FriendpageLinkSpider(scrapy.Spider):
                             'rule': "sakura"
                         }
                         yield post_info
-                    except:
-                        pass
+            except:
+                pass
 
     def theme_volantis_parse(self, response):
         # print("theme_volantis_parse---------->" + response.url)
@@ -510,13 +495,14 @@ class FriendpageLinkSpider(scrapy.Spider):
         partial_l = response.css("section.nexmoe-posts .nexmoe-post>a::attr(href)").extract()
         title = response.css("section.nexmoe-posts .nexmoe-post h1::text").extract()
         date = response.css("section.nexmoe-posts .nexmoe-post-meta a:first-child::text").extract()
-        if len(partial_l) == len(title) == len(date):
-            for i in range(len(partial_l)):
-                partial_l[i] = partial_l[i].lstrip("/")
-                r = re.split(r"[年月日]", date[i])
-                y, m, d = r[0], r[1], r[2]
-                date = y + "-" + m + "-" + d
-                try:
+        if len(partial_l)>0:
+            try:
+                l = len(partial_l) if len(partial_l) < 5 else 5
+                for i in range(l):
+                    partial_l[i] = partial_l[i].lstrip("/")
+                    r = re.split(r"[年月日]", date[i])
+                    y, m, d = r[0], r[1], r[2]
+                    date = y + "-" + m + "-" + d
                     post_info = {
                         'title': title[i],
                         'time': date,
@@ -527,8 +513,8 @@ class FriendpageLinkSpider(scrapy.Spider):
                         'rule': "nexmoe"
                     }
                     yield post_info
-                except:
-                    pass
+            except:
+                pass
 
     def theme_Yun_parse(self, response):
         # print("theme_Yun_parse---------->" + response.url)

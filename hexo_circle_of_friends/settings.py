@@ -78,13 +78,33 @@ FRIENPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
 
 
 
-################################以下可以修改################################
-# leancloud post data outdate_clean
+################################请修改以下内容################################
+# outdate_clean
 # 过期文章清除（天）
 OUTDATE_CLEAN = 60
 
+# 友链页的获取策略
+# 从4.1.3版本开始，为了程序更精准解析您的主题，需要配置此项
+# 参数说明：
+# strategy：必填，可选参数如下：
+#   - default：默认。指定友链页主题。示例：如果您的友链页为https://www.yyyzyyyz.cn/link/，请选择butterfly，以此类推
+#   - incompat：如果theme中不支持您的主题，请选择此项。此时建议使用配置项友链
+# theme：必填，可选参数如下（这些是目前支持的主题）：
+#   - butterfly：butterfly主题
+#   - fluid：fluid主题
+#   - matery：matery主题
+#   - nexmoe：nexmoe主题
+#   - stun：stun主题
+#   - sakura: sakura主题
+#   - volantis：volantis主题
+#   - Yun：Yun主题
+#   - stellar：stellar主题
+FRIENDPAGE_STRATEGY={
+    "strategy": "default",
+    "theme": "butterfly"  # 请修改为您的主题
+}
 
-# get links from settings
+# 配置项友链
 # 格式：["name", "link", "avatar","suffix","rules"]，
 # 参数说明：
 # name：必填，友链的名字
@@ -107,6 +127,7 @@ SETTINGS_FRIENDS_LINKS={
 
 
 # get links from gitee
+# 从gitee issue中获取友链
 GITEE_FRIENDS_LINKS={
     "enable": False,    # True 开启gitee issue兼容
     "type": "normal",  # volantis/stellar用户请在这里填写volantis
@@ -117,6 +138,7 @@ GITEE_FRIENDS_LINKS={
 
 
 # get links from github
+# 从github issue中获取友链
 GITHUB_FRIENDS_LINKS = {
     "enable": False,    # True 开启github issue兼容
     "type": "normal",  # volantis/stellar用户请在这里填写volantis
