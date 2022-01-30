@@ -71,7 +71,7 @@ HTTP_PROXY_URL = ""
 # debug blog link url
 # debug模式使用
 # FRIENPAGE_LINK = ["https://xmuli.tech/links/","https://chitang.1919810.com/links/","https://misaka-9936.github.io/links/","https://www.yyyzyyyz.cn/link/","https://zhangyazhuang.gitee.io/link/","https://akilar.top/link/","https://blog.raxianch.moe/link","https://hotarugali.github.io/link/","https://kaleb.top/link/"]
-FRIENPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
+FRIENDPAGE_LINK = ["https://zfe.space/link/"]
 
 ################################以上禁止修改################################
 
