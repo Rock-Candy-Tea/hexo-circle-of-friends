@@ -46,8 +46,7 @@ async def friend():
 async def random_friend():
     '''随机返回一个友链信息
     '''
-    list = ['name', 'link', 'avatar']
-    return query_random_friend(list)
+    return query_random_friend()
 
 
 @app.get("/randompost", tags=["API"], summary="返回随机文章")

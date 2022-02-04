@@ -78,7 +78,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     return data
 
 
-def query_friend(list):
+def query_friend():
     # Verify key
     db_init()
 
@@ -101,7 +101,7 @@ def query_friend(list):
     return friend_list_json
 
 
-def query_random_friend(list):
+def query_random_friend():
     # Verify key
     db_init()
 
@@ -114,11 +114,12 @@ def query_random_friend(list):
     # Result to arr
     friend_list_json = []
     for item in query_list_user:
-        itemlist = {}
-        for elem in list:
-            itemlist[elem] = item.get(elem)
+        itemlist = {
+            'name': item.get('frindname'),
+            'link': item.get('friendlink'),
+            'avatar': item.get('firendimg')
+        }
         friend_list_json.append(itemlist)
-
     return random.choice(friend_list_json)
 
 

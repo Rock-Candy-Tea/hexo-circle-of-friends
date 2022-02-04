@@ -117,7 +117,7 @@ class LeancloudPipeline:
     def friendlist_push(self):
         for index, item in enumerate(self.userdata):
             friendlist = self.Friendslist()
-            friendlist.set('frindname', item[0])
+            friendlist.set('friendname', item[0])
             friendlist.set('friendlink', item[1])
             friendlist.set('firendimg', item[2])
             if item[0] in self.nonerror_data:
