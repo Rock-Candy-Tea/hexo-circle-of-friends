@@ -200,5 +200,5 @@ def query_post_json(jsonlink, list, start, end, rule):
         'last_updated_time': last_update_time,
         'linknoninPub_list': error_list
     }
-    data['article_data'] = post_data[start:end]
+    data['article_data'] = post_data
     return data
