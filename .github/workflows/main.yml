@@ -43,9 +43,8 @@ jobs:
         python-version: 3.6
 
     - name: Install requirements
-      working-directory: ./hexo_circle_of_friends
       run: |
-        pip install -r requirement.txt
+        pip install -r requirements.txt
 
     - name: leancloud Update posts # leancloud
       if: ${{ env.STORAGE_TYPE == 'leancloud' }}

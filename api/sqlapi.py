@@ -14,13 +14,13 @@ from sqlalchemy.sql.expression import desc, func
 def db_init():
     if settings.DEBUG:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///../hexo_circle_of_friends/data.db"
+            conn = "sqlite:///../data.db"
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % ("root", "123456", "localhost", "test")
     else:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///../hexo_circle_of_friends/data.db"
+            conn = "sqlite:///../data.db"
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
