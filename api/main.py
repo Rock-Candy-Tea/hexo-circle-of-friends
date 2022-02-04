@@ -53,8 +53,7 @@ async def random_friend():
 async def random_post():
     '''随机返回一篇文章信息
     '''
-    list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
-    return query_random_post(list)
+    return query_random_post()
 
 
 @app.get("/post", tags=["API"], summary="返回指定链接的所有文章")

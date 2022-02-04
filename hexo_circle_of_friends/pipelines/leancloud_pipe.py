@@ -147,7 +147,7 @@ class LeancloudPipeline:
         friendpoor.set('updated', item['updated'])
         friendpoor.set('link', item['link'])
         friendpoor.set('author', item['name'])
-        friendpoor.set('headimg', item['img'])
+        friendpoor.set('avatar', item['img'])
         friendpoor.set('rule', item['rule'])
         friendpoor.save()
         print("----------------------")

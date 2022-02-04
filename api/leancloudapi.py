@@ -21,13 +21,13 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     query = Friendspoor.query
     query.descending('time')
     query.limit(1000)
-    query.select('title', 'created', 'updated', 'link', 'author', 'headimg', 'createdAt')
+    query.select('title', 'created', 'updated', 'link', 'author', 'avatar', 'createdAt')
     query_list = query.find()
 
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
     query_userinfo.limit(1000)
-    query_userinfo.select('frindname', 'friendlink', 'firendimg', 'error')
+    query_userinfo.select('friendname', 'friendlink', 'firendimg', 'error')
     query_list_user = query_userinfo.find()
 
     # Result to arr
@@ -54,7 +54,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
             if elem == 'created':
                 itemlist[elem] = item.get('created')
             elif elem == 'avatar':
-                itemlist[elem] = item.get('headimg')
+                itemlist[elem] = item.get('avatar')
             else:
                 itemlist[elem] = item.get(elem)
         article_data_init.append(itemlist)
@@ -85,14 +85,14 @@ def query_friend():
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
     query_userinfo.limit(1000)
-    query_userinfo.select('frindname', 'friendlink', 'firendimg')
+    query_userinfo.select('friendname', 'friendlink', 'firendimg')
     query_list_user = query_userinfo.find()
 
     # Result to arr
     friend_list_json = []
     for item in query_list_user:
         itemlist = {
-            'name': item.get('frindname'),
+            'name': item.get('friendname'),
             'link': item.get('friendlink'),
             'avatar': item.get('firendimg')
         }
@@ -108,22 +108,23 @@ def query_random_friend():
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
     query_userinfo.limit(1000)
-    query_userinfo.select('name', 'link', 'avatar', 'descr')
+    query_userinfo.select('friendname', 'friendlink', 'firendimg')
     query_list_user = query_userinfo.find()
 
     # Result to arr
     friend_list_json = []
     for item in query_list_user:
         itemlist = {
-            'name': item.get('frindname'),
+            'name': item.get('friendname'),
             'link': item.get('friendlink'),
             'avatar': item.get('firendimg')
         }
         friend_list_json.append(itemlist)
+    print(friend_list_json)
     return random.choice(friend_list_json)
 
 
-def query_random_post(rule, list):
+def query_random_post():
     # Verify key
     db_init()
 
@@ -137,18 +138,21 @@ def query_random_post(rule, list):
     article_data_init = []
     article_data = []
     for item in query_list:
-        itemlist = {}
-        for elem in list:
-            itemlist[elem] = item.get(elem)
+        itemlist = {
+            "title" : item.get("title"),
+            "created" : item.get("created"),
+            "updated" : item.get("updated"),
+            "link" : item.get("link"),
+            "author" : item.get("author"),
+            "avatar" : item.get("avatar"),
+        }
         article_data_init.append(itemlist)
-
-    article_data_init.sort(key=lambda x: x[rule], reverse=True)
+    article_data_init.sort(key=lambda x: x["updated"], reverse=True)
     index = 1
     for item in article_data_init:
         item["floor"] = index
         index += 1
         article_data.append(item)
-
     return random.choice(article_data)
 
 
