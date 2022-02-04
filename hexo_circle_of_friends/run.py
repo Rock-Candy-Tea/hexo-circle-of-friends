@@ -1,6 +1,9 @@
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
+import schedule
+import time
+
 def main():
     setting = get_project_settings()
     # init settings
@@ -21,4 +24,18 @@ def initsettings(setting):
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
 
 if __name__ == '__main__':
-    main()
+    if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":
+        # server/docker部署
+        schedule.every(6).hours.do(main)
+        schedule.run_all()
+        while 1:
+            n = schedule.idle_seconds()
+            if n is None:
+                # no more jobs
+                break
+            elif n > 0:
+                # sleep exactly the right amount of time
+                time.sleep(n)
+            schedule.run_pending()
+    else:
+        main()

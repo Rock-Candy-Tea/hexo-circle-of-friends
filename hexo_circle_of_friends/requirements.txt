@@ -58,3 +58,4 @@ w3lib==1.22.0
 Werkzeug==1.0.1
 zope.event==4.5.0
 zope.interface==5.4.0
+schedule==1.1.0

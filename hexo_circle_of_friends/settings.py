@@ -84,10 +84,10 @@ EXTRA_FRIENPAGE_LINK = [
     # "https://kaleb.top/link/",
 ]
 
-# 选择采用的存储，暂时支持leancloud，mysql, sqlite，默认为leancloud
+# 存储方式，可选项：leancloud，mysql, sqlite；默认为leancloud
 DATABASE = "leancloud"
 
-# 服务器部署相关
+# 部署方式，可选项：github，server，docker；默认为github
 DEPLOY_TYPE = "github"
 
 ################################请修改以上内容################################

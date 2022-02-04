@@ -1,9 +1,13 @@
 # -*- coding:utf-8 -*-
 import uvicorn
+import sys
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
+
 from hexo_circle_of_friends import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 if settings.DATABASE == 'leancloud':
     from api.leancloudapi import *
 elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
@@ -78,4 +82,7 @@ async def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "up
     return query_post_json(jsonlink, list, start, end, rule)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1")
+    if settings.DEPLOY_TYPE == "docker":
+        uvicorn.run("main:app", host="0.0.0.0")
+    else:
+        uvicorn.run("main:app", host="127.0.0.1")
