@@ -5,9 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 if settings.DATABASE == 'leancloud':
-    from leancloudapi import *
+    from api.leancloudapi import *
 elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
-    from sqlapi import *
+    from api.sqlapi import *
 
 app = FastAPI()
 
