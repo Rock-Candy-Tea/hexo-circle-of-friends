@@ -13,7 +13,6 @@ constantly==15.1.0
 contextlib2==21.6.0
 contextvars==2.4
 cryptography==36.0.0
-cssselect==1.1.0
 dataclasses==0.8
 fastapi==0.73.0
 feedparser==6.0.8
