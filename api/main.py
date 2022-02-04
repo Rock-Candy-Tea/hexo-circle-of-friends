@@ -63,8 +63,7 @@ async def post(link: str = None, num: int = -1, rule: str = "created"):
     - num: 指定链接的文章信息列表 按rule排序后的顺序的前num篇
     - rule: 文章排序规则（创建时间/更新时间）
     '''
-    list = ['title', 'link', 'created', 'updated']
-    return query_post(link, num, rule, list)
+    return query_post(link, num, rule)
 
 
 @app.get("/postjson", tags=["API"], summary="返回指定所有链接的所有文章")

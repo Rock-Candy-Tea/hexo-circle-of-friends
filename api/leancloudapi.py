@@ -156,7 +156,7 @@ def query_random_post():
     return random.choice(article_data)
 
 
-def query_post(link, num, rule, list):
+def query_post(link, num, rule):
     # Verify key
     db_init()
 
@@ -171,33 +171,34 @@ def query_post(link, num, rule, list):
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
     query_userinfo.limit(1000)
-    query_userinfo.select('name', 'link', 'avatar', 'descr')
+    query_userinfo.select('friendname', 'friendlink', 'firendimg')
     query_list_user = query_userinfo.find()
 
     if link is None:
-        link = random.choice(query_list_user).get('link')
-    author = None
-    avatar = None
-    article_num = None
+        link = random.choice(query_list_user).get('friendlink')
     api_json = {}
-
     if link.startswith('http'):
         links = link.split('/')[2]
     else:
         links = link
+
+    author = None
+    avatar = None
     article_data_init = []
     article_data = []
     for item in query_list:
-        itemlist = {}
         if links in item.get('link'):
-            if author is None:
-                author = item.get('author')
-            if avatar is None:
-                avatar = item.get('avatar')
-            for elem in list:
-                itemlist[elem] = item.get(elem)
+            author = item.get('author')
+            avatar = item.get('avatar')
+            itemlist = {
+                "title": item.get("title"),
+                "link": item.get("link"),
+                "created": item.get("created"),
+                "updated": item.get("updated"),
+            }
             article_data_init.append(itemlist)
-
+    if not author:
+        return {"message": "not found"}
     article_num = len(article_data_init)
     api_json['statistical_data'] = {
         "author": author,
@@ -216,7 +217,6 @@ def query_post(link, num, rule, list):
         item["floor"] = index
         index += 1
         article_data.append(item)
-
     api_json['article_data'] = article_data[:num]
     return api_json
 
@@ -224,7 +224,6 @@ def query_post(link, num, rule, list):
 def query_post_json(jsonlink, list, start, end, rule):
     # Verify key
     db_init()
-
     # Declare class
     Friendspoor = leancloud.Object.extend('friend_poor')
     query = Friendspoor.query
@@ -240,14 +239,9 @@ def query_post_json(jsonlink, list, start, end, rule):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36 Edg/87.0.664.66"
     }
     jsonhtml = requests.get(jsonlink, headers=headers).text
-    linklist = json.loads(jsonhtml)
-
-    linkset = set()
-    for link in linklist:
-        linkset.add(link)
+    linklist = set(json.loads(jsonhtml))
 
     api_json = {}
-
     article_data_init = []
     article_data = []
     linkinPubLibrary_set = set()
@@ -281,7 +275,7 @@ def query_post_json(jsonlink, list, start, end, rule):
         index += 1
         article_data.append(item)
 
-    friends_num = len(linkset)
+    friends_num = len(linklist)
     linkinPubLibrary_num = len(linkinPubLibrary_set)
     linknoninPub_list = [link for link in linklist if link not in linkinPubLibrary_set]
     linknoninPub_num = len(linknoninPub_list)
