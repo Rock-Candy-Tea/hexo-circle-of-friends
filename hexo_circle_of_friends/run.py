@@ -13,6 +13,5 @@ def main():
         # print("Running spider %s" % (spider_name))
         process.crawl(spider_name)
     process.start()
-
 if __name__ == '__main__':
     main()
