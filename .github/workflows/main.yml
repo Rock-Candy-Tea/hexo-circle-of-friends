@@ -40,9 +40,10 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
-        python-version: 3.6
+        python-version: 3.8
 
     - name: Install requirements
+      working-directory: ./hexo_circle_of_friends
       run: |
         pip install -r requirements.txt
 
