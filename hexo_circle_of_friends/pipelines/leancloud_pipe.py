@@ -109,10 +109,10 @@ class LeancloudPipeline:
                 delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
                 out_date_post += 1
-        print('\n')
-        print('共删除了%s篇文章' % out_date_post)
-        print('\n')
-        print('-------结束删除规则----------')
+        # print('\n')
+        # print('共删除了%s篇文章' % out_date_post)
+        # print('\n')
+        # print('-------结束删除规则----------')
 
     def friendlist_push(self):
         for index, item in enumerate(self.userdata):
