@@ -6,7 +6,7 @@ import requests
 from urllib import parse
 from hexo_circle_of_friends import settings
 from sqlalchemy import create_engine
-from hexo_circle_of_friends.models import Friend, Post, Model
+from hexo_circle_of_friends.models import Friend, Post
 from sqlalchemy.orm import sessionmaker,scoped_session
 from sqlalchemy.sql.expression import desc, func
 
@@ -29,32 +29,29 @@ def db_init():
         engine = create_engine(conn, pool_recycle=-1)
     except:
         raise Exception("MySQL连接失败")
-    Model.metadata.create_all(engine, checkfirst=True)
     Session = sessionmaker(bind=engine)
     session = scoped_session(Session)
     return session
 
 
-def query_all(list, start, end, rule):
+def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     session = db_init()
-
-    posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
-    post_num = session.query(Post).limit(1000).count()
-    last_update_time = session.query(Post).limit(1000).with_entities(Post.createAt).all()
-    last_update_time = max(x["createAt"].strftime("%Y-%m-%d %H:%M:%S") for x in last_update_time)
-
+    article_num = session.query(Post).count()
     if end == -1:
-        end = min(post_num, 1000)
-    if start < 0 or start >= min(post_num, 1000):
+        end = min(article_num, 1000)
+    if start < 0 or start >= min(article_num, 1000):
         return {"message": "start error"}
-    if end <= 0 or end > min(post_num, 1000):
+    if end <= 0 or end > min(article_num, 1000):
         return {"message": "end error"}
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
 
-    friends = session.query(Friend).limit(1000).all()
-    friends_num = len(friends)
-    active_num = session.query(Friend).filter(Friend.status == False).count()
+    posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
+    last_update_time = session.query(Post).limit(1000).with_entities(Post.createAt).all()
+    last_update_time = max(x["createAt"].strftime("%Y-%m-%d %H:%M:%S") for x in last_update_time)
+
+    friends_num = session.query(Friend).count()
+    active_num = session.query(Friend).filter_by(error=False).count()
     error_num = friends_num - active_num
 
     data = {}
@@ -62,13 +59,13 @@ def query_all(list, start, end, rule):
         'friends_num': friends_num,
         'active_num': active_num,
         'error_num': error_num,
-        'article_num': post_num,
+        'article_num': article_num,
         'last_updated_time': last_update_time
     }
 
     post_data = []
     for k in range(len(posts)):
-        item = {'floor': start + k + 1}
+        item = {'floor': k + 1}
         for elem in list:
             item[elem] = getattr(posts[k], elem)
         post_data.append(item)
@@ -91,33 +88,40 @@ def query_friend():
             'avatar': friend.avatar
         }
         friend_list_json.append(item)
-
     return friend_list_json
 
 
-def query_random_friend(list):
+def query_random_friend():
     session = db_init()
     data: Friend = session.query(Friend).order_by(func.random()).first()
     session.close()
 
-    item = {}
-    for elem in list:
-        item[elem] = getattr(data, elem)
-    return item
+    itemlist = {
+        'name': data.name,
+        'link': data.link,
+        'avatar': data.avatar
+    }
+
+    return itemlist
 
 
-def query_random_post(list):
+def query_random_post():
     session = db_init()
     data: Post = session.query(Post).order_by(func.random()).first()
     session.close()
 
-    item = {}
-    for elem in list:
-        item[elem] = getattr(data, elem)
-    return item
+    itemlist = {
+        "title": data.title,
+        "created": data.created,
+        "updated": data.updated,
+        "link": data.link,
+        "author": data.author,
+        "avatar": data.avatar,
+    }
+    return itemlist
 
 
-def query_post(link, num, rule, list):
+def query_post(link, num, rule,):
     session = db_init()
     if link is None:
         user = session.query(Friend).filter_by(error=False).order_by(func.random()).first()
@@ -130,12 +134,17 @@ def query_post(link, num, rule, list):
     session.close()
 
     data = []
-    for post in posts:
-        item = {}
-        for elem in list:
-            item[elem] = getattr(post, elem)
-        data.append(item)
-    return {
+    for floor,post in enumerate(posts):
+        itemlist = {
+            "title": post.title,
+            "link": post.link,
+            "created": post.created,
+            "updated": post.updated,
+            "floor": floor+1
+        }
+        data.append(itemlist)
+
+    api_json = {
         "statistical_data": {
             "author": user.name,
             "link": user.link,
@@ -144,6 +153,8 @@ def query_post(link, num, rule, list):
         },
         "article_data": data
     }
+
+    return api_json
 
 
 def query_post_json(jsonlink, list, start, end, rule):

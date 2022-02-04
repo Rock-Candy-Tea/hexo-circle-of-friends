@@ -25,7 +25,7 @@ app.add_middleware(
 
 
 @app.get("/all", tags=["API"], summary="返回完整统计信息")
-async def all(start: int = 0, end: int = -1, rule: str = "created"):
+async def all(start: int = 0, end: int = -1, rule: str = "updated"):
     '''返回数据库统计信息和文章信息列表
     - start: 文章信息列表从 按rule排序后的顺序 的开始位置
     - end: 文章信息列表从 按rule排序后的顺序 的结束位置

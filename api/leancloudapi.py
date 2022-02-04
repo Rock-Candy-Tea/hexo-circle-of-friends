@@ -120,7 +120,6 @@ def query_random_friend():
             'avatar': item.get('firendimg')
         }
         friend_list_json.append(itemlist)
-    print(friend_list_json)
     return random.choice(friend_list_json)
 
 
@@ -148,10 +147,7 @@ def query_random_post():
         }
         article_data_init.append(itemlist)
     article_data_init.sort(key=lambda x: x["updated"], reverse=True)
-    index = 1
     for item in article_data_init:
-        item["floor"] = index
-        index += 1
         article_data.append(item)
     return random.choice(article_data)
 
