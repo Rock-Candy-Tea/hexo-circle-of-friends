@@ -1,15 +1,16 @@
 # -*- coding:utf-8 -*-
 
 import datetime
+import os
 import time
 import scrapy
 import queue
+import feedparser
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
 from bs4 import BeautifulSoup
 from hexo_circle_of_friends.utils.get_url import get_theme_url,Yun_async_link_handler
 from hexo_circle_of_friends.utils.regulations import *
-import sys
 
 
 # from hexo_circle_of_friends import items todo use items
@@ -52,7 +53,7 @@ class FriendpageLinkSpider(scrapy.Spider):
             friendpage_link = settings.FRIENDPAGE_LINK
         else:
             friendpage_link = []
-            friendpage_link.append(sys.argv[3])
+            friendpage_link.append(os.environ["LINK"])
             if settings.EXTRA_FRIENPAGE_LINK:
                 friendpage_link.extend(settings.EXTRA_FRIENPAGE_LINK)
 
@@ -123,30 +124,21 @@ class FriendpageLinkSpider(scrapy.Spider):
         while not self.friend_poor.empty():
             friend = self.friend_poor.get()
             friend[1] += "/" if not friend[1].endswith("/") else ""
-            if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend)==5:
+            if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend)==4:
                 url = friend[1]+friend[3]
-                rules = friend[4]
-                if rules == "atom":
-                    yield Request(url, callback=self.post_atom_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
-                elif rules == "rss":
-                    yield Request(url, callback=self.post_rss2_parse, meta={"friend": friend},
-                                  dont_filter=True, errback=self.errback_handler)
-                elif rules == "wordpress":
-                    yield Request(url, callback=self.post_wordpress_parse, meta={"friend": friend},
-                                  dont_filter=True, errback=self.errback_handler)
+                yield Request(url, callback=self.post_feed_parse, meta={"friend": friend},dont_filter=True, errback=self.errback_handler)
                 self.friend_list.put(friend[:3])
                 continue
             self.friend_list.put(friend)
-            yield Request(friend[1] + "atom.xml", callback=self.post_atom_parse, meta={"friend": friend},
+            yield Request(friend[1] + "atom.xml", callback=self.post_feed_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "feed/atom", callback=self.post_atom_parse, meta={"friend": friend},
+            yield Request(friend[1] + "feed/atom", callback=self.post_feed_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.typecho_errback_handler)
-            yield Request(friend[1] + "rss.xml", callback=self.post_rss2_parse, meta={"friend": friend},
+            yield Request(friend[1] + "rss.xml", callback=self.post_feed_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "rss2.xml", callback=self.post_rss2_parse, meta={"friend": friend},
+            yield Request(friend[1] + "rss2.xml", callback=self.post_feed_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "feed", callback=self.post_wordpress_parse, meta={"friend": friend},
+            yield Request(friend[1] + "feed", callback=self.post_feed_parse, meta={"friend": friend},
                           dont_filter=True, errback=self.errback_handler)
             yield Request(friend[1], callback=self.theme_butterfly_parse, meta={"friend": friend}, dont_filter=True,
                           errback=self.errback_handler)
@@ -177,6 +169,53 @@ class FriendpageLinkSpider(scrapy.Spider):
             userdata["img"] = friend[2]
             userdata["userdata"] = "userdata"
             yield userdata
+
+    def post_feed_parse(self, response):
+        # print("post_feed_parse---------->" + response.url)
+        friend = response.meta.get("friend")
+        d = feedparser.parse(response.text)
+        version = d.version
+        entries = d.entries
+        l = len(entries) if len(entries) < 5 else 5
+        try:
+            for i in range(l):
+                entry = entries[i]
+                # 标题
+                title = entry.title
+                # 链接
+                link = entry.link
+                if link.startswith("/"):
+                    link = friend[1] + link.split("/", 1)[1]
+                # 创建时间
+                try:
+                    created = entry.published_parsed
+                except:
+                    try:
+                        created = entry.created_parsed
+                    except:
+                        created= entry.updated_parsed
+                entrycreated = "{:4d}-{:02d}-{:02d}".format(created[0], created[1],created[2])
+                # 更新时间
+                try:
+                    updated = entry.updated_parsed
+                except:
+                    try:
+                        updated = entry.created_parsed
+                    except:
+                        updated= entry.published_parsed
+                entryupdated = "{:4d}-{:02d}-{:02d}".format(updated[0], updated[1], updated[2])
+                post_info = {
+                    'title': title,
+                    'time': entrycreated,
+                    'updated': entryupdated,
+                    'link': link,
+                    'name': friend[0],
+                    'img': friend[2],
+                    'rule': version
+                }
+                yield post_info
+        except:
+            pass
 
     def post_atom_parse(self, response):
         # print("post_atom_parse---------->" + response.url)
@@ -596,4 +635,4 @@ class FriendpageLinkSpider(scrapy.Spider):
         # meta = error.request.meta
         pass
     def typecho_errback_handler(self,error):
-        yield Request(error.request.url,callback=self.post_atom_parse,dont_filter=True,meta=error.request.meta,errback=self.errback_handler)
+        yield Request(error.request.url,callback=self.post_feed_parse,dont_filter=True,meta=error.request.meta,errback=self.errback_handler)

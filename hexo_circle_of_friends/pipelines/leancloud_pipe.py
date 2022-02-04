@@ -1,14 +1,11 @@
 # -*- coding:utf-8 -*-
-
+# Author：yyyz
+import os
 import leancloud
 import datetime
-import settings
-import sys
 import re
-from scrapy.exceptions import DropItem
-
-
-class HexoCircleOfFriendsPipeline:
+from .. import settings
+class LeancloudPipeline:
     def __init__(self):
         self.userdata = []
         self.nonerror_data = set() # 能够根据友链link获取到文章的人
@@ -19,7 +16,7 @@ class HexoCircleOfFriendsPipeline:
         if settings.DEBUG:
             leancloud.init(settings.LC_APPID, settings.LC_APPKEY)
         else:
-            leancloud.init(sys.argv[1], sys.argv[2])
+            leancloud.init(os.environ["APPID"],os.environ["APPKEY"])
         self.Friendslist = leancloud.Object.extend('friend_list')
         self.Friendspoor = leancloud.Object.extend('friend_poor')
         self.query_friendslist()
@@ -55,7 +52,7 @@ class HexoCircleOfFriendsPipeline:
             for query_item in self.query_post_list:
                 try:
                     if query_item.get("link")==item["link"]:
-                        item["time"]=min(item['time'], query_item.get('time'))
+                        item["time"]=min(item['time'], query_item.get('created'))
                         delete = self.Friendspoor.create_without_data(query_item.get('objectId'))
                         delete.destroy()
                         # print("----deleted %s ----"%item["title"])
@@ -82,7 +79,7 @@ class HexoCircleOfFriendsPipeline:
     def query_friendspoor(self):
         try:
             query = self.Friendspoor.query
-            query.select("title",'time', 'link', 'updated')
+            query.select("title",'created', 'link', 'updated')
             query.limit(1000)
             self.query_post_list = query.find()
             # print(self.query_post_list)
@@ -101,9 +98,9 @@ class HexoCircleOfFriendsPipeline:
         out_date_post = 0
         for query_i in self.query_post_list:
 
-            time = query_i.get('time')
+            created = query_i.get('created')
             try:
-                query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
+                query_time = datetime.datetime.strptime(created, "%Y-%m-%d")
                 if (datetime.datetime.today() - query_time).days > time_limit:
                     delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                     out_date_post += 1
@@ -112,10 +109,10 @@ class HexoCircleOfFriendsPipeline:
                 delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                 delete.destroy()
                 out_date_post += 1
-        # print('\n')
-        # print('共删除了%s篇文章' % out_date_post)
-        # print('\n')
-        # print('-------结束删除规则----------')
+        print('\n')
+        print('共删除了%s篇文章' % out_date_post)
+        print('\n')
+        print('-------结束删除规则----------')
 
     def friendlist_push(self):
         for index, item in enumerate(self.userdata):
@@ -146,7 +143,7 @@ class HexoCircleOfFriendsPipeline:
     def friendpoor_push(self,item):
         friendpoor = self.Friendspoor()
         friendpoor.set('title', item['title'])
-        friendpoor.set('time', item['time'])
+        friendpoor.set('created', item['time'])
         friendpoor.set('updated', item['updated'])
         friendpoor.set('link', item['link'])
         friendpoor.set('author', item['name'])
@@ -157,34 +154,3 @@ class HexoCircleOfFriendsPipeline:
         print(item["name"])
         print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["time"], item["rule"]))
         self.total_post_num +=1
-
-class DuplicatesPipeline:
-    def __init__(self):
-        self.data_set = set() # posts filter set 用于对文章数据的去重
-        self.user_set = set() # userdata filter set 用于对朋友列表的去重
-    def process_item(self, item, spider):
-        if "userdata" in item.keys():
-            #  userdata filter
-            link = item["link"]
-            if link in self.user_set:
-                raise DropItem("Duplicate found:%s" % link)
-            self.user_set.add(link)
-            return item
-
-        title = item['title']
-
-        if title in self.data_set or title=="":
-            # 重复数据清洗
-            raise DropItem("Duplicate found:%s" % title)
-        if not item["link"]:
-            raise DropItem("missing fields :'link'")
-        elif not re.match("^http.?://",item["link"]):
-            # 链接必须是http开头，不能是相对地址
-            raise DropItem("invalid link ")
-
-        if not re.match("^\d+",item["time"]):
-            # 时间不是xxxx-xx-xx格式，丢弃
-            raise DropItem("invalid time ")
-        self.data_set.add(title)
-
-        return item
