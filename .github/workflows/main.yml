@@ -75,16 +75,15 @@ jobs:
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
       env:
         SQLITE_DB: ${{ secrets.SQLITE_DB }}
-      working-directory: ./hexo_circle_of_friends
       run: |
-        python run.py
+        python ./hexo_circle_of_friends/run.py
 
     - name: Push sqlite data # sqlite push
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
       uses: github-actions-x/commit@v2.8
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Update data"
+        commit-message: "Update data.db"
         files: data.db
         rebase: 'true'
         name: ${{ env.GITHUB_NAME }}
