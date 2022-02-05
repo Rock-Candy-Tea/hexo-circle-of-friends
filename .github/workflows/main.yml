@@ -25,9 +25,9 @@ env:
   MYSQL_IP: ${{ secrets.MYSQL_IP }} # 数据库IP地址
   MYSQL_DB: ${{ secrets.MYSQL_DB }} # 要连接到的库的名称
   # sqlite配置，用于将db文件上传到github仓库
-  GITHUB_NAME: ${{ secrets.GITHUB_NAME }} # 你的github昵称
-  GITHUB_EMAIL: ${{ secrets.GITHUB_EMAIL }} # 你的github邮箱
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # github token
+  GITHUB_NAME: ${{ secrets.GH_NAME }} # 你的github昵称
+  GITHUB_EMAIL: ${{ secrets.GH_EMAIL }} # 你的github邮箱
+  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
 
 
 
