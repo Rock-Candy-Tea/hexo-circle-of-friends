@@ -16,6 +16,3 @@ export APPKEY=""
 
 nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler.log 2>&1 &
 nohup python3 -u ./api/main.py > /tmp/api.log 2>&1 &
-while [[ true ]]; do
-    sleep 10
-done
