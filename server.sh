@@ -14,5 +14,5 @@ export APPKEY=""
 #export MYSQL_IP=""
 #export MYSQL_DB=""
 
-nohup python -u ./hexo_circle_of_friends/run.py > /tmp/crawler.log 2>&1 &
-nohup python -u ./api/main.py > /tmp/api.log 2>&1 &
+nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler.log 2>&1 &
+nohup python3 -u ./api/main.py > /tmp/api.log 2>&1 &
