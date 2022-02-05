@@ -85,7 +85,7 @@ if __name__ == "__main__":
     if settings.DEPLOY_TYPE == "docker":
         uvicorn.run("main:app", host="0.0.0.0")
     elif settings.DEPLOY_TYPE == "server":
-        EXPOSE_PORT = os.environ["EXPOSE_PORT"] if os.environ["EXPOSE_PORT"] else 8000
+        EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
         uvicorn.run("main:app", host="127.0.0.1",port=EXPOSE_PORT)
     else:
         uvicorn.run("main:app", host="127.0.0.1")

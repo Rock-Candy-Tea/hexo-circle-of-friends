@@ -1,5 +1,5 @@
 #!/bin/bash
-cd ./hexo_circle_of_friends && pip3 install -r requirements.txt
+pip3 install -r ./hexo_circle_of_friends/requirements.txt
 
 ### 通用配置
 export LINK="https://www.yyyzyyyz.cn/link/"
