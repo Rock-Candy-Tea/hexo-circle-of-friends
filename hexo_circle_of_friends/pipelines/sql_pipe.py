@@ -16,13 +16,13 @@ class SQLPipeline:
     def open_spider(self, spider):
         if settings.DEBUG:
             if settings.DATABASE == "sqlite":
-                conn = "sqlite:///../data.db"
+                conn = "sqlite:///data.db"
             elif settings.DATABASE == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4"\
                        %("root", "123456", "localhost", "test")
         else:
             if settings.DATABASE == "sqlite":
-                conn = "sqlite:///../data.db"
+                conn = "sqlite:///data.db"
             elif settings.DATABASE == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4"\
                        %(os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"], os.environ["MYSQL_DB"])
