@@ -1,9 +1,10 @@
 FROM python:3.8
 MAINTAINER yyyz
 COPY . /
+### 在这里配置环境变量
 ### 通用配置
 ENV LINK="https://www.yyyzyyyz.cn/link/"
-# ENV PROXY=""
+#ENV PROXY=""
 ### leancloud配置
 ENV APPID=""
 ENV APPKEY=""
