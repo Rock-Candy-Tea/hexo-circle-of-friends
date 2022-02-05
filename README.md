@@ -2,6 +2,8 @@
 
 你是否经常烦恼于友链过多但没有时间浏览？那么友链朋友圈将解决这一痛点。你可以随时获取友链网站的更新内容，并了解友链的活跃情况 。
 
+部署教程：[文档](https://hexo-circle-of-friends-doc.vercel.app/) | [备用地址](https://hiltay.github.io/hexo-circle-of-friends-doc/)
+
 ⭐从4.1.3版本开始，一定要在配置项中配置友链页的获取策略
 ```
 目前 release 4.1.5 版本：
@@ -34,23 +36,8 @@ bug修复：
 - 优化了启动项配置
 ```
 
-# 版本更新
 
-4.0以后的版本：发布新版本后，您只需要在您fork的仓库点击fetch即可更新到最新版本。
-![img.png](img.png)
-4.0以前的版本升级：建议重新fork
 
-如果觉得本项目不错，请帮忙点个⭐Star，既是对我们的支持，还可以随时关注友链朋友圈的更新情况。
 
-ღ( ´･ᴗ･` )比心
-
-# 相关链接
-部署教程：https://noionion.top/47095.html
-
-效果预览：https://noionion.top/friendcircle/
-
-提交bug：https://www.yyyzyyyz.cn/posts/b30617f07b86/
-
-前端样式：https://github.com/Akilarlxh/hexo-filter-fcircle
 
 
