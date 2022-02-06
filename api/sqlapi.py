@@ -67,11 +67,10 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
 
     post_data = []
     for k in range(len(posts)):
-        item = {'floor': k + 1}
+        item = {'floor': start+ k + 1}
         for elem in list:
             item[elem] = getattr(posts[k], elem)
         post_data.append(item)
-
     session.close()
     data['article_data'] = post_data
     return data
