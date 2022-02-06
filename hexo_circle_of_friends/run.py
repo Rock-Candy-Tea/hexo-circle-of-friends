@@ -2,6 +2,7 @@ from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
 import schedule
+from multiprocessing.context import Process
 import time
 
 def main():
@@ -17,6 +18,11 @@ def main():
         process.crawl(spider_name)
     process.start()
 
+def sub_process_start():
+    process = Process(target=main)
+    process.start() # 开始执行
+    process.join()  # 阻塞等待进程执行完毕
+
 def initsettings(setting):
     if DATABASE == 'leancloud':
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.leancloud_pipe.LeancloudPipeline"] = 300
@@ -26,7 +32,7 @@ def initsettings(setting):
 if __name__ == '__main__':
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":
         # server/docker部署
-        schedule.every(6).hours.do(main)
+        schedule.every(6).hours.do(sub_process_start)
         schedule.run_all()
         while 1:
             n = schedule.idle_seconds()
