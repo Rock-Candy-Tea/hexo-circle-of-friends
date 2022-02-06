@@ -32,7 +32,7 @@ FRIENDPAGE_STRATEGY={
 # avatar：必填，头像地址
 # suffix：选填，自定义订阅后缀
 SETTINGS_FRIENDS_LINKS={
-    "enable": False, # 是否启用配置项友链 True/False（此项用于针对还未适配的主题用户）
+    "enable": False, # 是否启用配置项友链 True/False（此项针对还未适配的主题用户）
     "list":[
         # 示例1：
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
