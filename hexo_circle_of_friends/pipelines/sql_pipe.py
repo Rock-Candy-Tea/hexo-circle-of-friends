@@ -125,13 +125,13 @@ class SQLPipeline:
             elif settings.BLOCK_SITE:
                 error = True
                 for url in settings.BLOCK_SITE:
-                    if re.match(url, friend[1]):
+                    if re.match(url, friend.name):
                         friend.error = False
                 if error:
-                    print("请求失败，请检查链接： %s" % friend[1])
+                    print("请求失败，请检查链接： %s" % friend.link)
                     friend.error = True
             else:
-                print("请求失败，请检查链接： %s" % friend[1])
+                print("请求失败，请检查链接： %s" % friend.link)
                 friend.error = True
             self.session.add(friend)
             self.session.commit()
