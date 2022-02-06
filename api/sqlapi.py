@@ -2,6 +2,7 @@
 
 import os
 import json
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import requests
 from urllib import parse
 from hexo_circle_of_friends import settings
@@ -14,13 +15,14 @@ from sqlalchemy.sql.expression import desc, func
 def db_init():
     if settings.DEBUG:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///data.db"
+            conn = "sqlite:///" + BASE_DIR+"/data.db"
+            print(conn)
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % ("root", "123456", "localhost", "test")
     else:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///data.db"
+            conn = "sqlite:///" + BASE_DIR+"/data.db"
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
