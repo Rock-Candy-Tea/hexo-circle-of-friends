@@ -83,13 +83,18 @@ def query_friend():
     session.close()
 
     friend_list_json = []
-    for friend in friends:
-        item = {
-            'name': friend.name,
-            'link': friend.link,
-            'avatar': friend.avatar
-        }
-        friend_list_json.append(item)
+    if friends:
+        for friend in friends:
+            item = {
+                'name': friend.name,
+                'link': friend.link,
+                'avatar': friend.avatar
+            }
+            friend_list_json.append(item)
+    else:
+        # friends为空直接返回
+        return {"message": "not found"}
+
     return friend_list_json
 
 
@@ -97,12 +102,15 @@ def query_random_friend():
     session = db_init()
     data: Friend = session.query(Friend).order_by(func.random()).first()
     session.close()
-
-    itemlist = {
-        'name': data.name,
-        'link': data.link,
-        'avatar': data.avatar
-    }
+    if data:
+        itemlist = {
+            'name': data.name,
+            'link': data.link,
+            'avatar': data.avatar
+        }
+    else:
+        # data为空直接返回
+        return {"message": "not found"}
 
     return itemlist
 
@@ -111,15 +119,18 @@ def query_random_post():
     session = db_init()
     data: Post = session.query(Post).order_by(func.random()).first()
     session.close()
-
-    itemlist = {
-        "title": data.title,
-        "created": data.created,
-        "updated": data.updated,
-        "link": data.link,
-        "author": data.author,
-        "avatar": data.avatar,
-    }
+    if data:
+        itemlist = {
+            "title": data.title,
+            "created": data.created,
+            "updated": data.updated,
+            "link": data.link,
+            "author": data.author,
+            "avatar": data.avatar,
+        }
+    else:
+        # data为空直接返回
+        return {"message": "not found"}
     return itemlist
 
 
@@ -146,15 +157,19 @@ def query_post(link, num, rule,):
         }
         data.append(itemlist)
 
-    api_json = {
-        "statistical_data": {
-            "author": user.name,
-            "link": user.link,
-            "avatar": user.avatar,
-            "article_num": len(posts)
-        },
-        "article_data": data
-    }
+    if user:
+        api_json = {
+            "statistical_data": {
+                "author": user.name,
+                "link": user.link,
+                "avatar": user.avatar,
+                "article_num": len(posts)
+            },
+            "article_data": data
+        }
+    else:
+        # 如果user为空直接返回
+        return {"message": "not found"}
 
     return api_json
 
@@ -168,6 +183,9 @@ def query_post_json(jsonlink, list, start, end, rule):
     }
     jsonhtml = requests.get(jsonlink, headers=headers).text
     linklist = set(json.loads(jsonhtml))
+    if linklist:
+        # 如果为空直接返回
+        return {"message": "not found"}
 
     posts = []
     active_list = []
