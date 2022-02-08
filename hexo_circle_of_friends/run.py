@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *

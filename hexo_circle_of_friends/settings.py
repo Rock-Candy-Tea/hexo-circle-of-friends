@@ -77,10 +77,10 @@ BLOCK_SITE=[
 # 启用HTTP代理，此项设为True，并且需要在github仓库添加一个secret，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
 HTTP_PROXY = False
 
-# 除了在github配置的友链页面，支持添加更多友链页面，同时爬取
-# 但是数据保存在一起
+# 除了在环境变量LINK中配置的友链页面，还支持添加更多友链页面，同时爬取，支持设置多个。数据保存在一起。
 EXTRA_FRIENPAGE_LINK = [
-    # "https://noionion.top/",
+    # 示例：
+    # "https://noionion.top/link/",
     # "https://kaleb.top/link/",
 ]
 

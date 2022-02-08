@@ -182,7 +182,7 @@ def query_post_json(jsonlink, list, start, end, rule):
     }
     jsonhtml = requests.get(jsonlink, headers=headers).text
     linklist = set(json.loads(jsonhtml))
-    if linklist:
+    if not linklist:
         # 如果为空直接返回
         return {"message": "not found"}
 
