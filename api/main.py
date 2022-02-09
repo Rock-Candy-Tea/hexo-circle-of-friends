@@ -87,7 +87,7 @@ def version():
     api_json = {"status":0}
     if settings.VERSION:
         try:
-            text = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends").text
+            text = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends",timeout=20).text
             html = etree.HTML(text)
             v = html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0]
             api_json["current_version"] = settings.VERSION
