@@ -10,7 +10,7 @@
         { "src": "/post", "dest": "api/main.py" },
         { "src": "/postjson", "dest": "api/main.py" },
         { "src": "/docs", "dest": "api/main.py" },
-        { "src": "/openapi.json", "dest": "api/main.py" }
-
+        { "src": "/openapi.json", "dest": "api/main.py" },
+        { "src": "/version", "dest": "api/main.py" }
     ]
 }

@@ -1,10 +1,11 @@
 # -*- coding:utf-8 -*-
+import requests
+from lxml import etree
 import uvicorn
 import sys
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
-
 from hexo_circle_of_friends import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,6 +81,25 @@ async def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "up
     '''
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
     return query_post_json(jsonlink, list, start, end, rule)
+
+@app.get("/version", tags=["version"], summary="返回版本信息")
+async def version():
+    # status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
+    api_json = {"status":0}
+    if settings.VERSION:
+        try:
+            text = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends").text
+            html = etree.HTML(text)
+            v = html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0]
+            api_json["current_version"] = settings.VERSION
+            api_json["latest_version"] = str(v)
+        except:
+            api_json["status"] = 2
+            return api_json
+        if settings.VERSION !=str(v):
+            api_json["status"] = 1
+        return api_json
+
 
 if __name__ == "__main__":
     if settings.DEPLOY_TYPE == "docker":

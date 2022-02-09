@@ -39,7 +39,7 @@ class ProxyMiddleware(object):
     def process_request(self, request, spider):
         if settings.DEBUG and settings.HTTP_PROXY_URL != "":
             request.meta['proxy'] = settings.HTTP_PROXY_URL
-        elif settings.HTTP_PROXY and "PROXY" in os.environ:
+        elif settings.HTTP_PROXY and os.environ.get("PROXY"):
             request.meta['proxy'] = os.environ["PROXY"]
         return None
 

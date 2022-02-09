@@ -4,3 +4,4 @@ uvicorn==0.14.0
 requests
 PyMySQL==1.0.2
 SQLAlchemy==1.4.31
+lxml==4.6.4

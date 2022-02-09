@@ -3,6 +3,7 @@
 import re
 
 from scrapy.exceptions import DropItem
+from ..utils import check_time
 
 class DuplicatesPipeline:
     def __init__(self):
@@ -27,12 +28,12 @@ class DuplicatesPipeline:
             # 链接必须是http开头，不能是相对地址
             raise DropItem("invalid link ")
 
-        if not re.match("^\d+",item["time"]):
-            # 时间不是xxxx-xx-xx格式，丢弃
+        # 时间检查
+        if not check_time.format_check(item["time"],item["updated"]):
             raise DropItem("invalid time ")
 
-        if not re.match("^\d+",item["updated"]):
-            # 时间不是xxxx-xx-xx格式，丢弃
+        if not check_time.content_check(item["time"],item["updated"]):
             raise DropItem("invalid time ")
+
         self.data_set.add(link)
         return item

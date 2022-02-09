@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import os
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
@@ -33,6 +34,7 @@ def initsettings(setting):
 if __name__ == '__main__':
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":
         # server/docker部署
+        run_per_hours = os.environ["RUN_PER_HOURS"] if os.environ.get("RUN_PER_HOURS") else 6
         schedule.every(6).hours.do(sub_process_start)
         schedule.run_all()
         while 1:
