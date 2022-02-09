@@ -37,28 +37,28 @@ async def all(start: int = 0, end: int = -1, rule: str = "updated"):
     - rule: 文章排序规则（创建时间/更新时间）
     '''
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
-    return query_all(list, start, end, rule)
+    return await query_all(list, start, end, rule)
 
 
 @app.get("/friend", tags=["API"], summary="返回所有友链")
 async def friend():
     '''返回数据库友链列表
     '''
-    return query_friend()
+    return await query_friend()
 
 
 @app.get("/randomfriend", tags=["API"], summary="返回随机友链")
 async def random_friend():
     '''随机返回一个友链信息
     '''
-    return query_random_friend()
+    return await query_random_friend()
 
 
 @app.get("/randompost", tags=["API"], summary="返回随机文章")
 async def random_post():
     '''随机返回一篇文章信息
     '''
-    return query_random_post()
+    return await query_random_post()
 
 
 @app.get("/post", tags=["API"], summary="返回指定链接的所有文章")
@@ -68,7 +68,7 @@ async def post(link: str = None, num: int = -1, rule: str = "created"):
     - num: 指定链接的文章信息列表 按rule排序后的顺序的前num篇
     - rule: 文章排序规则（创建时间/更新时间）
     '''
-    return query_post(link, num, rule)
+    return await query_post(link, num, rule)
 
 
 @app.get("/postjson", tags=["API"], summary="返回指定所有链接的所有文章")
@@ -80,10 +80,10 @@ async def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "up
     - rule: 文章排序规则（创建时间/更新时间）
     '''
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
-    return query_post_json(jsonlink, list, start, end, rule)
+    return await query_post_json(jsonlink, list, start, end, rule)
 
 @app.get("/version", tags=["version"], summary="返回版本信息")
-async def version():
+def version():
     # status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
     api_json = {"status":0}
     if settings.VERSION:
