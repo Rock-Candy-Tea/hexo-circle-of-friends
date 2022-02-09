@@ -98,6 +98,7 @@ def version():
             api_json["latest_version"] = response
         except:
             api_json["current_version"] = settings.VERSION
+            api_json["status"] = 2
             return api_json
         if settings.VERSION != response:
             api_json["status"] = 1
