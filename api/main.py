@@ -87,15 +87,19 @@ def version():
     api_json = {"status":0}
     if settings.VERSION:
         try:
-            text = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends",timeout=20).text
-            html = etree.HTML(text)
-            v = html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0]
+            response = requests.get("https://hexo-circle-of-friends-doc.vercel.app/version.txt",timeout=20).text
+            if not response:
+                response = requests.get("https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",timeout=20).text
+                if not response:
+                    response = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends",timeout=20).text
+                    html = etree.HTML(response)
+                    response = str(html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
             api_json["current_version"] = settings.VERSION
-            api_json["latest_version"] = str(v)
+            api_json["latest_version"] = response
         except:
-            api_json["status"] = 2
+            api_json["current_version"] = settings.VERSION
             return api_json
-        if settings.VERSION !=str(v):
+        if settings.VERSION != response:
             api_json["status"] = 1
         return api_json
 
