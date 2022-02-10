@@ -97,7 +97,7 @@ DEPLOY_TYPE = "github"
 
 ##############################除非您了解本项目，否则请勿修改以下内容################################
 
-VERSION = "4.2.2"
+VERSION = "4.2.3"
 
 # debug
 # debug模式
@@ -116,12 +116,12 @@ HTTP_PROXY_URL = ""
 # debug模式使用
 
 # https://yun.yunyoujun.cn/demo/ , Yun
-FRIENDPAGE_LINK = [
-    "https://www.yyyzyyyz.cn/link/",  # butterfly
-    "https://akilar.top/link/",  # butterfly
-    "https://www.zyoushuo.cn/friends/",  # volantis
-]
-# FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
+# FRIENDPAGE_LINK = [
+#     "https://www.yyyzyyyz.cn/link/",  # butterfly
+#     "https://akilar.top/link/",  # butterfly
+#     "https://www.zyoushuo.cn/friends/",  # volantis
+# ]
+FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
 
 
 BOT_NAME = 'hexo_circle_of_friends'

@@ -2,19 +2,33 @@
 
 import datetime
 import os
-import time
 import scrapy
 import queue
 import feedparser
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
-from bs4 import BeautifulSoup
 from hexo_circle_of_friends.utils.get_url import get_theme_url, Yun_async_link_handler
 from hexo_circle_of_friends.utils.regulations import *
 from hexo_circle_of_friends.utils.process_time import format_time
-
-
 # from hexo_circle_of_friends import items todo use items
+
+# post_parsers = []
+post_parsers = [
+    "post_feed_parse", "theme_butterfly_parse", "theme_fluid_parse", "theme_matery_parse", "theme_sakura_parse",
+    "theme_volantis_parse", "theme_nexmoe_parse", "theme_next_parse", "theme_stun_parse", "theme_stellar_parse",
+]
+
+feed_suffix = [
+    "atom.xml","feed/atom","rss.xml","rss2.xml","feed"
+]
+
+class CRequest(Request):
+    def __init__(self, url, callback=None, meta=None, dont_filter=True,
+                 errback=None,
+                 *args, **kwargs):
+        super(CRequest, self).__init__(url, callback, meta=meta,dont_filter=dont_filter,
+                                       errback=errback, *args, **kwargs)
+
 class FriendpageLinkSpider(scrapy.Spider):
     name = 'hexo_circle_of_friends'
     allowed_domains = ['*']
@@ -25,7 +39,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.friend_list = queue.Queue()
         self.today = datetime.datetime.now().strftime('%Y-%m-%d')
 
-        super().__init__(name, **kwargs)
+        super(FriendpageLinkSpider,self).__init__(name, **kwargs)
 
     def start_requests(self):
         # 从配置文件导入友链列表
@@ -72,7 +86,7 @@ class FriendpageLinkSpider(scrapy.Spider):
             if main_content:
                 for item in main_content:
                     issueslink = response.meta["gitee"]["domain"] + item
-                    yield Request(issueslink, self.friend_poor_parse, meta={"gitee-issues": None}, dont_filter=True)
+                    yield CRequest(issueslink, self.friend_poor_parse, meta={"gitee-issues": None})
         if "gitee-issues" in response.meta.keys():
             try:
                 content = ''.join(response.css("code *::text").extract())
@@ -93,7 +107,7 @@ class FriendpageLinkSpider(scrapy.Spider):
             if main_content:
                 for item in main_content:
                     issueslink = response.meta["github"]["domain"] + item
-                    yield Request(issueslink, self.friend_poor_parse, meta={"github-issues": None}, dont_filter=True)
+                    yield CRequest(issueslink, self.friend_poor_parse, meta={"github-issues": None})
         if "github-issues" in response.meta.keys():
             try:
                 content = ''.join(response.css("pre *::text").extract())
@@ -116,57 +130,28 @@ class FriendpageLinkSpider(scrapy.Spider):
                 async_link = get_theme_url(theme, response, self.friend_poor)
                 if async_link:
                     # Yun主题的async_link临时解决
-                    yield Request(async_link, callback=self.friend_poor_parse, meta={"async_link": async_link},
-                                  dont_filter=True)
+                    yield CRequest(async_link, self.friend_poor_parse, meta={"async_link": async_link})
             else:
                 pass
         if "async_link" in response.meta.keys():
             Yun_async_link_handler(response, self.friend_poor)
 
-        # 要添加主题扩展，在这里添加一个请求
         while not self.friend_poor.empty():
             friend = self.friend_poor.get()
             friend[1] += "/" if not friend[1].endswith("/") else ""
             if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend) == 4:
                 url = friend[1] + friend[3]
-                yield Request(url, callback=self.post_feed_parse, meta={"friend": friend}, dont_filter=True,
-                              errback=self.errback_handler)
+                yield CRequest(url,self.post_feed_parse,meta={"friend": friend},errback=self.errback_handler)
                 self.friend_list.put(friend[:3])
                 continue
             self.friend_list.put(friend)
-            yield Request(friend[1] + "atom.xml", callback=self.post_feed_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "feed/atom", callback=self.post_feed_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.typecho_errback_handler)
-            yield Request(friend[1] + "rss.xml", callback=self.post_feed_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "rss2.xml", callback=self.post_feed_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1] + "feed", callback=self.post_feed_parse, meta={"friend": friend},
-                          dont_filter=True, errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_butterfly_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_fluid_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_matery_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_sakura_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_volantis_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_nexmoe_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_Yun_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_stun_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
-            yield Request(friend[1], callback=self.theme_stellar_parse, meta={"friend": friend}, dont_filter=True,
-                          errback=self.errback_handler)
+            for r in self.start_post_requests(friend[1],post_parsers,feed_suffix,meta={"friend": friend}):
+                yield r
 
-        # friend = ['小冰博客', 'https://shujin.fun/', 'https://zfe.space/images/headimage.png']
+        # friend = ['小冰博客', 'https://blog.zzbd.org/', 'https://zfe.space/images/headimage.png']
+        # friend = ['小冰博客', 'https://copur.xyz/', 'https://zfe.space/images/headimage.png']
         # [[1,1,1],[2,3,2]]
-        # yield Request(friend[1], callback=self.theme_stellar_parse, meta={"friend": friend}, dont_filter=True,
-        #               errback=self.errback_handler)
+        # yield CRequest(friend[1], callback=self.theme_next_parse, meta={"friend": friend})
 
         # 将获取到的朋友列表传递到管道
         while not self.friend_list.empty():
@@ -177,6 +162,15 @@ class FriendpageLinkSpider(scrapy.Spider):
             userdata["img"] = friend[2]
             userdata["userdata"] = "userdata"
             yield userdata
+
+    def start_post_requests(self,domain,parsers,suffixs,meta,errback=None):
+        errback = self.errback_handler if not errback else ...
+        for p in parsers:
+            parser = getattr(self,p)
+            if p == "post_feed_parse":
+                for suffix in suffixs:
+                    yield CRequest(domain+suffix,parser,meta,errback=errback)
+            yield CRequest(domain,parser,meta,errback=errback)
 
     def post_feed_parse(self, response):
         # print("post_feed_parse---------->" + response.url)
@@ -222,91 +216,6 @@ class FriendpageLinkSpider(scrapy.Spider):
                 )
         except:
             pass
-
-    def post_atom_parse(self, response):
-        # print("post_atom_parse---------->" + response.url)
-        friend = response.meta.get("friend")
-        soup = BeautifulSoup(response.text, "html.parser")
-        items = soup.find_all("entry")
-        if items:
-            if 0 < len(items) < 5:
-                l = len(items)
-            else:
-                l = 5
-            try:
-                for i in range(l):
-                    post_info = {}
-                    item = items[i]
-                    title = item.find("title").text
-                    url = item.find("link")['href']
-                    date = item.find("published").text[:10]
-                    updated = item.find("updated").text[:10]
-                    post_info['title'] = title
-                    post_info['time'] = date
-                    post_info['updated'] = updated
-                    post_info['link'] = url
-                    post_info['name'] = friend[0]
-                    post_info['img'] = friend[2]
-                    post_info['rule'] = "atom"
-                    yield post_info
-            except:
-                pass
-
-    def post_rss2_parse(self, response):
-        # print("post_rss2_parse---------->" + response.url)
-        friend = response.meta.get("friend")
-        sel = scrapy.Selector(text=response.text)
-        title = sel.css("item title::text").extract()
-        link = sel.css("item guid::text").extract()
-        pubDate = sel.css("item pubDate::text").extract()
-        if len(link) > 0:
-            l = len(link) if len(link) < 5 else 5
-            try:
-                for i in range(l):
-                    m = pubDate[i].split(" ")
-                    ts = time.strptime(m[3] + "-" + m[2] + "-" + m[1], "%Y-%b-%d")
-                    date = time.strftime("%Y-%m-%d", ts)
-                    if link[i].startswith("/"):
-                        link[i] = friend[1] + link[i].split("/", 1)[1]
-                    post_info = {
-                        'title': title[i],
-                        'time': date,
-                        'updated': date,
-                        'link': link[i],
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "rss"
-                    }
-                    yield post_info
-            except:
-                pass
-
-    def post_wordpress_parse(self, response):
-        # print("post_wordpress_parse---------->" + response.url)
-        friend = response.meta.get("friend")
-        sel = scrapy.Selector(text=response.text)
-        title = sel.css("item title::text").extract()
-        link = [comm.split("#comments")[0] for comm in sel.css("item link+comments::text").extract()]
-        pubDate = sel.css("item pubDate::text").extract()
-        if len(link) > 0:
-            l = len(link) if len(link) < 5 else 5
-            try:
-                for i in range(l):
-                    m = pubDate[i].split(" ")
-                    ts = time.strptime(m[3] + "-" + m[2] + "-" + m[1], "%Y-%b-%d")
-                    date = time.strftime("%Y-%m-%d", ts)
-                    post_info = {
-                        'title': title[i],
-                        'time': date,
-                        'updated': date,
-                        'link': link[i],
-                        'name': friend[0],
-                        'img': friend[2],
-                        'rule': "wordpress"
-                    }
-                    yield post_info
-            except:
-                pass
 
     def theme_butterfly_parse(self, response):
         # print("theme_butterfly_parse---------->" + response.url)
@@ -463,29 +372,6 @@ class FriendpageLinkSpider(scrapy.Spider):
         except:
             pass
 
-    def theme_Yun_parse(self, response):
-        # print("theme_Yun_parse---------->" + response.url)
-        friend = response.meta.get("friend")
-        titles = response.css("article .post-title a::text").extract()
-        links = response.css("article link::attr(href)").extract()
-        createds = response.css("article time[itemprop*=dateCreated]::text").extract()
-        updateds = response.css("article time[itemprop=dateModified]::text").extract()
-        try:
-            l = len(links) if len(links) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "Yun")
-            for i in range(l):
-                link = self.process_link(links[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
-        except:
-            pass
 
     def theme_stun_parse(self, response):
         # print("theme_stun_parse---------->" + response.url)
@@ -534,6 +420,37 @@ class FriendpageLinkSpider(scrapy.Spider):
                 )
         except:
             pass
+
+    def theme_next_parse(self,response):
+        # print("theme_next_parse---------->" + response.url)
+        friend = response.meta.get("friend")
+        base_css = ["article h2","article .post-title","article .post-title-link"]
+        links_l = []
+        for css in base_css:
+            links = response.css("%s a:first-child::attr(href)"%css).extract()
+            links_l.append(len(links))
+        ind = links_l.index(max(links_l))
+        links = response.css("%s a:first-child::attr(href)" % base_css[ind]).extract()
+        titles = response.css("%s a:first-child::text" % base_css[ind]).extract()
+        createds = response.css("article time[itemprop*=dateCreated]::text").extract()
+        updateds = response.css("article time[itemprop=dateModified]::text").extract()
+        try:
+            l = len(links) if len(links) < 5 else 5
+            titles = self.process_title(titles, l)
+            createds, updateds = self.process_time(createds, updateds, l)
+            init_post_info = self.init_post_info(friend, "next/Yun")
+            for i in range(l):
+                link = self.process_link(links[i], friend[1])
+                yield self.generate_postinfo(
+                    init_post_info,
+                    titles[i],
+                    createds[i] if createds else self.today,
+                    updateds[i] if updateds else self.today,
+                    link
+                )
+        except:
+            pass
+        pass
 
     def init_post_info(self, friend, rule):
         post_info = {
@@ -605,3 +522,6 @@ class FriendpageLinkSpider(scrapy.Spider):
     def typecho_errback_handler(self, error):
         yield Request(error.request.url, callback=self.post_feed_parse, dont_filter=True, meta=error.request.meta,
                       errback=self.errback_handler)
+
+
+

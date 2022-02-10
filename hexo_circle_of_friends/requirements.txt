@@ -3,7 +3,6 @@ arrow==1.2.1
 asgiref==3.4.1
 attrs==21.2.0
 Automat==20.2.0
-beautifulsoup4==4.10.0
 certifi==2021.10.8
 cffi==1.15.0
 charset-normalizer==2.0.8
@@ -47,7 +46,6 @@ Scrapy==2.5.1
 secure-cookie==0.2.0
 service-identity==21.1.0
 six==1.16.0
-soupsieve==2.3.1
 SQLAlchemy==1.4.31
 starlette==0.14.2
 Twisted==21.7.0

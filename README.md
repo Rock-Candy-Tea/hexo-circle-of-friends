@@ -6,7 +6,7 @@
 
 ⭐从4.1.3版本开始，一定要在配置项中配置友链页的获取策略
 ```
-目前 release 4.2.2 版本：
+目前 release 4.2.3 版本：
 - 支持 gitee 和 github 上的 issuse 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
@@ -19,6 +19,7 @@
 - 新增数据存储配置，提供多种存储方式
 - 新增部署方式配置，可部署在本地服务端
 - 将api整合到主仓库
+- 新增next四种主题的文章获取，与Yun规则合并，暂不支持友链页获取
 
 bug修复：
 - wordpress类型博客的时间格式问题
@@ -31,5 +32,7 @@ bug修复：
 - feed订阅解析更加精准了
 - 解决了docker和server定时任务运行爬虫报错的问题
 - 文章超出当前时间的判断，逻辑优化与代码格式化
+- 移除bs4依赖
+- 移除旧订阅规则解析
 ```
 
