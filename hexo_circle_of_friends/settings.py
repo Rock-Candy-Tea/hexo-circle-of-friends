@@ -97,7 +97,7 @@ DEPLOY_TYPE = "github"
 
 ##############################除非您了解本项目，否则请勿修改以下内容################################
 
-VERSION = "4.2.1"
+VERSION = "4.2.2"
 
 # debug
 # debug模式
@@ -114,8 +114,14 @@ HTTP_PROXY_URL = ""
 
 # debug blog link url
 # debug模式使用
-# FRIENPAGE_LINK = ["https://xmuli.tech/links/","https://chitang.1919810.com/links/","https://misaka-9936.github.io/links/","https://www.yyyzyyyz.cn/link/","https://zhangyazhuang.gitee.io/link/","https://akilar.top/link/","https://blog.raxianch.moe/link","https://hotarugali.github.io/link/","https://kaleb.top/link/"]
-FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
+
+# https://yun.yunyoujun.cn/demo/ , Yun
+FRIENDPAGE_LINK = [
+    "https://www.yyyzyyyz.cn/link/",  # butterfly
+    "https://akilar.top/link/",  # butterfly
+    "https://www.zyoushuo.cn/friends/",  # volantis
+]
+# FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
 
 
 BOT_NAME = 'hexo_circle_of_friends'

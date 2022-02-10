@@ -3,7 +3,7 @@
 import re
 
 from scrapy.exceptions import DropItem
-from ..utils import check_time
+from ..utils import process_time
 
 class DuplicatesPipeline:
     def __init__(self):
@@ -29,10 +29,10 @@ class DuplicatesPipeline:
             raise DropItem("invalid link ")
 
         # 时间检查
-        if not check_time.format_check(item["time"],item["updated"]):
+        if not process_time.format_check(item["time"],item["updated"]):
             raise DropItem("invalid time ")
 
-        if not check_time.content_check(item["time"],item["updated"]):
+        if not process_time.content_check(item["time"],item["updated"]):
             raise DropItem("invalid time ")
 
         self.data_set.add(link)

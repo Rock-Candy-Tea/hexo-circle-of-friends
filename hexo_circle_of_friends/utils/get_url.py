@@ -1,5 +1,7 @@
 from scrapy import Request
 import json
+
+
 def get_theme_url(theme, response, queue):
     # 根据主题获取要爬取的的友链列表，保存到user_info中
     if theme == "butterfly":

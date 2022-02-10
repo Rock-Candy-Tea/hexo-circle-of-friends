@@ -2,27 +2,28 @@
 
 import os
 import json
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import requests
 from urllib import parse
 from hexo_circle_of_friends import settings
 from sqlalchemy import create_engine
 from hexo_circle_of_friends.models import Friend, Post
-from sqlalchemy.orm import sessionmaker,scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
 
 
 def db_init():
     if settings.DEBUG:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///" + BASE_DIR+"/data.db"
+            conn = "sqlite:///" + BASE_DIR + "/data.db"
             print(conn)
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % ("root", "123456", "localhost", "test")
     else:
         if settings.DATABASE == "sqlite":
-            conn = "sqlite:///" + BASE_DIR+"/data.db"
+            conn = "sqlite:///" + BASE_DIR + "/data.db"
         elif settings.DATABASE == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
@@ -67,7 +68,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
 
     post_data = []
     for k in range(len(posts)):
-        item = {'floor': start+ k + 1}
+        item = {'floor': start + k + 1}
         for elem in list:
             item[elem] = getattr(posts[k], elem)
         post_data.append(item)
@@ -133,7 +134,7 @@ def query_random_post():
     return itemlist
 
 
-def query_post(link, num, rule,):
+def query_post(link, num, rule, ):
     session = db_init()
     if link is None:
         user = session.query(Friend).filter_by(error=False).order_by(func.random()).first()
@@ -142,17 +143,18 @@ def query_post(link, num, rule,):
         domain = parse.urlsplit(link).netloc
         user = session.query(Friend).filter(Friend.link.like("%{:s}%".format(domain))).first()
 
-    posts = session.query(Post).filter(Post.link.like("%{:s}%".format(domain))).order_by(desc(rule)).limit(num if num > 0 else None).all()
+    posts = session.query(Post).filter(Post.link.like("%{:s}%".format(domain))).order_by(desc(rule)).limit(
+        num if num > 0 else None).all()
     session.close()
 
     data = []
-    for floor,post in enumerate(posts):
+    for floor, post in enumerate(posts):
         itemlist = {
             "title": post.title,
             "link": post.link,
             "created": post.created,
             "updated": post.updated,
-            "floor": floor+1
+            "floor": floor + 1
         }
         data.append(itemlist)
 

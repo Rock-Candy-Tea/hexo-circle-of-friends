@@ -4,9 +4,10 @@ import os
 import datetime
 import re
 
-from .. import models,settings
+from .. import models, settings
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker,scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session
+
 
 class SQLPipeline:
     def __init__(self):
@@ -18,16 +19,17 @@ class SQLPipeline:
             if settings.DATABASE == "sqlite":
                 conn = "sqlite:///data.db"
             elif settings.DATABASE == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4"\
-                       %("root", "123456", "localhost", "test")
+                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
+                       % ("root", "123456", "localhost", "test")
         else:
             if settings.DATABASE == "sqlite":
                 conn = "sqlite:///data.db"
             elif settings.DATABASE == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4"\
-                       %(os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"], os.environ["MYSQL_DB"])
+                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
+                       % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
+                          os.environ["MYSQL_DB"])
         try:
-            self.engine = create_engine(conn,pool_recycle=-1)
+            self.engine = create_engine(conn, pool_recycle=-1)
         except:
             raise Exception("MySQL连接失败")
         Session = sessionmaker(bind=self.engine)
@@ -73,7 +75,7 @@ class SQLPipeline:
 
         return item
 
-    def close_spider(self,spider):
+    def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
 
@@ -81,9 +83,9 @@ class SQLPipeline:
 
         self.outdate_clean(settings.OUTDATE_CLEAN)
         print("----------------------")
-        print("友链总数 : %d" %self.session.query(models.Friend).count())
+        print("友链总数 : %d" % self.session.query(models.Friend).count())
         print("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
-        print("共 %d 篇文章"%self.session.query(models.Post).count())
+        print("共 %d 篇文章" % self.session.query(models.Post).count())
         self.session.close()
         print("done!")
 
@@ -91,9 +93,9 @@ class SQLPipeline:
         try:
             self.query_post_list = self.session.query(models.Post).all()
         except:
-            self.query_post_list=[]
+            self.query_post_list = []
 
-    def outdate_clean(self,time_limit):
+    def outdate_clean(self, time_limit):
         out_date_post = 0
         for query_item in self.query_post_list:
             created = query_item.created
@@ -115,9 +117,9 @@ class SQLPipeline:
     def friendlist_push(self):
         for user in self.userdata:
             friend = models.Friend(
-                name= user[0],
-                link = user[1],
-                avatar = user[2]
+                name=user[0],
+                link=user[1],
+                avatar=user[2]
             )
             if user[0] in self.nonerror_data:
                 # print("未失联的用户")
@@ -137,7 +139,7 @@ class SQLPipeline:
             self.session.add(friend)
             self.session.commit()
 
-    def friendpoor_push(self,item):
+    def friendpoor_push(self, item):
         post = models.Post(
             title=item['title'],
             created=item['time'],

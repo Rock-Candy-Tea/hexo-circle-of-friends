@@ -3,11 +3,13 @@ from lxml import etree
 import uvicorn
 import sys
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 from hexo_circle_of_friends import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 if settings.DATABASE == 'leancloud':
     from api.leancloudapi import *
 elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
@@ -81,19 +83,22 @@ def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
     return query_post_json(jsonlink, list, start, end, rule)
 
+
 @app.get("/version", tags=["version"], summary="返回版本信息")
 def version():
     # status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
-    api_json = {"status":0}
+    api_json = {"status": 0}
     if settings.VERSION:
         try:
-            response = requests.get("https://hexo-circle-of-friends-doc.vercel.app/version.txt",timeout=20).text
+            response = requests.get("https://hexo-circle-of-friends-doc.vercel.app/version.txt", timeout=20).text
             if not response:
-                response = requests.get("https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",timeout=20).text
+                response = requests.get("https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
+                                        timeout=20).text
                 if not response:
-                    response = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends",timeout=20).text
+                    response = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends", timeout=20).text
                     html = etree.HTML(response)
-                    response = str(html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
+                    response = str(
+                        html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
             api_json["current_version"] = settings.VERSION
             api_json["latest_version"] = response
         except:
@@ -110,6 +115,6 @@ if __name__ == "__main__":
         uvicorn.run("main:app", host="0.0.0.0")
     elif settings.DEPLOY_TYPE == "server":
         EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
-        uvicorn.run("main:app", host="0.0.0.0",port=EXPOSE_PORT)
+        uvicorn.run("main:app", host="0.0.0.0", port=EXPOSE_PORT)
     else:
         uvicorn.run("main:app", host="127.0.0.1")

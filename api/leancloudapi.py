@@ -7,11 +7,13 @@ import requests
 import leancloud
 from hexo_circle_of_friends import settings
 
+
 def db_init():
     if settings.DEBUG:
         leancloud.init(settings.LC_APPID, settings.LC_APPKEY)
     else:
         leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
+
 
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     # Verify key
@@ -138,12 +140,12 @@ def query_random_post():
     article_data = []
     for item in query_list:
         itemlist = {
-            "title" : item.get("title"),
-            "created" : item.get("created"),
-            "updated" : item.get("updated"),
-            "link" : item.get("link"),
-            "author" : item.get("author"),
-            "avatar" : item.get("avatar"),
+            "title": item.get("title"),
+            "created": item.get("created"),
+            "updated": item.get("updated"),
+            "link": item.get("link"),
+            "author": item.get("author"),
+            "avatar": item.get("avatar"),
         }
         article_data_init.append(itemlist)
     article_data_init.sort(key=lambda x: x["updated"], reverse=True)

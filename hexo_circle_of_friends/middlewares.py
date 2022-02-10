@@ -15,13 +15,15 @@ from itemadapter import is_item, ItemAdapter
 
 setting = get_project_settings()
 
+
 class RandomUserAgentMiddleware:
     # 随机User-Agent
     def process_request(self, request, spider):
         UA = random.choice(setting["USER_AGENT_LIST"])
         if UA:
-            request.headers.setdefault('User-Agent',UA)
+            request.headers.setdefault('User-Agent', UA)
         return None
+
 
 class BlockSiteMiddleware:
     def process_request(self, request, spider):
@@ -29,11 +31,12 @@ class BlockSiteMiddleware:
         if "theme" in request.meta:
             return None
         for url in settings.BLOCK_SITE:
-            if re.match(url,request.url):
+            if re.match(url, request.url):
                 # print("block----------------->%s"%url)
                 raise IgnoreRequest("url block")
         # print("now is %s"%request.url)
         return None
+
 
 class ProxyMiddleware(object):
     def process_request(self, request, spider):
@@ -42,6 +45,7 @@ class ProxyMiddleware(object):
         elif settings.HTTP_PROXY and os.environ.get("PROXY"):
             request.meta['proxy'] = os.environ["PROXY"]
         return None
+
 
 class HexoCircleOfFriendsSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
