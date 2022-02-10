@@ -6,7 +6,7 @@
 
 ⭐从4.1.3版本开始，一定要在配置项中配置友链页的获取策略
 ```
-目前 release 4.2.1 版本：
+目前 release 4.2.2 版本：
 - 支持 gitee 和 github 上的 issuse 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
