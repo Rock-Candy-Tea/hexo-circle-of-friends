@@ -12,7 +12,7 @@ from hexo_circle_of_friends.utils.regulations import *
 from hexo_circle_of_friends.utils.process_time import format_time
 # from hexo_circle_of_friends import items todo use items
 
-# post_parsers = []
+# post_parsers = ["theme_butterfly_parse"]
 post_parsers = [
     "post_feed_parse", "theme_butterfly_parse", "theme_fluid_parse", "theme_matery_parse", "theme_sakura_parse",
     "theme_volantis_parse", "theme_nexmoe_parse", "theme_next_parse", "theme_stun_parse", "theme_stellar_parse",
@@ -220,10 +220,10 @@ class FriendpageLinkSpider(scrapy.Spider):
     def theme_butterfly_parse(self, response):
         # print("theme_butterfly_parse---------->" + response.url)
         friend = response.meta.get("friend")
-        titles = response.css("#recent-posts .recent-post-info>a::text").extract()
-        partial_l = response.css("#recent-posts .recent-post-info>a::attr(href)").extract()
-        createds = response.css("#recent-posts .recent-post-info .post-meta-date-created::text").extract()
-        updateds = response.css("#recent-posts .recent-post-info .post-meta-date-updated::text").extract()
+        titles = response.css("#recent-posts .recent-post-info a:first-child::text").extract()
+        partial_l = response.css("#recent-posts .recent-post-info a:first-child::attr(href)").extract()
+        createds = response.css("#recent-posts .recent-post-info .post-meta-date time:first-of-type::text").extract()
+        updateds = response.css("#recent-posts .recent-post-info .post-meta-date time:nth-of-type(2)::text").extract()
         try:
             l = len(partial_l) if len(partial_l) < 5 else 5
             titles = self.process_title(titles, l)
