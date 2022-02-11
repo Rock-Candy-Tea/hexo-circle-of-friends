@@ -16,7 +16,7 @@ ENV APPKEY=""
 #ENV MYSQL_DB=""
 EXPOSE 8000
 WORKDIR /
-RUN cd ./hexo_circle_of_friends && pip3 install -r requirements.txt
+RUN cd ./hexo_circle_of_friends && pip3 install -r requirements.txt -i https://pypi.douban.com/simple/
 CMD bash ./docker.sh
 
 
