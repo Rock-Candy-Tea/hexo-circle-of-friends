@@ -38,8 +38,8 @@ def initsettings(setting):
 if __name__ == '__main__':
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":
         # server/docker部署
-        run_per_hours = os.environ["RUN_PER_HOURS"] if os.environ.get("RUN_PER_HOURS") else 6
-        schedule.every(6).hours.do(sub_process_start)
+        run_per_hours = int(os.environ["RUN_PER_HOURS"]) if os.environ.get("RUN_PER_HOURS") else 6
+        schedule.every(run_per_hours).hours.do(sub_process_start)
         schedule.run_all()
         while 1:
             n = schedule.idle_seconds()
