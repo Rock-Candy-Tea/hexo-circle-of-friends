@@ -10,6 +10,7 @@ OUTDATE_CLEAN = 60
 #   - default：默认。指定友链页主题。示例：如果您的友链页为https://www.yyyzyyyz.cn/link/，请选择butterfly，以此类推
 #   - incompat：如果theme中不支持您的主题，请选择此项。此时建议使用配置项友链
 # theme：必填，可选参数如下（这些是目前支持的主题）：
+#   - common: 通用主题，请参考：https://hexo-circle-of-friends-doc.vercel.app/#/developmentdoc?id=%e5%8f%8b%e9%93%be%e9%a1%b5%e9%80%82%e9%85%8d
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
@@ -97,7 +98,7 @@ DEPLOY_TYPE = "github"
 
 ##############################除非您了解本项目，否则请勿修改以下内容################################
 
-VERSION = "4.2.4"
+VERSION = "4.2.5"
 
 # debug
 # debug模式

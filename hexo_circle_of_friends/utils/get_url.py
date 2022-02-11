@@ -4,6 +4,8 @@ import json
 
 def get_theme_url(theme, response, queue):
     # 根据主题获取要爬取的的友链列表，保存到user_info中
+    if theme == "common":
+        get_common_url(response, queue)
     if theme == "butterfly":
         get_butterfly_url(response, queue)
     if theme == "fluid":
@@ -24,6 +26,12 @@ def get_theme_url(theme, response, queue):
     if theme == "stellar":
         get_stellar_url(response, queue)
 
+
+def get_common_url(response,queue):
+    avatar = response.css('.cf-friends img::attr(src)').extract()
+    link = response.css('.cf-friends a::attr(href)').extract()
+    name = response.css('.cf-friends a::text').extract()
+    handle(avatar, link, name, queue)
 
 def get_butterfly_url(response, queue):
     avatar = response.css('.flink-list .info img::attr(data-lazy-src)').extract()

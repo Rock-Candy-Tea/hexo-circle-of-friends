@@ -10,6 +10,7 @@ from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.get_url import get_theme_url, Yun_async_link_handler
 from hexo_circle_of_friends.utils.regulations import *
 from hexo_circle_of_friends.utils.process_time import format_time
+
 # from hexo_circle_of_friends import items todo use items
 
 # post_parsers = ["theme_butterfly_parse"]
@@ -19,15 +20,17 @@ post_parsers = [
 ]
 
 feed_suffix = [
-    "atom.xml","feed/atom","rss.xml","rss2.xml","feed"
+    "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed"
 ]
+
 
 class CRequest(Request):
     def __init__(self, url, callback=None, meta=None, dont_filter=True,
                  errback=None,
                  *args, **kwargs):
-        super(CRequest, self).__init__(url, callback, meta=meta,dont_filter=dont_filter,
+        super(CRequest, self).__init__(url, callback, meta=meta, dont_filter=dont_filter,
                                        errback=errback, *args, **kwargs)
+
 
 class FriendpageLinkSpider(scrapy.Spider):
     name = 'hexo_circle_of_friends'
@@ -39,7 +42,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.friend_list = queue.Queue()
         self.today = datetime.datetime.now().strftime('%Y-%m-%d')
 
-        super(FriendpageLinkSpider,self).__init__(name, **kwargs)
+        super(FriendpageLinkSpider, self).__init__(name, **kwargs)
 
     def start_requests(self):
         # 从配置文件导入友链列表
@@ -141,11 +144,11 @@ class FriendpageLinkSpider(scrapy.Spider):
             friend[1] += "/" if not friend[1].endswith("/") else ""
             if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend) == 4:
                 url = friend[1] + friend[3]
-                yield CRequest(url,self.post_feed_parse,meta={"friend": friend},errback=self.errback_handler)
+                yield CRequest(url, self.post_feed_parse, meta={"friend": friend}, errback=self.errback_handler)
                 self.friend_list.put(friend[:3])
                 continue
             self.friend_list.put(friend)
-            for r in self.start_post_requests(friend[1],post_parsers,feed_suffix,meta={"friend": friend}):
+            for r in self.start_post_requests(friend[1], post_parsers, feed_suffix, meta={"friend": friend}):
                 yield r
 
         # friend = ['小冰博客', 'https://blog.zzbd.org/', 'https://zfe.space/images/headimage.png']
@@ -163,14 +166,14 @@ class FriendpageLinkSpider(scrapy.Spider):
             userdata["userdata"] = "userdata"
             yield userdata
 
-    def start_post_requests(self,domain,parsers,suffixs,meta,errback=None):
+    def start_post_requests(self, domain, parsers, suffixs, meta, errback=None):
         errback = self.errback_handler if not errback else ...
         for p in parsers:
-            parser = getattr(self,p)
+            parser = getattr(self, p)
             if p == "post_feed_parse":
                 for suffix in suffixs:
-                    yield CRequest(domain+suffix,parser,meta,errback=errback)
-            yield CRequest(domain,parser,meta,errback=errback)
+                    yield CRequest(domain + suffix, parser, meta, errback=errback)
+            yield CRequest(domain, parser, meta, errback=errback)
 
     def post_feed_parse(self, response):
         # print("post_feed_parse---------->" + response.url)
@@ -219,78 +222,49 @@ class FriendpageLinkSpider(scrapy.Spider):
 
     def theme_butterfly_parse(self, response):
         # print("theme_butterfly_parse---------->" + response.url)
+        rule = "butterfly"
         friend = response.meta.get("friend")
         titles = response.css("#recent-posts .recent-post-info a:first-child::text").extract()
         partial_l = response.css("#recent-posts .recent-post-info a:first-child::attr(href)").extract()
         createds = response.css("#recent-posts .recent-post-info .post-meta-date time:first-of-type::text").extract()
         updateds = response.css("#recent-posts .recent-post-info .post-meta-date time:nth-of-type(2)::text").extract()
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "butterfly")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_fluid_parse(self, response):
         # print("theme_fluid_parse---------->" + response.url)
+        rule = "fluid"
         friend = response.meta.get("friend")
         titles = response.css("#board .index-header a::text").extract()
         partial_l = response.css("#board .index-header a::attr(href)").extract()
         createds = response.css("#board .post-meta time::text").extract()
         updateds = []
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "fluid")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_matery_parse(self, response):
         # print("theme_matery_parse---------->" + response.url)
+        rule = "matery"
         friend = response.meta.get("friend")
         titles = response.css("#articles .card .card-title::text").extract()
         partial_l = response.css("#articles .card a:first-child::attr(href)").extract()
         createds = response.css("#articles .card span.publish-date").re("\d{4}-\d{2}-\d{2}")
         updateds = []
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "matery")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_sakura_parse(self, response):
         # print("theme_sakura_parse---------->" + response.url)
+        rule = "sakura"
         friend = response.meta.get("friend")
         titles = response.css("#main a.post-title h3::text").extract()
         if not titles:
@@ -308,126 +282,75 @@ class FriendpageLinkSpider(scrapy.Spider):
             createds = response.css("#main .post-date::text").re("\d{4}-\d{1,2}-\d{1,2}")
         updateds = []
         try:
-            l = len(links) if len(links) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "sakura")
-            for i in range(l):
-                link = self.process_link(links[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, links, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_volantis_parse(self, response):
         # print("theme_volantis_parse---------->" + response.url)
+        rule = "volantis"
         friend = response.meta.get("friend")
         titles = response.css(".post-list .article-title a::text").extract()
         partial_l = response.css(".post-list .article-title a::attr(href)").extract()
         createds = response.css(".post-list .meta-v3 time::text").extract()
         updateds = []
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "volantis")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_nexmoe_parse(self, response):
         # print("theme_nexmoe_parse---------->" + response.url)
+        rule = "nexmoe"
         friend = response.meta.get("friend")
         titles = response.css("section.nexmoe-posts .nexmoe-post h1::text").extract()
         partial_l = response.css("section.nexmoe-posts .nexmoe-post>a::attr(href)").extract()
         createds = response.css("section.nexmoe-posts .nexmoe-post-meta a:first-child::text").extract()
         updateds = []
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "nexmoe")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
-
     def theme_stun_parse(self, response):
         # print("theme_stun_parse---------->" + response.url)
+        rule = "stun"
         friend = response.meta.get("friend")
         titles = response.css("article .post-title__link::text").extract()
         partial_l = response.css("article .post-title__link::attr(href)").extract()
         createds = response.css("article .post-meta .post-meta-item--createtime .post-meta-item__value::text").extract()
         updateds = response.css("article .post-meta .post-meta-item--updatetime .post-meta-item__value::text").extract()
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "stun")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
     def theme_stellar_parse(self, response):
         # print("theme_stellar_parse---------->" + response.url)
+        rule = "stellar"
         friend = response.meta.get("friend")
         titles = response.css(".post-list .post-title::text").extract()
         partial_l = response.css(".post-list .post-card::attr(href)").extract()
         createds = response.css("#post-meta time::attr(datetime)").extract()
         updateds = []
         try:
-            l = len(partial_l) if len(partial_l) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "stellar")
-            for i in range(l):
-                link = self.process_link(partial_l[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
 
-    def theme_next_parse(self,response):
+    def theme_next_parse(self, response):
         # print("theme_next_parse---------->" + response.url)
+        rule = "next/Yun"
         friend = response.meta.get("friend")
-        base_css = ["article h2","article .post-title","article .post-title-link"]
+        base_css = ["article h2", "article .post-title", "article .post-title-link"]
         links_l = []
         for css in base_css:
-            links = response.css("%s a:first-child::attr(href)"%css).extract()
+            links = response.css("%s a:first-child::attr(href)" % css).extract()
             links_l.append(len(links))
         ind = links_l.index(max(links_l))
         links = response.css("%s a:first-child::attr(href)" % base_css[ind]).extract()
@@ -435,22 +358,27 @@ class FriendpageLinkSpider(scrapy.Spider):
         createds = response.css("article time[itemprop*=dateCreated]::text").extract()
         updateds = response.css("article time[itemprop=dateModified]::text").extract()
         try:
-            l = len(links) if len(links) < 5 else 5
-            titles = self.process_title(titles, l)
-            createds, updateds = self.process_time(createds, updateds, l)
-            init_post_info = self.init_post_info(friend, "next/Yun")
-            for i in range(l):
-                link = self.process_link(links[i], friend[1])
-                yield self.generate_postinfo(
-                    init_post_info,
-                    titles[i],
-                    createds[i] if createds else self.today,
-                    updateds[i] if updateds else self.today,
-                    link
-                )
+            for post_info in self.process_theme_postinfo(friend, links, titles, createds, updateds, rule):
+                yield post_info
         except:
             pass
-        pass
+
+    def process_theme_postinfo(self, friend, links, titles, createds, updateds, rule):
+        l = len(links) if len(links) < 5 else 5
+        titles = self.process_title(titles, l)
+        createds, updateds = self.process_time(createds, updateds, l) # 要么为None，要么为空，要么有长度
+        init_post_info = self.init_post_info(friend, rule)
+        if not createds and not updateds:
+            raise
+        for i in range(l):
+            link = self.process_link(links[i], friend[1])
+            yield self.generate_postinfo(
+                init_post_info,
+                titles[i],
+                createds[i],
+                updateds[i],
+                link
+            )
 
     def init_post_info(self, friend, rule):
         post_info = {
@@ -522,6 +450,3 @@ class FriendpageLinkSpider(scrapy.Spider):
     def typecho_errback_handler(self, error):
         yield Request(error.request.url, callback=self.post_feed_parse, dont_filter=True, meta=error.request.meta,
                       errback=self.errback_handler)
-
-
-
