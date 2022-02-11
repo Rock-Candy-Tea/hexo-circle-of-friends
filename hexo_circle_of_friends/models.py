@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
-import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, BOOLEAN, DateTime
+from datetime import datetime,timedelta
 
 Model = declarative_base()
 
@@ -14,7 +14,7 @@ class Friend(Model):
     link = Column(String(1024))
     avatar = Column(String(1024))
     error = Column(BOOLEAN)
-    createAt = Column(DateTime, default=datetime.datetime.now)
+    createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
 
 
 class Post(Model):
@@ -27,4 +27,4 @@ class Post(Model):
     author = Column(String(256))
     avatar = Column(String(1024))
     rule = Column(String(256))
-    createAt = Column(DateTime, default=datetime.datetime.now)
+    createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))

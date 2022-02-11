@@ -1,10 +1,9 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
-from datetime import datetime
+from datetime import datetime,timedelta
 import re
 
-today_parsed = datetime.now()
-
+today_parsed = datetime.now() + timedelta(hours=8)
 
 # 时间格式检查
 def format_check(*args):

@@ -7,7 +7,9 @@ import re
 from .. import models, settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from datetime import datetime,timedelta
 
+today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 
 class SQLPipeline:
     def __init__(self):
@@ -87,6 +89,7 @@ class SQLPipeline:
         print("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
         print("共 %d 篇文章" % self.session.query(models.Post).count())
         self.session.close()
+        print("最后运行于：%s" % today)
         print("done!")
 
     def query_post(self):

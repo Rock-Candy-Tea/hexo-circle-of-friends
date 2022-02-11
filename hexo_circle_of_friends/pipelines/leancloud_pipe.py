@@ -5,7 +5,9 @@ import leancloud
 import datetime
 import re
 from .. import settings
+from datetime import datetime,timedelta
 
+today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 
 class LeancloudPipeline:
     def __init__(self):
@@ -78,7 +80,7 @@ class LeancloudPipeline:
         print("友链总数 : %d" % self.total_friend_num)
         print("失联友链数 : %d" % self.err_friend_num)
         print("共 %d 篇文章" % self.total_post_num)
-
+        print("最后运行于：%s" % today)
         print("done!")
 
     def query_friendspoor(self):
