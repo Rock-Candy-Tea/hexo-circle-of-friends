@@ -418,7 +418,7 @@ class FriendpageLinkSpider(scrapy.Spider):
 
     def process_time(self, createds, updateds, lenth):
         # 将创建时间和更新时间格式化，并处理为长度统一且不超过lenth的数组并返回
-        if not createds and not updateds and not lenth:
+        if not createds and not updateds:
             return None, None
         c_len = len(createds)
         u_len = len(updateds)
