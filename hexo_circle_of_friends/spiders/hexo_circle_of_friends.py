@@ -5,10 +5,11 @@ import os
 import scrapy
 import queue
 import feedparser
+import re
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
-from hexo_circle_of_friends.utils.get_url import get_theme_url, Yun_async_link_handler
-from hexo_circle_of_friends.utils.regulations import *
+from hexo_circle_of_friends.utils.get_url import GetUrl
+from hexo_circle_of_friends.utils.regulations import reg_volantis,reg_normal
 from hexo_circle_of_friends.utils.process_time import format_time
 
 # from hexo_circle_of_friends import items todo use items
@@ -20,7 +21,7 @@ post_parsers = [
 ]
 
 feed_suffix = [
-    "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed"
+    "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed", "index.xml"
 ]
 
 
@@ -41,6 +42,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.friend_poor = queue.Queue()
         self.friend_list = queue.Queue()
         self.today = datetime.datetime.now().strftime('%Y-%m-%d')
+        self.friend_url_parser = GetUrl()
 
         super(FriendpageLinkSpider, self).__init__(name, **kwargs)
 
@@ -68,17 +70,28 @@ class FriendpageLinkSpider(scrapy.Spider):
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + "/issues?q=is%3A" + dic[
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"github": {"domain": domain}})
-        if settings.DEBUG:
-            friendpage_link = settings.FRIENDPAGE_LINK
-        else:
-            friendpage_link = []
-            friendpage_link.append(os.environ["LINK"])
-            if settings.EXTRA_FRIENPAGE_LINK:
-                friendpage_link.extend(settings.EXTRA_FRIENPAGE_LINK)
 
+        friendpage_link,friendpage_theme = self.init_start_urls()
         self.start_urls.extend(friendpage_link)
-        for url in self.start_urls:
-            yield Request(url, callback=self.friend_poor_parse, meta={"theme": url})
+        for i,url in enumerate(self.start_urls):
+            yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
+
+    def init_start_urls(self):
+        friendpage_link = []
+        friendpage_theme = []
+        if settings.DEBUG:
+            friendpage_link.extend(settings.FRIENDPAGE_LINK)
+            friendpage_theme.append("butterfly")
+        else:
+            if settings.FRIENDPAGE_STRATEGY["strategy"] == "default":
+                theme = settings.FRIENDPAGE_STRATEGY["theme"]
+                friendpage_link.append(os.environ["LINK"])
+                friendpage_theme.append(theme)
+        for item in settings.EXTRA_FRIENPAGE_LINK:
+            friendpage_link.append(item["link"])
+            friendpage_theme.append(item["theme"])
+        return friendpage_link,friendpage_theme
+
 
     def friend_poor_parse(self, response):
         # 获取朋友列表
@@ -128,16 +141,14 @@ class FriendpageLinkSpider(scrapy.Spider):
                 pass
 
         if "theme" in response.meta.keys():
-            if settings.FRIENDPAGE_STRATEGY["strategy"] == "default":
-                theme = settings.FRIENDPAGE_STRATEGY["theme"]
-                async_link = get_theme_url(theme, response, self.friend_poor)
-                if async_link:
-                    # Yun主题的async_link临时解决
-                    yield CRequest(async_link, self.friend_poor_parse, meta={"async_link": async_link})
-            else:
-                pass
+            theme = response.meta.get("theme")
+            async_link = self.friend_url_parser.get_theme_url(theme, response, self.friend_poor)
+            if async_link:
+                # Yun主题的async_link临时解决
+                yield CRequest(async_link, self.friend_poor_parse, meta={"async_link": async_link})
+
         if "async_link" in response.meta.keys():
-            Yun_async_link_handler(response, self.friend_poor)
+            self.friend_url_parser.Yun_async_link_handler(response, self.friend_poor)
 
         while not self.friend_poor.empty():
             friend = self.friend_poor.get()
@@ -366,7 +377,7 @@ class FriendpageLinkSpider(scrapy.Spider):
     def process_theme_postinfo(self, friend, links, titles, createds, updateds, rule):
         l = len(links) if len(links) < 5 else 5
         titles = self.process_title(titles, l)
-        createds, updateds = self.process_time(createds, updateds, l) # 要么为None，要么为空，要么有长度
+        createds, updateds = self.process_time(createds, updateds, l)
         init_post_info = self.init_post_info(friend, rule)
         if not createds and not updateds:
             raise
