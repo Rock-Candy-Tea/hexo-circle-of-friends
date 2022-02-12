@@ -9,7 +9,7 @@ import re
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.get_url import GetUrl
-from hexo_circle_of_friends.utils.regulations import reg_volantis,reg_normal
+from hexo_circle_of_friends.utils.regulations import reg_volantis, reg_normal
 from hexo_circle_of_friends.utils.process_time import format_time
 
 # from hexo_circle_of_friends import items todo use items
@@ -71,9 +71,9 @@ class FriendpageLinkSpider(scrapy.Spider):
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"github": {"domain": domain}})
 
-        friendpage_link,friendpage_theme = self.init_start_urls()
+        friendpage_link, friendpage_theme = self.init_start_urls()
         self.start_urls.extend(friendpage_link)
-        for i,url in enumerate(self.start_urls):
+        for i, url in enumerate(self.start_urls):
             yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
 
     def init_start_urls(self):
@@ -90,8 +90,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         for item in settings.EXTRA_FRIENPAGE_LINK:
             friendpage_link.append(item["link"])
             friendpage_theme.append(item["theme"])
-        return friendpage_link,friendpage_theme
-
+        return friendpage_link, friendpage_theme
 
     def friend_poor_parse(self, response):
         # 获取朋友列表
