@@ -29,7 +29,7 @@ env:
   GITHUB_EMAIL: ${{ secrets.GH_EMAIL }} # 你的github邮箱
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
   # mongodb配置
-  MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI 支持'mongodb://'和'mongodb+srv://'
 
 jobs:
   build:
