@@ -28,8 +28,8 @@ env:
   GITHUB_NAME: ${{ secrets.GH_NAME }} # 你的github昵称
   GITHUB_EMAIL: ${{ secrets.GH_EMAIL }} # 你的github邮箱
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
-
-
+  # mongodb配置
+  MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI
 
 jobs:
   build:

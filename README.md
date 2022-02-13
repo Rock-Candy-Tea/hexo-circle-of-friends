@@ -6,7 +6,7 @@
 
 ⭐从4.1.3版本开始，一定要在配置项中配置友链页的获取策略
 ```
-目前 release 4.2.6 版本：
+目前 release 4.3.0 版本：
 - 支持 gitee 和 github 上的 issuse 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar、next主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
@@ -16,12 +16,13 @@
 - 支持未适配的hexo主题和非hexo用户使用，在配置项选择开启配置项友链
 - 额外的友链页同时爬取
 - 支持添加HTTP代理
-- 新增数据存储配置，提供多种存储方式
-- 新增部署方式配置，可部署在本地服务端
+- 多种数据存储，提供leancloud,mysql,sqlite,mongodb存储方式
+- 多种方式部署，提供github,server,docker部署方式
 - 将api整合到主仓库
 - 新增友链获取策略的common规则
+- 新增api方式的配置项友链
 
-bug修复：
+bug修复和改动：
 - wordpress类型博客的时间格式问题
 - butterfly主题友链页解析不再抓取背景图片了
 - 修复了github和gitee对volantis主题的友链获取
@@ -36,5 +37,6 @@ bug修复：
 - 移除旧订阅规则解析
 - 修复butterfly的时间获取
 - 额外友链页也可以配置获取策略
+- 修复过期文章清除不生效的问题
 ```
 

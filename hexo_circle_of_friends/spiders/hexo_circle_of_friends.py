@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-
+# Author：yyyz
 import datetime
 import os
 import scrapy
@@ -50,12 +50,10 @@ class FriendpageLinkSpider(scrapy.Spider):
         # 从配置文件导入友链列表
         if settings.SETTINGS_FRIENDS_LINKS['enable']:
             for li in settings.SETTINGS_FRIENDS_LINKS["list"]:
-                # user_info = [li[0],li[1],li[2]]
-                # print('----------------------')
-                # print('好友名%r' % li[0])
-                # print('头像链接%r' % li[2])
-                # print('主页链接%r' % li[1])
                 self.friend_poor.put(li)
+            if re.match("^http.?://", settings.SETTINGS_FRIENDS_LINKS["json_api"]):
+                yield Request(settings.SETTINGS_FRIENDS_LINKS["json_api"], callback=self.settings_friends_json_parse)
+
         if settings.GITEE_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://gitee.com'
@@ -75,6 +73,15 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.start_urls.extend(friendpage_link)
         for i, url in enumerate(self.start_urls):
             yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
+
+    def settings_friends_json_parse(self, response):
+        import json
+        try:
+            friends = json.loads(response)["friends"]
+            for friend in friends:
+                self.friend_poor.put(friend)
+        except:
+            pass
 
     def init_start_urls(self):
         friendpage_link = []
@@ -392,8 +399,8 @@ class FriendpageLinkSpider(scrapy.Spider):
 
     def init_post_info(self, friend, rule):
         post_info = {
-            "name": friend[0],
-            "img": friend[2],
+            "author": friend[0],
+            "avatar": friend[2],
             "rule": rule
         }
         return post_info
@@ -443,7 +450,7 @@ class FriendpageLinkSpider(scrapy.Spider):
     def generate_postinfo(self, init_post_info, title, created, updated, link):
         post_info = init_post_info
         post_info["title"] = title
-        post_info["time"] = created
+        post_info["created"] = created
         post_info["updated"] = updated
         post_info["link"] = link
         return post_info
@@ -456,7 +463,3 @@ class FriendpageLinkSpider(scrapy.Spider):
         # request = error.request
         # meta = error.request.meta
         pass
-
-    def typecho_errback_handler(self, error):
-        yield Request(error.request.url, callback=self.post_feed_parse, dont_filter=True, meta=error.request.meta,
-                      errback=self.errback_handler)

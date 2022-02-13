@@ -14,6 +14,8 @@ if settings.DATABASE == 'leancloud':
     from api.leancloudapi import *
 elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
     from api.sqlapi import *
+elif settings.DATABASE == "mongodb":
+    from api.mongodbapi import *
 
 app = FastAPI()
 

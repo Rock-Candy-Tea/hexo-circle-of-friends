@@ -2,12 +2,12 @@
 # Author：yyyz
 import os
 import leancloud
-import datetime
 import re
 from .. import settings
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+
 
 class LeancloudPipeline:
     def __init__(self):
@@ -48,17 +48,17 @@ class LeancloudPipeline:
             return item
 
         if "title" in item.keys():
-            if item["name"] in self.nonerror_data:
+            if item["author"] in self.nonerror_data:
                 pass
             else:
                 # 未失联的人
-                self.nonerror_data.add(item["name"])
+                self.nonerror_data.add(item["author"])
 
             # print(item)
             for query_item in self.query_post_list:
                 try:
                     if query_item.get("link") == item["link"]:
-                        item["time"] = min(item['time'], query_item.get('created'))
+                        item["created"] = min(item['created'], query_item.get('created'))
                         delete = self.Friendspoor.create_without_data(query_item.get('objectId'))
                         delete.destroy()
                         # print("----deleted %s ----"%item["title"])
@@ -106,10 +106,10 @@ class LeancloudPipeline:
         out_date_post = 0
         for query_i in self.query_post_list:
 
-            created = query_i.get('created')
+            updated = query_i.get('updated')
             try:
-                query_time = datetime.datetime.strptime(created, "%Y-%m-%d")
-                if (datetime.datetime.today() - query_time).days > time_limit:
+                query_time = datetime.strptime(updated, "%Y-%m-%d")
+                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
                     delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                     out_date_post += 1
                     delete.destroy()
@@ -151,14 +151,14 @@ class LeancloudPipeline:
     def friendpoor_push(self, item):
         friendpoor = self.Friendspoor()
         friendpoor.set('title', item['title'])
-        friendpoor.set('created', item['time'])
+        friendpoor.set('created', item['created'])
         friendpoor.set('updated', item['updated'])
         friendpoor.set('link', item['link'])
-        friendpoor.set('author', item['name'])
-        friendpoor.set('avatar', item['img'])
+        friendpoor.set('author', item['author'])
+        friendpoor.set('avatar', item['avatar'])
         friendpoor.set('rule', item['rule'])
         friendpoor.save()
         print("----------------------")
-        print(item["name"])
-        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["time"], item["rule"]))
+        print(item["author"])
+        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
         self.total_post_num += 1

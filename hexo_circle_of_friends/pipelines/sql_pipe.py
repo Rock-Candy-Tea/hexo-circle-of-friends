@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 import os
-import datetime
 import re
 
 from .. import models, settings
@@ -56,20 +55,18 @@ class SQLPipeline:
             return item
 
         if "title" in item.keys():
-            if item["name"] in self.nonerror_data:
+            if item["author"] in self.nonerror_data:
                 pass
             else:
                 # 未失联的人
-                self.nonerror_data.add(item["name"])
+                self.nonerror_data.add(item["author"])
 
             # print(item)
             for query_item in self.query_post_list:
                 try:
                     if query_item.link == item["link"]:
-                        item["time"] = min(item['time'], query_item.created)
-                        self.session.query(models.Post).filter_by(id=query_item.id).delete()
-                        self.session.commit()
-                        # print("----deleted %s ----"%item["title"])
+                        item["created"] = min(item['created'], query_item.created)
+                        self.session.query(models.Post).filter_by(link=query_item.link).delete()
                 except:
                     pass
 
@@ -82,13 +79,12 @@ class SQLPipeline:
         # print(self.userdata)
 
         self.friendlist_push()
-
         self.outdate_clean(settings.OUTDATE_CLEAN)
         print("----------------------")
         print("友链总数 : %d" % self.session.query(models.Friend).count())
         print("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
         print("共 %d 篇文章" % self.session.query(models.Post).count())
-        self.session.close()
+
         print("最后运行于：%s" % today)
         print("done!")
 
@@ -100,18 +96,19 @@ class SQLPipeline:
 
     def outdate_clean(self, time_limit):
         out_date_post = 0
+        self.query_post()
         for query_item in self.query_post_list:
-            created = query_item.created
+            updated = query_item.updated
             try:
-                query_time = datetime.datetime.strptime(created, "%Y-%m-%d")
-                if (datetime.datetime.today() - query_time).days > time_limit:
-                    self.session.query(models.Post).filter_by(id=query_item.id).delete()
+                query_time = datetime.strptime(updated, "%Y-%m-%d")
+                if (datetime.today()+timedelta(hours=8) - query_time).days > time_limit:
+                    self.session.query(models.Post).filter_by(link=query_item.link).delete()
                     out_date_post += 1
-                    self.session.commit()
             except:
-                self.session.query(models.Post).filter_by(id=query_item.id).delete()
-                self.session.commit()
+                self.session.query(models.Post).filter_by(link=query_item.link).delete()
                 out_date_post += 1
+        self.session.commit()
+        self.session.close()
         # print('\n')
         # print('共删除了%s篇文章' % out_date_post)
         # print('\n')
@@ -145,15 +142,15 @@ class SQLPipeline:
     def friendpoor_push(self, item):
         post = models.Post(
             title=item['title'],
-            created=item['time'],
+            created=item['created'],
             updated=item['updated'],
             link=item['link'],
-            author=item['name'],
-            avatar=item['img'],
+            author=item['author'],
+            avatar=item['avatar'],
             rule=item['rule']
         )
         self.session.add(post)
         self.session.commit()
         print("----------------------")
-        print(item["name"])
-        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["time"], item["rule"]))
+        print(item["author"])
+        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))

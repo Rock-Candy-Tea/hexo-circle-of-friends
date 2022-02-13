@@ -14,6 +14,8 @@ ENV APPKEY=""
 #ENV MYSQL_PASSWORD=""
 #ENV MYSQL_IP=""
 #ENV MYSQL_DB=""
+### mongodb配置
+#ENV MONGODB_URI=""
 EXPOSE 8000
 WORKDIR /
 RUN cd ./hexo_circle_of_friends && pip3 install -r requirements.txt -i https://pypi.douban.com/simple/

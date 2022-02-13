@@ -33,7 +33,8 @@ def initsettings(setting):
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.leancloud_pipe.LeancloudPipeline"] = 300
     elif DATABASE == 'mysql' or DATABASE == "sqlite":
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
-
+    elif DATABASE == "mongodb":
+        setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
 
 if __name__ == '__main__':
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":

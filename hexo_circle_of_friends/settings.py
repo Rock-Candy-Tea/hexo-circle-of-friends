@@ -26,14 +26,16 @@ FRIENDPAGE_STRATEGY = {
 }
 
 # 配置项友链
-# 格式：["name", "link", "avatar","suffix"]，
-# 参数说明：
-# name：必填，友链的名字
-# link：必填，友链主页地址
-# avatar：必填，头像地址
-# suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
+# enable：# 是否启用配置项友链 True/False（针对还未适配主题或者有定制需求的用户）
+# json_api：通过api获取配置项友链，返回格式必须为：{"friends":[[友链1],[友链2],[友链3],[友链4]....]}，友链内容同list字段格式
+# list字段填写格式：["name", "link", "avatar","suffix"]，其中：
+#       name：必填，友链的名字
+#       link：必填，友链主页地址
+#       avatar：必填，头像地址
+#       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": False,  # 是否启用配置项友链 True/False（此项针对还未适配的主题用户）
+    "enable": False,
+    "json_api":"",
     "list": [
         # 示例1：
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
@@ -89,7 +91,7 @@ EXTRA_FRIENPAGE_LINK = [
     # }
 ]
 
-# 存储方式，可选项：leancloud，mysql, sqlite；默认为leancloud
+# 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
 DATABASE = "leancloud"
 
 # 部署方式，可选项：github，server，docker；默认为github
@@ -100,7 +102,7 @@ DEPLOY_TYPE = "github"
 
 ##############################除非您了解本项目，否则请勿修改以下内容################################
 
-VERSION = "4.2.6"
+VERSION = "4.3.0"
 
 # debug
 # debug模式
