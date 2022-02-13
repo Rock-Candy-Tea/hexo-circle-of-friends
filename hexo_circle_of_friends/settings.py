@@ -93,11 +93,11 @@ EXTRA_FRIENPAGE_LINK = [
 
 
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
-DATABASE = "sqlite"
+DATABASE = "leancloud"
 
 
 # 部署方式，可选项：github，server，docker；默认为github
-DEPLOY_TYPE = "docker"
+DEPLOY_TYPE = "github"
 
 ################################请修改以上内容################################
 
