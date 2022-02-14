@@ -126,14 +126,18 @@ class MongoDBPipeline:
                 friend["error"] = True
                 error_num += 1
             friends.append(friend)
-        if friends:
-            self.friends.insert_many(friends, ordered=False)
+
+        for friend in friends:
+            self.friends.insert_one(friend)
         return len(friends), error_num
 
     def friendpoor_push(self):
-        post_list = [item for item in self.query_post_list if item]
-        self.posts.insert_many(post_list, ordered=False)
-        return len(post_list)
+        num = 0
+        for item in self.query_post_list:
+            if item:
+                self.posts.insert_one(item)
+                num +=1
+        return num
 
     def friendpoor_save(self, item):
         item["createdAt"] = today
