@@ -127,12 +127,12 @@ class MongoDBPipeline:
                 error_num += 1
             friends.append(friend)
         if friends:
-            self.friends.insert_many(friends,ordered=False)
+            self.friends.insert_many(friends, ordered=False)
         return len(friends), error_num
 
     def friendpoor_push(self):
         post_list = [item for item in self.query_post_list if item]
-        self.posts.insert_many(post_list)
+        self.posts.insert_many(post_list, ordered=False)
         return len(post_list)
 
     def friendpoor_save(self, item):
