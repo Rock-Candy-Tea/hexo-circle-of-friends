@@ -126,7 +126,8 @@ class MongoDBPipeline:
                 friend["error"] = True
                 error_num += 1
             friends.append(friend)
-        self.friends.insert_many(friends)
+        if friends:
+            self.friends.insert_many(friends)
         return len(friends), error_num
 
     def friendpoor_push(self):

@@ -1,15 +1,8 @@
 ################################请修改以下内容################################
-# outdate_clean
-# 过期文章清除（天）
-OUTDATE_CLEAN = 60
-
-# 友链页的获取策略
-# 从4.1.3版本开始，为了程序更精准解析您的主题，需要配置此项
+# 友链页地址
 # 参数说明：
-# strategy：必填，可选参数如下：
-#   - default：默认。指定友链页主题。
-#   - incompat：如果theme中不支持您的主题，请选择此项。此时建议使用配置项友链
-# theme：必填，可选参数如下（这些是目前支持的主题）：
+# link：必填，在这里填写你的友链页面地址
+# theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
 #   - common: 通用主题，请参考：https://hexo-circle-of-friends-doc.vercel.app/#/developmentdoc?id=%e5%8f%8b%e9%93%be%e9%a1%b5%e9%80%82%e9%85%8d
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
@@ -20,10 +13,22 @@ OUTDATE_CLEAN = 60
 #   - volantis：volantis主题
 #   - Yun：Yun主题
 #   - stellar：stellar主题
-FRIENDPAGE_STRATEGY = {
-    "strategy": "default",
-    "theme": "butterfly"  # 请修改为您的主题，如果您的友链页为https://www.yyyzyyyz.cn/link/，请选择butterfly，以此类推
-}
+# 支持配置多个多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。***至少配置一个***
+LINK = [
+    {
+        "link": "https://zfe.space/link/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "butterfly"
+    },
+    #     {
+    #     "link": "https://noionion.top/link/",  # 友链页地址2
+    #     "theme": "butterfly",  # 友链页的获取策略
+    # },
+    #     {
+    #     "link": "https://immmmm.com/about/",  # 友链页地址3
+    #     "theme": "common",  # 友链页的获取策略
+    # }
+
+]
 
 # 配置项友链
 # enable：# 是否启用配置项友链 True/False（针对还未适配主题或者有定制需求的用户）
@@ -35,7 +40,7 @@ FRIENDPAGE_STRATEGY = {
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
     "enable": False,
-    "json_api":"",
+    "json_api": "",
     "list": [
         # 示例1：
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
@@ -78,19 +83,8 @@ BLOCK_SITE = [
 # 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
 HTTP_PROXY = False
 
-# 除了在环境变量LINK中配置的友链页面，还支持添加更多友链页面，并指定不同主题，同时爬取，它们的数据保存在一起。
-# 可以添加多个，格式为[{地址1},{地址2},{地址3},...]：
-EXTRA_FRIENPAGE_LINK = [
-    #     {
-    #     "link": "https://noionion.top/link/",  # 友链页地址1
-    #     "theme": "butterfly",  # 友链页的获取策略，参考FRIENDPAGE_STRATEGY的说明
-    # },
-    #     {
-    #     "link": "https://immmmm.com/about/",  # 友链页地址2
-    #     "theme": "common",  # 友链页的获取策略，参考FRIENDPAGE_STRATEGY的说明
-    # }
-]
-
+# 过期文章清除（天）
+OUTDATE_CLEAN = 60
 
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
 DATABASE = "leancloud"

@@ -4,9 +4,9 @@
 
 部署教程：[文档](https://hexo-circle-of-friends-doc.vercel.app/) | [备用地址](https://hiltay.github.io/hexo-circle-of-friends-doc/)
 
-⭐从4.1.3版本开始，一定要在配置项中配置友链页的获取策略
+⭐从4.1.3版本开始，一定要在配置项中配置友链页和获取策略
 ```
-目前 release 4.3.0 版本：
+目前 release 4.3.1 版本：
 - 支持 gitee 和 github 上的 issuse 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar、next主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
@@ -21,6 +21,7 @@
 - 将api整合到主仓库
 - 新增友链获取策略的common规则
 - 新增api方式的配置项友链
+- 将额外友链页和环境变量友链统一为LINK，在配置文件中配置
 
 bug修复和改动：
 - wordpress类型博客的时间格式问题
@@ -37,6 +38,6 @@ bug修复和改动：
 - 移除旧订阅规则解析
 - 修复butterfly的时间获取
 - 额外友链页也可以配置获取策略
-- 修复过期文章清除不生效的问题
+- 修复过期文章清除不生效的问题，解决mongodb空插入报错问题
 ```
 

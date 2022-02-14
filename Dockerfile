@@ -3,7 +3,6 @@ MAINTAINER yyyz
 COPY . /
 ### 在这里配置环境变量
 ### 通用配置
-ENV LINK="https://www.yyyzyyyz.cn/link/"
 ENV RUN_PER_HOURS=6
 #ENV PROXY=""
 ### leancloud配置

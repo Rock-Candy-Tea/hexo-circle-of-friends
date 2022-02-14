@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 import datetime
-import os
 import scrapy
 import queue
 import feedparser
@@ -89,12 +88,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         if settings.DEBUG:
             friendpage_link.extend(settings.FRIENDPAGE_LINK)
             friendpage_theme.append("butterfly")
-        else:
-            if settings.FRIENDPAGE_STRATEGY["strategy"] == "default":
-                theme = settings.FRIENDPAGE_STRATEGY["theme"]
-                friendpage_link.append(os.environ["LINK"])
-                friendpage_theme.append(theme)
-        for item in settings.EXTRA_FRIENPAGE_LINK:
+        for item in settings.LINK:
             friendpage_link.append(item["link"])
             friendpage_theme.append(item["theme"])
         return friendpage_link, friendpage_theme
