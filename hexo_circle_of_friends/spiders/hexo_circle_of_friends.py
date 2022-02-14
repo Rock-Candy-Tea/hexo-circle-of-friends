@@ -76,7 +76,7 @@ class FriendpageLinkSpider(scrapy.Spider):
     def settings_friends_json_parse(self, response):
         import json
         try:
-            friends = json.loads(response)["friends"]
+            friends = json.loads(response.text)["friends"]
             for friend in friends:
                 self.friend_poor.put(friend)
         except:
