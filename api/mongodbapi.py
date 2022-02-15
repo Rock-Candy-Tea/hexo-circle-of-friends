@@ -36,10 +36,13 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     last_update_time = "1970-01-01 00:00:00"
     post_data = []
     for k, post in enumerate(posts):
-        last_update_time = max(last_update_time, post.pop("createdAt"))
-        item = {'floor': start + k + 1}
-        item.update(post)
-        post_data.append(item)
+        try:
+            last_update_time = max(last_update_time, post.pop("createdAt"))
+            item = {'floor': start + k + 1}
+            item.update(post)
+            post_data.append(item)
+        except KeyError:
+            pass
 
     friends_num = friend_db_collection.count_documents({})
     active_num = friend_db_collection.count_documents({"error": False})

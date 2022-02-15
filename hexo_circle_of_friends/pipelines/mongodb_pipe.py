@@ -27,8 +27,7 @@ class MongoDBPipeline:
         self.friends = db.Friend
         self.query_post_num = self.posts.count_documents({})
 
-        for post in self.posts.find():
-            self.query_post_list.append(post)
+        self.query_post()
 
         self.friends.delete_many({})
         print("Initialization complete")
@@ -57,13 +56,11 @@ class MongoDBPipeline:
                         query_item['created'] = min(item['created'], query_item.get("created"))
                         post_id = query_item.get("_id")
                         self.posts.delete_one({"_id": post_id})
-                        return item
                 except:
                     post_id = query_item.get("_id")
                     self.posts.delete_one({"_id": post_id})
-                    return item
 
-            self.friendpoor_save(item)
+            self.friendpoor_push(item)
 
         return item
 
@@ -73,27 +70,33 @@ class MongoDBPipeline:
 
         count, error_num = self.friendlist_push()
         self.outdate_clean(settings.OUTDATE_CLEAN)
-        num = self.friendpoor_push()
         print("----------------------")
         print("友链总数 : %d" % count)
         print("失联友链数 : %d" % error_num)
-        print("共 %d 篇文章" % num)
+        print("共 %d 篇文章" % self.posts.count_documents({}))
         print("最后运行于：%s" % today)
         print("done!")
 
+    def query_post(self):
+        try:
+            self.query_post_list = []
+            for post in self.posts.find():
+                self.query_post_list.append(post)
+        except:
+            self.query_post_list = []
+
     def outdate_clean(self, time_limit):
         out_date_post = 0
+        self.query_post()
         for query_item in self.query_post_list:
             updated = query_item.get("updated")
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
                 if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
-                    self.posts.delete_one({"_id": query_item.get("_id")})
-                    query_item.clear()
+                    result = self.posts.delete_one({"_id": query_item.get("_id")})
                     out_date_post += 1
             except:
                 self.posts.delete_one({"_id": query_item.get("_id")})
-                query_item.clear()
                 out_date_post += 1
         # print('\n')
         # print('共删除了%s篇文章' % out_date_post)
@@ -136,17 +139,13 @@ class MongoDBPipeline:
                 print("上传数据失败，请检查：%s" % friend.get("link"))
         return len(friends), error_num
 
-    def friendpoor_push(self):
-        for item in self.query_post_list:
-            try:
-                self.posts.replace_one({"link": item.get("link")}, item, upsert=True)
-            except:
-                print("上传数据失败，请检查：%s" % item.get("link"))
-        return self.posts.count_documents({})
-
-    def friendpoor_save(self, item):
+    def friendpoor_push(self,item):
         item["createdAt"] = today
-        self.query_post_list.append(item)
+        try:
+            self.posts.replace_one({"link": item.get("link")}, item, upsert=True)
+        except:
+            pass
         print("----------------------")
         print(item["author"])
         print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
+

@@ -8,9 +8,9 @@ from ..utils import process_time
 
 class DuplicatesPipeline:
     def __init__(self):
-        self.data_set = set()  # posts filter set 用于对post文章数据的去重
+        self.data_link_set = set()  # 通过链接对post文章数据的去重
+        self.data_title_set = set() # 通过标题对post文章数据的去重
         self.friends_set = set()  # friends filter set 用于对friends的去重
-
     def process_item(self, item, spider):
         if "userdata" in item.keys():
             #  userdata filter
@@ -21,12 +21,14 @@ class DuplicatesPipeline:
             return item
 
         link = item['link']
-        if link in self.data_set or link == "":
-            # 重复数据清洗
+        title = item['title']
+        if link in self.data_link_set or link == "":
             raise DropItem("Duplicate found:%s" % link)
-        if not item["title"]:
-            raise DropItem("missing fields :'title'")
-        elif not re.match("^http.?://", item["link"]):
+
+        if title in self.data_title_set or title == "":
+            raise DropItem("Duplicate found:%s" % title)
+
+        if not re.match("^http.?://", item["link"]):
             # 链接必须是http开头，不能是相对地址
             raise DropItem("invalid link ")
 
@@ -37,5 +39,6 @@ class DuplicatesPipeline:
         if not process_time.content_check(item["created"], item["updated"]):
             raise DropItem("invalid time ")
 
-        self.data_set.add(link)
+        self.data_link_set.add(link)
+        self.data_title_set.add(title)
         return item
