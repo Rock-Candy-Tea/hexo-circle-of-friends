@@ -146,7 +146,7 @@ class MongoDBPipeline:
 
     def friendpoor_save(self, item):
         item["createdAt"] = today
-        self.query_post_list.append(item.copy())
+        self.query_post_list.append(item)
         print("----------------------")
         print(item["author"])
         print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
