@@ -47,11 +47,9 @@ class FriendpageLinkSpider(scrapy.Spider):
 
     def start_requests(self):
         # 从配置文件导入友链列表
-        if settings.SETTINGS_FRIENDS_LINKS['enable']:
-            for li in settings.SETTINGS_FRIENDS_LINKS["list"]:
+        if self.settings.get("SETTINGS_FRIENDS_LINKS").get("enable"):
+            for li in self.settings.get("SETTINGS_FRIENDS_LINKS").get("list"):
                 self.friend_poor.put(li)
-            if re.match("^http.?://", settings.SETTINGS_FRIENDS_LINKS["json_api"]):
-                yield Request(settings.SETTINGS_FRIENDS_LINKS["json_api"], callback=self.settings_friends_json_parse)
 
         if settings.GITEE_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
@@ -72,15 +70,6 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.start_urls.extend(friendpage_link)
         for i, url in enumerate(self.start_urls):
             yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
-
-    def settings_friends_json_parse(self, response):
-        import json
-        try:
-            friends = json.loads(response.text)["friends"]
-            for friend in friends:
-                self.friend_poor.put(friend)
-        except:
-            pass
 
     def init_start_urls(self):
         friendpage_link = []

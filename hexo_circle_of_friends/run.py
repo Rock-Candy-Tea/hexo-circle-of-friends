@@ -6,6 +6,7 @@ from settings import *
 import schedule
 from multiprocessing.context import Process
 import time
+import requests
 
 
 def main():
@@ -22,6 +23,16 @@ def main():
     process.start()
 
 
+def settings_friends_json_parse(setting):
+    import json
+    try:
+        response = requests.get(setting["SETTINGS_FRIENDS_LINKS"]["json_api"])
+        friends = json.loads(response.text)["friends"]
+        setting["SETTINGS_FRIENDS_LINKS"]["list"].extend(friends)
+    except:
+        pass
+
+
 def sub_process_start():
     process = Process(target=main)
     process.start()  # 开始执行
@@ -35,6 +46,10 @@ def initsettings(setting):
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
     elif DATABASE == "mongodb":
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
+
+    if SETTINGS_FRIENDS_LINKS["json_api"].startswith("http"):
+        settings_friends_json_parse(setting)
+
 
 if __name__ == '__main__':
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":

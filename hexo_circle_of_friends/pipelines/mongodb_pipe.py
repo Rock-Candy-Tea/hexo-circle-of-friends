@@ -53,13 +53,15 @@ class MongoDBPipeline:
             # print(item)
             for query_item in self.query_post_list[:self.query_post_num]:
                 try:
-                    if query_item.get("link") == item["link"]:
+                    if query_item["link"] == item["link"]:
                         query_item['created'] = min(item['created'], query_item.get("created"))
                         post_id = query_item.get("_id")
                         self.posts.delete_one({"_id": post_id})
                         return item
                 except:
-                    pass
+                    post_id = query_item.get("_id")
+                    self.posts.delete_one({"_id": post_id})
+                    return item
 
             self.friendpoor_save(item)
 
@@ -128,16 +130,19 @@ class MongoDBPipeline:
             friends.append(friend)
 
         for friend in friends:
-            self.friends.insert_one(friend)
+            try:
+                self.friends.replace_one({"link": friend.get("link")}, friend, upsert=True)
+            except:
+                print("上传数据失败，请检查：%s" % friend.get("link"))
         return len(friends), error_num
 
     def friendpoor_push(self):
-        num = 0
         for item in self.query_post_list:
-            if item:
-                self.posts.insert_one(item)
-                num +=1
-        return num
+            try:
+                self.posts.replace_one({"link": item.get("link")}, item, upsert=True)
+            except:
+                print("上传数据失败，请检查：%s" % item.get("link"))
+        return self.posts.count_documents({})
 
     def friendpoor_save(self, item):
         item["createdAt"] = today
