@@ -7,3 +7,4 @@ SQLAlchemy==1.4.31
 lxml==4.6.4
 pymongo==4.0.1
 dnspython==2.2.0
+aiohttp==3.8.1

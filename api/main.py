@@ -1,4 +1,7 @@
 # -*- coding:utf-8 -*-
+import asyncio
+import re
+import aiohttp
 from lxml import etree
 import uvicorn
 import sys
@@ -87,29 +90,41 @@ def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"
 
 
 @app.get("/version", tags=["version"], summary="返回版本信息")
-def version():
+async def version():
     # status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
     api_json = {"status": 0}
     if settings.VERSION:
         try:
-            response = requests.get("https://hexo-circle-of-friends-doc.vercel.app/version.txt", timeout=20).text
-            if not response:
-                response = requests.get("https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
-                                        timeout=20).text
-                if not response:
-                    response = requests.get("https://github.com/Rock-Candy-Tea/hexo-circle-of-friends", timeout=20).text
-                    html = etree.HTML(response)
-                    response = str(
-                        html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
-            api_json["current_version"] = settings.VERSION
-            api_json["latest_version"] = response
+            async with aiohttp.ClientSession() as session:
+                urls = [
+                    "https://hexo-circle-of-friends-doc.vercel.app/version.txt",
+                    "https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
+                    "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
+                ]
+                tasks = [asyncio.create_task(fetch(session, url)) for url in urls]
+                done, pending = await asyncio.wait(tasks)
+                for d in done:
+                    if d.result():
+                        api_json["current_version"] = settings.VERSION
+                        api_json["latest_version"] = d.result()
         except:
             api_json["current_version"] = settings.VERSION
             api_json["status"] = 2
             return api_json
-        if settings.VERSION != response:
+        if settings.VERSION != api_json["latest_version"]:
             api_json["status"] = 1
         return api_json
+
+
+async def fetch(session, url):
+    async with session.get(url, verify_ssl=False) as response:
+        content = await response.text()
+        if re.match("^\d+", content):
+            return content
+        else:
+            html = etree.HTML(content)
+            content = str(html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
+            return content
 
 
 if __name__ == "__main__":
