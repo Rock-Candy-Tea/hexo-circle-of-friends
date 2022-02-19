@@ -69,7 +69,18 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
         return {"message": "end error"}
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
-    article_data_init.sort(key=lambda x: x[rule], reverse=True)
+
+    rules = []
+    if rule == "created":
+        rules.extend(["created", "updated"])
+    else:
+        rules.extend(["updated", "created"])
+    for r in rules:
+        try:
+            article_data_init.sort(key=lambda x: x[r], reverse=True)
+        except:
+            return {"message": "sort error"}
+
     index = 1
     for item in article_data_init:
         item["floor"] = index
