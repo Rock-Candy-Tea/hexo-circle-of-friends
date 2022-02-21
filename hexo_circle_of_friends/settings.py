@@ -18,16 +18,7 @@ LINK = [
     {
         "link": "https://gahotx.cn/link/",  # 友链页地址1，修改为你的友链页地址
         "theme": "butterfly"
-    },
-    #     {
-    #     "link": "https://noionion.top/link/",  # 友链页地址2
-    #     "theme": "butterfly",  # 友链页的获取策略
-    # },
-    #     {
-    #     "link": "https://immmmm.com/about/",  # 友链页地址3
-    #     "theme": "common",  # 友链页的获取策略
-    # }
-
+    }
 ]
 
 # 配置项友链
@@ -76,8 +67,7 @@ GITHUB_FRIENDS_LINKS = {
 # block site list
 # 添加屏蔽站点
 BLOCK_SITE = [
-    # "https://example.com/",
-    # "https://example.com/",
+    "https://blog.huran.xyz/"
 ]
 
 # 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
