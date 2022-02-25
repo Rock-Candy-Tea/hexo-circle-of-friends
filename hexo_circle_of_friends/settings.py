@@ -3,7 +3,7 @@
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
-#   - common: 通用主题，请参考：https://hexo-circle-of-friends-doc.vercel.app/#/developmentdoc?id=%e5%8f%8b%e9%93%be%e9%a1%b5%e9%80%82%e9%85%8d
+#   - common: 通用主题，请参考：https://fcircle-doc.js.cool/#/developmentdoc?id=友链页适配
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
