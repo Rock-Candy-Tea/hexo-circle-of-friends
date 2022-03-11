@@ -16,8 +16,8 @@
 # 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。***至少配置一个***
 LINK = [
     {
-        "link": "https://zfe.space/link/",  # 友链页地址1，修改为你的友链页地址
-        "theme": "butterfly"
+        "link": "https://blog.huran.xyz/link/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "common"
     },
     #     {
     #     "link": "https://noionion.top/link/",  # 友链页地址2
@@ -39,7 +39,7 @@ LINK = [
 #       avatar：必填，头像地址
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": False,
+    "enable": True,
     "json_api": "",
     "list": [
         # 示例1：
