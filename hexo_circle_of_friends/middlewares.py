@@ -2,23 +2,28 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-import sys
+import os
 
 from scrapy import signals
-from settings import USER_AGENT_LIST
+from scrapy.utils.project import get_project_settings
 import random
 import settings
 import re
 from scrapy.exceptions import IgnoreRequest
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+
+setting = get_project_settings()
+
+
 class RandomUserAgentMiddleware:
     # 随机User-Agent
     def process_request(self, request, spider):
-        UA = random.choice(USER_AGENT_LIST)
+        UA = random.choice(setting["USER_AGENT_LIST"])
         if UA:
-            request.headers.setdefault('User-Agent',UA)
+            request.headers.setdefault('User-Agent', UA)
         return None
+
 
 class BlockSiteMiddleware:
     def process_request(self, request, spider):
@@ -26,19 +31,21 @@ class BlockSiteMiddleware:
         if "theme" in request.meta:
             return None
         for url in settings.BLOCK_SITE:
-            if re.match(url,request.url):
+            if re.match(url, request.url):
                 # print("block----------------->%s"%url)
                 raise IgnoreRequest("url block")
         # print("now is %s"%request.url)
         return None
 
+
 class ProxyMiddleware(object):
     def process_request(self, request, spider):
         if settings.DEBUG and settings.HTTP_PROXY_URL != "":
             request.meta['proxy'] = settings.HTTP_PROXY_URL
-        elif settings.HTTP_PROXY and len(sys.argv)>=5:
-            request.meta['proxy'] = sys.argv[4]
+        elif settings.HTTP_PROXY and os.environ.get("PROXY"):
+            request.meta['proxy'] = os.environ["PROXY"]
         return None
+
 
 class HexoCircleOfFriendsSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,

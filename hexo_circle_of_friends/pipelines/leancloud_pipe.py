@@ -1,25 +1,27 @@
 # -*- coding:utf-8 -*-
-
+# Author：yyyz
+import os
 import leancloud
-import datetime
-import settings
-import sys
 import re
-from scrapy.exceptions import DropItem
+from .. import settings
+from datetime import datetime, timedelta
+
+today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 
 
-class HexoCircleOfFriendsPipeline:
+class LeancloudPipeline:
     def __init__(self):
         self.userdata = []
-        self.nonerror_data = set() # 能够根据友链link获取到文章的人
+        self.nonerror_data = set()  # 能够根据友链link获取到文章的人
         self.total_post_num = 0
         self.total_friend_num = 0
         self.err_friend_num = 0
+
     def open_spider(self, spider):
         if settings.DEBUG:
             leancloud.init(settings.LC_APPID, settings.LC_APPKEY)
         else:
-            leancloud.init(sys.argv[1], sys.argv[2])
+            leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
         self.Friendslist = leancloud.Object.extend('friend_list')
         self.Friendspoor = leancloud.Object.extend('friend_poor')
         self.query_friendslist()
@@ -34,6 +36,7 @@ class HexoCircleOfFriendsPipeline:
         # print(self.query_friend_list)
 
         print("Initialization complete")
+
     def process_item(self, item, spider):
         if "userdata" in item.keys():
             li = []
@@ -45,17 +48,17 @@ class HexoCircleOfFriendsPipeline:
             return item
 
         if "title" in item.keys():
-            if item["name"] in self.nonerror_data:
+            if item["author"] in self.nonerror_data:
                 pass
             else:
                 # 未失联的人
-                self.nonerror_data.add(item["name"])
+                self.nonerror_data.add(item["author"])
 
             # print(item)
             for query_item in self.query_post_list:
                 try:
-                    if query_item.get("link")==item["link"]:
-                        item["time"]=min(item['time'], query_item.get('time'))
+                    if query_item.get("link") == item["link"]:
+                        item["created"] = min(item['created'], query_item.get('created'))
                         delete = self.Friendspoor.create_without_data(query_item.get('objectId'))
                         delete.destroy()
                         # print("----deleted %s ----"%item["title"])
@@ -65,7 +68,8 @@ class HexoCircleOfFriendsPipeline:
             self.friendpoor_push(item)
 
         return item
-    def close_spider(self,spider):
+
+    def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
 
@@ -73,21 +77,22 @@ class HexoCircleOfFriendsPipeline:
 
         self.outdate_clean(settings.OUTDATE_CLEAN)
         print("----------------------")
-        print("友链总数 : %d" %self.total_friend_num)
+        print("友链总数 : %d" % self.total_friend_num)
         print("失联友链数 : %d" % self.err_friend_num)
-        print("共 %d 篇文章"%self.total_post_num)
-
+        print("共 %d 篇文章" % self.total_post_num)
+        print("最后运行于：%s" % today)
         print("done!")
 
     def query_friendspoor(self):
         try:
             query = self.Friendspoor.query
-            query.select("title",'time', 'link', 'updated')
+            query.select("title", 'created', 'link', 'updated')
             query.limit(1000)
             self.query_post_list = query.find()
             # print(self.query_post_list)
         except:
-            self.query_post_list=[]
+            self.query_post_list = []
+
     def query_friendslist(self):
         try:
             query = self.Friendslist.query
@@ -95,16 +100,16 @@ class HexoCircleOfFriendsPipeline:
             query.limit(1000)
             self.query_friend_list = query.find()
         except:
-            self.query_friend_list=[]
+            self.query_friend_list = []
 
-    def outdate_clean(self,time_limit):
+    def outdate_clean(self, time_limit):
         out_date_post = 0
         for query_i in self.query_post_list:
 
-            time = query_i.get('time')
+            updated = query_i.get('updated')
             try:
-                query_time = datetime.datetime.strptime(time, "%Y-%m-%d")
-                if (datetime.datetime.today() - query_time).days > time_limit:
+                query_time = datetime.strptime(updated, "%Y-%m-%d")
+                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
                     delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                     out_date_post += 1
                     delete.destroy()
@@ -120,7 +125,7 @@ class HexoCircleOfFriendsPipeline:
     def friendlist_push(self):
         for index, item in enumerate(self.userdata):
             friendlist = self.Friendslist()
-            friendlist.set('frindname', item[0])
+            friendlist.set('friendname', item[0])
             friendlist.set('friendlink', item[1])
             friendlist.set('firendimg', item[2])
             if item[0] in self.nonerror_data:
@@ -141,50 +146,19 @@ class HexoCircleOfFriendsPipeline:
                 print("请求失败，请检查链接： %s" % item[1])
                 friendlist.set('error', "true")
             friendlist.save()
-            self.total_friend_num+=1
+            self.total_friend_num += 1
 
-    def friendpoor_push(self,item):
+    def friendpoor_push(self, item):
         friendpoor = self.Friendspoor()
         friendpoor.set('title', item['title'])
-        friendpoor.set('time', item['time'])
+        friendpoor.set('created', item['created'])
         friendpoor.set('updated', item['updated'])
         friendpoor.set('link', item['link'])
-        friendpoor.set('author', item['name'])
-        friendpoor.set('headimg', item['img'])
+        friendpoor.set('author', item['author'])
+        friendpoor.set('avatar', item['avatar'])
         friendpoor.set('rule', item['rule'])
         friendpoor.save()
         print("----------------------")
-        print(item["name"])
-        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["time"], item["rule"]))
-        self.total_post_num +=1
-
-class DuplicatesPipeline:
-    def __init__(self):
-        self.data_set = set() # posts filter set 用于对文章数据的去重
-        self.user_set = set() # userdata filter set 用于对朋友列表的去重
-    def process_item(self, item, spider):
-        if "userdata" in item.keys():
-            #  userdata filter
-            link = item["link"]
-            if link in self.user_set:
-                raise DropItem("Duplicate found:%s" % link)
-            self.user_set.add(link)
-            return item
-
-        title = item['title']
-
-        if title in self.data_set or title=="":
-            # 重复数据清洗
-            raise DropItem("Duplicate found:%s" % title)
-        if not item["link"]:
-            raise DropItem("missing fields :'link'")
-        elif not re.match("^http.?://",item["link"]):
-            # 链接必须是http开头，不能是相对地址
-            raise DropItem("invalid link ")
-
-        if not re.match("^\d+",item["time"]):
-            # 时间不是xxxx-xx-xx格式，丢弃
-            raise DropItem("invalid time ")
-        self.data_set.add(title)
-
-        return item
+        print(item["author"])
+        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
+        self.total_post_num += 1
