@@ -181,6 +181,8 @@ class FriendpageLinkSpider(scrapy.Spider):
     def start_post_requests(self, domain, parsers, suffixs, meta, errback=None):
         errback = self.errback_handler if not errback else ...
         # 使用解析器依次尝试请求
+        if not re.match("^http.?://", domain):
+            return
         for p in parsers:
             parser = getattr(self, p)
             if p == "post_feed_parse":
