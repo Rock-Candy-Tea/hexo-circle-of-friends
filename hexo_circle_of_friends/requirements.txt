@@ -59,3 +59,4 @@ zope.interface==5.4.0
 schedule==1.1.0
 pymongo==4.0.1
 dnspython==2.2.0
+aiohttp==3.8.1

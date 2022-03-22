@@ -6,9 +6,10 @@ import re
 from .. import models, settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+
 
 class SQLPipeline:
     def __init__(self):
@@ -26,9 +27,9 @@ class SQLPipeline:
             if settings.DATABASE == "sqlite":
                 conn = "sqlite:///data.db"
             elif settings.DATABASE == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
-                       % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
-                          os.environ["MYSQL_DB"])
+                conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
+                       % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
+                          , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
         try:
             self.engine = create_engine(conn, pool_recycle=-1)
         except:
@@ -101,7 +102,7 @@ class SQLPipeline:
             updated = query_item.updated
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
-                if (datetime.today()+timedelta(hours=8) - query_time).days > time_limit:
+                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
                     self.session.query(models.Post).filter_by(link=query_item.link).delete()
                     out_date_post += 1
             except:
