@@ -25,6 +25,10 @@ def content_check(*args):
 
 
 def format_time(times):
+    """
+    将传入的时间列表格式化
+    :param times: 时间列表
+    """
     try:
         # xxxx-x-x
         for i, time in enumerate(times):
