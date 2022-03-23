@@ -23,7 +23,7 @@ class GetUrl:
     def get_commonPro_url(self,response,queue):
         avatar = response.css('img.cf-friends-avatar::attr(src)').extract()
         link = response.css('a.cf-friends-link::attr(href)').extract()
-        name = response.css('a.cf-friends-name::text').extract()
+        name = response.css('.cf-friends-name::text').extract()
         self.handle(avatar, link, name, queue)
 
     def get_butterfly_url(self,response, queue):
