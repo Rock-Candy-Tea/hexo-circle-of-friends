@@ -6,4 +6,4 @@ class XiaosoSpider(scrapy.Spider):
     start_urls = ['https://www.xiaoso.net/']
 
     def parse(self, response):
-        print(response.text) # 打印网站文本
+        print("------xiaoso---------") # 打印网站文本

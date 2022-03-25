@@ -12,6 +12,7 @@ export APPKEY=""
 #export MYSQL_USERNAME=""
 #export MYSQL_PASSWORD=""
 #export MYSQL_IP=""
+#export MYSQL_PORT=""
 #export MYSQL_DB=""
 ### mongodb配置
 #export MONGODB_URI=""

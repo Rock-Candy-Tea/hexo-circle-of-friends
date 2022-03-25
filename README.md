@@ -2,7 +2,7 @@
 
 你是否经常烦恼于友链过多但没有时间浏览？那么友链朋友圈将解决这一痛点。你可以随时获取友链网站的更新内容，并了解友链的活跃情况。
 
-部署教程：[文档](https://hexo-circle-of-friends-doc.vercel.app/) | [备用地址](https://hiltay.github.io/hexo-circle-of-friends-doc/)
+部署教程：[文档](https://fcircle-doc.js.cool/) | [备用地址](https://fcircle-doc.is-a.dev/)
 
 ⭐从4.1.3版本开始，一定要在配置项中配置友链页和获取策略
 ```

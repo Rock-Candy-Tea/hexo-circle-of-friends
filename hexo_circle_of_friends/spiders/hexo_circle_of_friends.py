@@ -14,11 +14,12 @@ from hexo_circle_of_friends.utils.process_time import format_time
 # from hexo_circle_of_friends import items todo use items
 
 # post_parsers = ["theme_butterfly_parse"]
+# 文章页解析器
 post_parsers = [
     "post_feed_parse", "theme_butterfly_parse", "theme_fluid_parse", "theme_matery_parse", "theme_sakura_parse",
     "theme_volantis_parse", "theme_nexmoe_parse", "theme_next_parse", "theme_stun_parse", "theme_stellar_parse",
 ]
-
+# 默认feed后缀
 feed_suffix = [
     "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed", "index.xml"
 ]
@@ -38,7 +39,9 @@ class FriendpageLinkSpider(scrapy.Spider):
     start_urls = []
 
     def __init__(self, name=None, **kwargs):
+        # 友链队列
         self.friend_poor = queue.Queue()
+
         self.friend_list = queue.Queue()
         self.today = (datetime.datetime.now() + datetime.timedelta(hours=8)).strftime('%Y-%m-%d')
         self.friend_url_parser = GetUrl()
@@ -50,7 +53,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         if self.settings.get("SETTINGS_FRIENDS_LINKS").get("enable"):
             for li in self.settings.get("SETTINGS_FRIENDS_LINKS").get("list"):
                 self.friend_poor.put(li)
-
+        # 向gitee发送请求获取友链
         if settings.GITEE_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://gitee.com'
@@ -58,6 +61,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + '/issues?state=' + dic[
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"gitee": {"domain": domain}})
+        # 向github发送请求获取友链
         if settings.GITHUB_FRIENDS_LINKS['enable']:
             for number in range(1, 100):
                 domain = 'https://github.com'
@@ -65,7 +69,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                 url = domain + "/" + dic["owner"] + "/" + dic["repo"] + "/issues?q=is%3A" + dic[
                     "state"] + '&page=' + str(number)
                 yield Request(url, callback=self.friend_poor_parse, meta={"github": {"domain": domain}})
-
+        # 初始化起始请求链接
         friendpage_link, friendpage_theme = self.init_start_urls()
         self.start_urls.extend(friendpage_link)
         for i, url in enumerate(self.start_urls):
@@ -83,9 +87,10 @@ class FriendpageLinkSpider(scrapy.Spider):
         return friendpage_link, friendpage_theme
 
     def friend_poor_parse(self, response):
-        # 获取朋友列表
+        # 从友链页解析出所有的友链信息
         # print("friend_poor_parse---------->" + response.url)
 
+        # gitee解析
         if "gitee" in response.meta.keys():
             main_content = response.css("#git-issues a.title::attr(href)").extract()
             if main_content:
@@ -107,6 +112,7 @@ class FriendpageLinkSpider(scrapy.Spider):
             except:
                 pass
 
+        # github解析
         if "github" in response.meta.keys():
             main_content = response.css("div[aria-label=Issues] a.Link--primary::attr(href)").extract()
             if main_content:
@@ -129,25 +135,31 @@ class FriendpageLinkSpider(scrapy.Spider):
             except:
                 pass
 
+        # 根据指定的theme主题解析
         if "theme" in response.meta.keys():
             theme = response.meta.get("theme")
             async_link = self.friend_url_parser.get_theme_url(theme, response, self.friend_poor)
             if async_link:
                 # Yun主题的async_link临时解决
                 yield CRequest(async_link, self.friend_poor_parse, meta={"async_link": async_link})
-
+        # Yun主题async_link临时解决
         if "async_link" in response.meta.keys():
             self.friend_url_parser.Yun_async_link_handler(response, self.friend_poor)
 
+        # 从友链队列逐个取出友链信息，对其主页发送请求
         while not self.friend_poor.empty():
             friend = self.friend_poor.get()
+            # 统一url，结尾加"/"
             friend[1] += "/" if not friend[1].endswith("/") else ""
             if settings.SETTINGS_FRIENDS_LINKS['enable'] and len(friend) == 4:
+                # 针对配置项中开启了自定义suffix的友链url进行处理
                 url = friend[1] + friend[3]
                 yield CRequest(url, self.post_feed_parse, meta={"friend": friend}, errback=self.errback_handler)
                 self.friend_list.put(friend[:3])
                 continue
+            # 将友链添加到friend_list队列
             self.friend_list.put(friend)
+            # 开始请求文章页
             for r in self.start_post_requests(friend[1], post_parsers, feed_suffix, meta={"friend": friend}):
                 yield r
 
@@ -168,9 +180,13 @@ class FriendpageLinkSpider(scrapy.Spider):
 
     def start_post_requests(self, domain, parsers, suffixs, meta, errback=None):
         errback = self.errback_handler if not errback else ...
+        # 使用解析器依次尝试请求
+        if not re.match("^http.?://", domain):
+            return
         for p in parsers:
             parser = getattr(self, p)
             if p == "post_feed_parse":
+                # 对于feed解析，使用默认feed后缀依次尝试请求
                 for suffix in suffixs:
                     yield CRequest(domain + suffix, parser, meta, errback=errback)
             yield CRequest(domain, parser, meta, errback=errback)
@@ -364,12 +380,26 @@ class FriendpageLinkSpider(scrapy.Spider):
             pass
 
     def process_theme_postinfo(self, friend, links, titles, createds, updateds, rule):
+        """
+        :param friend: 文章对应的友链的信息
+        :param links: 解析出的文章url列表
+        :param titles: 解析出的文章标题列表
+        :param createds: 解析出的文章创建时间列表
+        :param updateds: 解析出的文章更新时间列表
+        :param rule: 来自于哪个解析器（解析规则）
+        """
+        # 文章url不超过5篇
         l = len(links) if len(links) < 5 else 5
+        # 处理标题列表
         titles = self.process_title(titles, l)
+        # 处理创建时间和更新时间列表
         createds, updateds = self.process_time(createds, updateds, l)
+        # 初始化文章信息数据
         init_post_info = self.init_post_info(friend, rule)
+        # 如果既没有创建时间也没有更新时间则丢弃
         if not createds and not updateds:
             raise
+        # 拼接文章信息
         for i in range(l):
             link = self.process_link(links[i], friend[1])
             yield self.generate_postinfo(
@@ -395,37 +425,54 @@ class FriendpageLinkSpider(scrapy.Spider):
         return link
 
     def process_title(self, titles, lenth):
-        # 将title去除换行和回车以及两边的空格，并处理为长度不超过lenth的数组并返回
+        """
+        将title去除换行和回车以及两边的空格，并处理为长度不超过lenth的数组并返回
+        :param titles: 文章标题列表
+        :param lenth: 列表最大长度限制（取决于文章url列表）
+        """
         if not titles:
             return None
         for i in range(lenth):
             if i < len(titles):
                 titles[i] = titles[i].replace("\r", "").replace("\n", "").strip()
             else:
+                # 如果url存在，但title不存在，会将title设置为"无题"
                 titles.append("无题")
         return titles[:lenth]
 
     def process_time(self, createds, updateds, lenth):
-        # 将创建时间和更新时间格式化，并处理为长度统一且不超过lenth的数组并返回
+        """
+        将创建时间和更新时间格式化，并处理为长度统一且不超过lenth的数组并返回
+        :param createds: 创建时间列表
+        :param updateds: 更新时间列表
+        :param lenth: 列表最大长度限制（取决于文章url列表）
+        """
+        # if both list are empty，return as fast as possible.
         if not createds and not updateds:
             return None, None
+        # todo 格式化前根据过期时间预筛选
         c_len = len(createds)
         u_len = len(updateds)
         co = min(c_len, u_len)
+        # 格式化长度
         for i in range(lenth):
             if i < co:
+                # 交集部分
                 createds[i] = createds[i].replace("\r", "").replace("\n", "").strip()
                 updateds[i] = updateds[i].replace("\r", "").replace("\n", "").strip()
             elif i < u_len:
+                # createds长度小于updateds，用updateds填充
                 updateds[i] = updateds[i].replace("\r", "").replace("\n", "").strip()
                 createds.append(updateds[i])
             elif i < c_len:
+                # updateds长度小于createds，用createds填充
                 createds[i] = createds[i].replace("\r", "").replace("\n", "").strip()
                 updateds.append(createds[i])
             else:
+                # 长度超出createds和updateds且小于lenth，用当前时间填充
                 createds.append(self.today)
                 updateds.append(self.today)
-
+        # 格式化时间
         format_time(createds)
         format_time(updateds)
         return createds[:lenth], updateds[:lenth]

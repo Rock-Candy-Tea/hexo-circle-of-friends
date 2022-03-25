@@ -22,6 +22,7 @@ env:
   MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }} # 登录用户名
   MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }} # 登录密码
   MYSQL_IP: ${{ secrets.MYSQL_IP }} # 数据库IP地址
+  MYSQL_PORT: ${{ secrets.MYSQL_PORT }} # 数据库端口号
   MYSQL_DB: ${{ secrets.MYSQL_DB }} # 要连接到的库的名称
   # sqlite配置，用于将db文件上传到github仓库
   GITHUB_NAME: ${{ secrets.GH_NAME }} # 你的github昵称

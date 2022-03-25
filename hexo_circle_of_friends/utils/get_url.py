@@ -4,7 +4,7 @@ import json
 class GetUrl:
 
     def __init__(self):
-        self.strategies = ["common", "butterfly", "fluid", "matery", "nexmoe", "stun", "sakura", "volantis", "Yun","stellar"]
+        self.strategies = ["common1","common2", "butterfly", "fluid", "matery", "nexmoe", "stun", "sakura", "volantis", "Yun","stellar"]
 
     def get_theme_url(self,theme, response, queue):
         # 根据主题获取要爬取的的友链列表，保存到user_info中
@@ -14,10 +14,18 @@ class GetUrl:
                 async_link = parser(response,queue)
                 return async_link
 
-    def get_common_url(self,response,queue):
+    def get_common1_url(self,response,queue):
         avatar = response.css('.cf-friends img::attr(src)').extract()
         link = response.css('.cf-friends a::attr(href)').extract()
         name = response.css('.cf-friends a::text').extract()
+        self.handle(avatar, link, name, queue)
+
+    def get_common2_url(self,response,queue):
+        avatar = response.css('.cf-friends-avatar::attr(data-lazy-src)').extract()
+        if not avatar:
+            avatar = response.css('img.cf-friends-avatar::attr(src)').extract()
+        link = response.css('a.cf-friends-link::attr(href)').extract()
+        name = response.css('.cf-friends-name::text').extract()
         self.handle(avatar, link, name, queue)
 
     def get_butterfly_url(self,response, queue):

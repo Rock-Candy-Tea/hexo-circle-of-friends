@@ -3,7 +3,8 @@
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
-#   - common: 通用主题，请参考：https://hexo-circle-of-friends-doc.vercel.app/#/developmentdoc?id=%e5%8f%8b%e9%93%be%e9%a1%b5%e9%80%82%e9%85%8d
+#   - common1: 通用主题1，请参考：https://fcircle-doc.js.cool/#/developmentdoc?id=友链页适配
+#   - common2: 通用主题2，请参考：https://fcircle-doc.js.cool/#/developmentdoc?id=友链页适配
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
@@ -23,7 +24,7 @@ LINK = [
 
 # 配置项友链
 # enable：# 是否启用配置项友链 True/False（针对还未适配主题或者有定制需求的用户）
-# json_api：通过api获取配置项友链，返回格式必须为：{"friends":[[友链1],[友链2],[友链3],[友链4]....]}，友链内容同list字段格式
+# json_api：通过api获取配置项友链，返回格式必须为：{"friends":[[友链1],[友链2],[友链3],[友链4]....]}，友链内容同LINK字段格式
 # list字段填写格式：["name", "link", "avatar","suffix"]，其中：
 #       name：必填，友链的名字
 #       link：必填，友链主页地址
