@@ -79,7 +79,7 @@ HTTP_PROXY = False
 OUTDATE_CLEAN = 60
 
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
-DATABASE = "leancloud"
+DATABASE = "sqlite"
 
 # 部署方式，可选项：github，server，docker；默认为github
 DEPLOY_TYPE = "github"
