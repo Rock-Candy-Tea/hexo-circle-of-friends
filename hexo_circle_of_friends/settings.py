@@ -68,8 +68,8 @@ GITHUB_FRIENDS_LINKS = {
 # block site list
 # 添加屏蔽站点
 BLOCK_SITE = [
-    "https://vian.top/",
-    "https://dusays.com/"
+    # "https://vian.top/",
+    # "https://dusays.com/"
 ]
 
 # 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
