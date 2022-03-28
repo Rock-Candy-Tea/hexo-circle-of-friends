@@ -95,12 +95,16 @@ class GetUrl:
             avatar = response.css('a.site-card img::attr(src)').extract()
         if not avatar:
             avatar = response.css('a.friend-card img::attr(src)').extract()
+        if not avatar:
+            avatar = response.css('.content a.flat-box img::attr(src)').extract()
 
         link = response.css('a.simpleuser::attr(href)').extract()
         if not link:
             link = response.css('a.site-card::attr(href)').extract()
         if not link:
             link = response.css('a.friend-card::attr(href)').extract()
+        if not link:
+            link = response.css('.content a.flat-box::attr(href)').extract()
 
         name = response.css('a.simpleuser span::text').extract()
         if not name:
@@ -109,6 +113,8 @@ class GetUrl:
             name = response.css('a.friend-card span::text').extract()
         if not name:
             name = response.css('a.friend-card p::text').extract()
+        if not name:
+            name = response.css('.content a.flat-box::text').extract()
         self.handle(avatar, link, name, queue)
 
 
