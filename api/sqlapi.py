@@ -24,9 +24,9 @@ def db_init():
         if settings.DATABASE == "sqlite":
             conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
         elif settings.DATABASE == "mysql":
-            conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
-                   % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"],
-                      os.environ["MYSQL_DB"])
+            conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
+                   % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
+                      , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
     try:
         engine = create_engine(conn, pool_recycle=-1)
     except:
