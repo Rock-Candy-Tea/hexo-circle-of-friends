@@ -8,6 +8,7 @@ on:
     - cron: "0 0,6,12,18,21 * * *"
   watch:
     types: [started]
+  workflow_dispatch:
 
 env:
   # 在这里查看需要添加的secert
