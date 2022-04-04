@@ -40,7 +40,7 @@ LINK = [
 #       avatar：必填，头像地址
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": False,
+    "enable": true,
     "json_api": "",
     "list": [
         # 示例1：
@@ -88,7 +88,7 @@ HTTP_PROXY = False
 OUTDATE_CLEAN = 60
 
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
-DATABASE = "mysql"
+DATABASE = "mongodb"
 
 # 部署方式，可选项：github，server，docker；默认为github
 DEPLOY_TYPE = "github"
