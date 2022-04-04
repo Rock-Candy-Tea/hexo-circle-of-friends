@@ -71,6 +71,15 @@ jobs:
       working-directory: ./hexo_circle_of_friends
       run: |
         python run.py
+        
+    - name: mongodb Update posts # mongodb
+      if: ${{ env.STORAGE_TYPE == 'mongodb' }}
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      working-directory: ./hexo_circle_of_friends
+      run: |
+        python run.py
+        
 
     - name: sqlite Update posts # sqlite
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
