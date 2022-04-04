@@ -40,7 +40,7 @@ LINK = [
 #       avatar：必填，头像地址
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": true,
+    "enable": True,
     "json_api": "",
     "list": [
         # 示例1：
