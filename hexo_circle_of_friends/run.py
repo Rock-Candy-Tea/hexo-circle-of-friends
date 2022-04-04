@@ -47,7 +47,7 @@ def initsettings(setting):
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.leancloud_pipe.LeancloudPipeline"] = 300
     elif DATABASE == 'mysql' or DATABASE == "sqlite":
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
-    elif DATABASE == "mongodb":
+    elif DATABASE == 'mongodb':
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
     # 如果配置了json_api友链，在这里进行获取
     if SETTINGS_FRIENDS_LINKS["json_api"].startswith("http"):
