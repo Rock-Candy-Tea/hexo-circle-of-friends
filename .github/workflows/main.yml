@@ -13,7 +13,7 @@ on:
 env:
   # 在这里查看需要添加的secert
   # 通用配置
-  STORAGE_TYPE: leancloud # 请修改为你的存储方式，默认为leancloud
+  STORAGE_TYPE: mysql # 请修改为你的存储方式，默认为leancloud
   PROXY: ${{ secrets.PROXY }} # 可选，http代理
   # leancloud、mysql、sqlite配置三选一即可
   # leancloud配置
