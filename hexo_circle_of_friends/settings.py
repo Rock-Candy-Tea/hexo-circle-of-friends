@@ -40,7 +40,7 @@ LINK = [
 #       avatar：必填，头像地址
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": True,
+    "enable": False,
     "json_api": "",
     "list": [
         # 示例1：
@@ -57,10 +57,10 @@ SETTINGS_FRIENDS_LINKS = {
 # get links from gitee
 # 从gitee issue中获取友链
 GITEE_FRIENDS_LINKS = {
-    "enable": False,  # True 开启gitee issue兼容
+    "enable": True,  # True 开启gitee issue兼容
     "type": "normal",  # volantis/stellar用户请在这里填写volantis
-    "owner": "ccknbc",  # 填写你的gitee用户名
-    "repo": "blogroll",  # 填写你的gitee仓库名
+    "owner": "daihao864",  # 填写你的gitee用户名
+    "repo": "flink",  # 填写你的gitee仓库名
     "state": "open"  # 填写抓取的issue状态(open/closed)
 }
 
