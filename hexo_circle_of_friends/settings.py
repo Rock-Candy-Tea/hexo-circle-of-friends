@@ -16,10 +16,10 @@
 #   - stellar：stellar主题
 # 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。***至少配置一个***
 LINK = [
-    #{
-    #    "link": "https://zfe.space/link/",  # 友链页地址1，修改为你的友链页地址
-    #   "theme": "butterfly"
-    #},
+    {
+        "link": "https://fox.js.cool/links/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "butterfly"
+    },
     #     {
     #     "link": "https://noionion.top/link/",  # 友链页地址2
     #     "theme": "butterfly",  # 友链页的获取策略
