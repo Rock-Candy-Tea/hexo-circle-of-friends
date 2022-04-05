@@ -3,7 +3,7 @@ name: update-friends-posts
 on: 
   push:
     branches: 
-     - master
+     - main
   schedule:
     - cron: "0 0,6,12,18 * * *"
   watch:
