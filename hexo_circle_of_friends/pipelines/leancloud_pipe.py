@@ -103,6 +103,7 @@ class LeancloudPipeline:
             self.query_friend_list = []
 
     def outdate_clean(self, time_limit):
+        # todo leancloud过期文章清理可能不生效？
         out_date_post = 0
         for query_i in self.query_post_list:
 
