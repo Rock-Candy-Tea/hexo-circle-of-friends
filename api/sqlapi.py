@@ -97,40 +97,55 @@ def query_friend():
     return friend_list_json
 
 
-def query_random_friend():
+def query_random_friend(num):
+    if num < 1:
+        return {"message": "param 'num' error"}
     session = db_init()
-    data: Friend = session.query(Friend).order_by(func.random()).first()
+    if settings.DATABASE == "sqlite":
+        data: list = session.query(Friend).order_by(func.random()).limit(num).all()
+    else:
+        data: list = session.query(Friend).order_by(func.rand()).limit(num).all()
     session.close()
+    friend_list_json = []
     if data:
-        itemlist = {
-            'name': data.name,
-            'link': data.link,
-            'avatar': data.avatar
-        }
+        for d in data:
+            itemlist = {
+                'name': d.name,
+                'link': d.link,
+                'avatar': d.avatar
+            }
+            friend_list_json.append(itemlist)
     else:
         # data为空直接返回
         return {"message": "not found"}
+    return friend_list_json[0] if len(friend_list_json)==1 else friend_list_json
 
-    return itemlist
 
-
-def query_random_post():
+def query_random_post(num):
+    if num < 1:
+        return {"message": "param 'num' error"}
     session = db_init()
-    data: Post = session.query(Post).order_by(func.random()).first()
+    if settings.DATABASE == "sqlite":
+        data: list = session.query(Post).order_by(func.random()).limit(num).all()
+    else:
+        data: list = session.query(Post).order_by(func.rand()).limit(num).all()
     session.close()
+    post_list_json = []
     if data:
-        itemlist = {
-            "title": data.title,
-            "created": data.created,
-            "updated": data.updated,
-            "link": data.link,
-            "author": data.author,
-            "avatar": data.avatar,
-        }
+        for d in data:
+            itemlist = {
+                "title": d.title,
+                "created": d.created,
+                "updated": d.updated,
+                "link": d.link,
+                "author": d.author,
+                "avatar": d.avatar,
+            }
+            post_list_json.append(itemlist)
     else:
         # data为空直接返回
         return {"message": "not found"}
-    return itemlist
+    return post_list_json[0] if len(post_list_json)==1 else post_list_json
 
 
 def query_post(link, num, rule, ):

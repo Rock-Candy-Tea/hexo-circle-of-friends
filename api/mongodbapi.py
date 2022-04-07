@@ -74,27 +74,43 @@ def query_friend():
     return friend_list_json
 
 
-def query_random_friend():
+def query_random_friend(num):
     _, friend_db_collection = db_init()
-    friends = friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0})
-    friends_num = friend_db_collection.count_documents({})
-    random_friend = friends[random.randint(0, friends_num - 1)]
+    friends = list(friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0}))
+    try:
+        if num<1:
+            return {"message": "param 'num' error"}
+        elif num==1:
+            return random.choice(friends)
+        elif num<=len(friends):
+            return random.sample(friends,k=num)
+        else:
+            return random.sample(friends,k=len(friends))
+    except:
+        return {"message": "not found"}
 
-    return random_friend if random_friend else {"message": "not found"}
 
-
-def query_random_post():
+def query_random_post(num):
     post_collection, _ = db_init()
-    posts = post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0})
+    posts = list(post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0}))
     posts_num = post_collection.count_documents({})
-    random_post = posts[random.randint(0, posts_num - 1)]
-    return random_post if random_post else {"message": "not found"}
+    try:
+        if num<1:
+            return {"message": "param 'num' error"}
+        elif num==1:
+            return random.choice(posts)
+        elif num<=len(posts):
+            return random.sample(posts,k=num)
+        else:
+            return random.sample(posts,k=len(posts))
+    except:
+        return {"message": "not found"}
 
 
 def query_post(link, num, rule):
     post_collection, friend_db_collection = db_init()
     if link is None:
-        friend = query_random_friend()
+        friend = query_random_friend(1)
         domain = parse.urlsplit(friend.get("link")).netloc
     else:
         domain = parse.urlsplit(link).netloc

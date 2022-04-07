@@ -114,7 +114,7 @@ def query_friend():
     return friend_list_json
 
 
-def query_random_friend():
+def query_random_friend(num):
     # Verify key
     db_init()
 
@@ -133,10 +133,20 @@ def query_random_friend():
             'avatar': item.get('firendimg')
         }
         friend_list_json.append(itemlist)
-    return random.choice(friend_list_json)
+    try:
+        if num<1:
+            return {"message": "param 'num' error"}
+        elif num==1:
+            return random.choice(friend_list_json)
+        elif num<=len(friend_list_json):
+            return random.sample(friend_list_json,k=num)
+        else:
+            return random.sample(friend_list_json,k=len(friend_list_json))
+    except:
+        return {"message": "not found"}
 
 
-def query_random_post():
+def query_random_post(num):
     # Verify key
     db_init()
 
@@ -162,7 +172,18 @@ def query_random_post():
     article_data_init.sort(key=lambda x: x["updated"], reverse=True)
     for item in article_data_init:
         article_data.append(item)
-    return random.choice(article_data)
+    # return random.choice(article_data)
+    try:
+        if num<1:
+            return {"message": "param 'num' error"}
+        elif num==1:
+            return random.choice(article_data)
+        elif num <= len(article_data):
+            return random.sample(article_data, k=num)
+        else:
+            return random.sample(article_data, k=len(article_data))
+    except:
+        return {"message": "not found"}
 
 
 def query_post(link, num, rule):
