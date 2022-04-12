@@ -16,5 +16,5 @@ export APPKEY=""
 #export MYSQL_DB=""
 ### mongodb配置
 #export MONGODB_URI=""
-nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler.log 2>&1 &
-nohup python3 -u ./api/main.py > /tmp/api.log 2>&1 &
+nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
+nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &

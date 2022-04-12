@@ -117,13 +117,18 @@ HTTP_PROXY_URL = ""
 # debug blog link url
 # debug模式使用
 
-# https://yun.yunyoujun.cn/demo/ , Yun
 # FRIENDPAGE_LINK = [
-#     "https://www.yyyzyyyz.cn/link/",  # butterfly
+#     "https://yun.yunyoujun.cn/demo/", Yun
 #     "https://akilar.top/link/",  # butterfly
 #     "https://www.zyoushuo.cn/friends/",  # volantis
 # ]
-FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
+FRIENDPAGE_LINK = [
+    {
+        "link": "https://hgm.vercel.app/link/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "volantis"
+    },
+]
+
 
 BOT_NAME = 'hexo_circle_of_friends'
 LOG_LEVEL = "ERROR"
