@@ -213,7 +213,7 @@ def query_post(link, num, rule):
         "author": author,
         "link": link,
         "avatar": avatar,
-        "article_num": article_num
+        "article_num": num # 详情见229行，取的是前num个元素，这里要显示一致，否则会前端触发报错
     }
 
     if num < 0 or num > min(article_num, 1000):
