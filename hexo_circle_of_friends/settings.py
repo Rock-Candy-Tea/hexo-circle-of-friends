@@ -75,10 +75,11 @@ GITHUB_FRIENDS_LINKS = {
 }
 
 # block site list
-# 添加屏蔽站点
+# 添加屏蔽站点，支持正则表达式
 BLOCK_SITE = [
     # "https://example.com/",
-    # "https://example.com/",
+    # r".*\.com",  # 含有.com的全部屏蔽
+    # r"^http://",  # http开头的全部屏蔽
 ]
 
 # 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
@@ -116,13 +117,18 @@ HTTP_PROXY_URL = ""
 # debug blog link url
 # debug模式使用
 
-# https://yun.yunyoujun.cn/demo/ , Yun
 # FRIENDPAGE_LINK = [
-#     "https://www.yyyzyyyz.cn/link/",  # butterfly
+#     "https://yun.yunyoujun.cn/demo/", Yun
 #     "https://akilar.top/link/",  # butterfly
 #     "https://www.zyoushuo.cn/friends/",  # volantis
 # ]
-FRIENDPAGE_LINK = ["https://www.yyyzyyyz.cn/link/"]
+FRIENDPAGE_LINK = [
+    {
+        "link": "https://hgm.vercel.app/link/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "volantis"
+    },
+]
+
 
 BOT_NAME = 'hexo_circle_of_friends'
 LOG_LEVEL = "ERROR"

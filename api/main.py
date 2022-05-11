@@ -54,17 +54,23 @@ def friend():
 
 
 @app.get("/randomfriend", tags=["API"], summary="返回随机友链")
-def random_friend():
-    '''随机返回一个友链信息
+def random_friend(num: int = 1):
     '''
-    return query_random_friend()
+    随机返回num个友链信息：
+    - num=1，返回友链信息的字典
+    - num>1，返回包含num个友链信息字典的列表
+    '''
+    return query_random_friend(num)
 
 
 @app.get("/randompost", tags=["API"], summary="返回随机文章")
-def random_post():
-    '''随机返回一篇文章信息
+def random_post(num: int = 1):
     '''
-    return query_random_post()
+    随机返回num篇文章信息：
+    - num=1，返回文章信息的字典
+    - num>1，返回包含num个文章信息字典的列表
+    '''
+    return query_random_post(num)
 
 
 @app.get("/post", tags=["API"], summary="返回指定链接的所有文章")
