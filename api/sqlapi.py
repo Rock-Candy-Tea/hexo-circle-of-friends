@@ -118,7 +118,7 @@ def query_random_friend(num):
     else:
         # data为空直接返回
         return {"message": "not found"}
-    return friend_list_json[0] if len(friend_list_json)==1 else friend_list_json
+    return friend_list_json[0] if len(friend_list_json) == 1 else friend_list_json
 
 
 def query_random_post(num):
@@ -145,7 +145,7 @@ def query_random_post(num):
     else:
         # data为空直接返回
         return {"message": "not found"}
-    return post_list_json[0] if len(post_list_json)==1 else post_list_json
+    return post_list_json[0] if len(post_list_json) == 1 else post_list_json
 
 
 def query_post(link, num, rule, ):
