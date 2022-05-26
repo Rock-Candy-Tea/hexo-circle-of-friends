@@ -82,6 +82,15 @@ def post(link: str = None, num: int = -1, rule: str = "created"):
     '''
     return query_post(link, num, rule)
 
+@app.get("/lostfriend", tags=["API"], summary="返回所有大于指定时间的友链信息")
+def lost_friend(year: int = 0, month: int = 3, day: int = 0):
+    '''返回所有大于指定时间的友链信息，默认大于3个月判定为失联友链
+    - year： 年
+    - month： 月
+    - day： 日
+    '''
+    pass
+
 
 @app.get("/postjson", tags=["API"], summary="返回指定所有链接的所有文章")
 def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"):

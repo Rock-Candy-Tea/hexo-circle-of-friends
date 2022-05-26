@@ -71,10 +71,11 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
         return {"message": "rule error, please use 'created'/'updated'"}
 
     rules = []
+    # list sort 是 稳定 的，这意味着当多个记录具有相同的键值时，将**保留其原始顺序**
     if rule == "created":
-        rules.extend(["created", "updated"])
-    else:
         rules.extend(["updated", "created"])
+    else:
+        rules.extend(["created", "updated"])
     for r in rules:
         try:
             article_data_init.sort(key=lambda x: x[r], reverse=True)
@@ -134,14 +135,14 @@ def query_random_friend(num):
         }
         friend_list_json.append(itemlist)
     try:
-        if num<1:
+        if num < 1:
             return {"message": "param 'num' error"}
-        elif num==1:
+        elif num == 1:
             return random.choice(friend_list_json)
-        elif num<=len(friend_list_json):
-            return random.sample(friend_list_json,k=num)
+        elif num <= len(friend_list_json):
+            return random.sample(friend_list_json, k=num)
         else:
-            return random.sample(friend_list_json,k=len(friend_list_json))
+            return random.sample(friend_list_json, k=len(friend_list_json))
     except:
         return {"message": "not found"}
 
@@ -174,9 +175,9 @@ def query_random_post(num):
         article_data.append(item)
     # return random.choice(article_data)
     try:
-        if num<1:
+        if num < 1:
             return {"message": "param 'num' error"}
-        elif num==1:
+        elif num == 1:
             return random.choice(article_data)
         elif num <= len(article_data):
             return random.sample(article_data, k=num)
@@ -230,15 +231,14 @@ def query_post(link, num, rule):
     if not author:
         return {"message": "not found"}
     article_num = len(article_data_init)
+    if num < 0 or num > min(article_num, 1000):
+        num = min(article_num, 1000)
     api_json['statistical_data'] = {
         "author": author,
         "link": link,
         "avatar": avatar,
-        "article_num": article_num
+        "article_num": num
     }
-
-    if num < 0 or num > min(article_num, 1000):
-        num = min(article_num, 1000)
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
     article_data_init.sort(key=lambda x: x[rule], reverse=True)

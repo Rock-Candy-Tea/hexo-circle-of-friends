@@ -78,14 +78,14 @@ def query_random_friend(num):
     _, friend_db_collection = db_init()
     friends = list(friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0}))
     try:
-        if num<1:
+        if num < 1:
             return {"message": "param 'num' error"}
-        elif num==1:
+        elif num == 1:
             return random.choice(friends)
-        elif num<=len(friends):
-            return random.sample(friends,k=num)
+        elif num <= len(friends):
+            return random.sample(friends, k=num)
         else:
-            return random.sample(friends,k=len(friends))
+            return random.sample(friends, k=len(friends))
     except:
         return {"message": "not found"}
 
@@ -95,14 +95,14 @@ def query_random_post(num):
     posts = list(post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0}))
     posts_num = post_collection.count_documents({})
     try:
-        if num<1:
+        if num < 1:
             return {"message": "param 'num' error"}
-        elif num==1:
+        elif num == 1:
             return random.choice(posts)
-        elif num<=len(posts):
-            return random.sample(posts,k=num)
+        elif num <= len(posts):
+            return random.sample(posts, k=num)
         else:
-            return random.sample(posts,k=len(posts))
+            return random.sample(posts, k=len(posts))
     except:
         return {"message": "not found"}
 
