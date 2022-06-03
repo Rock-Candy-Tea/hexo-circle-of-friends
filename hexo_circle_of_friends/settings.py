@@ -31,17 +31,19 @@ LINK = [
 #       avatar：必填，头像地址
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS = {
-    "enable": False,
+    "enable": True,
     "json_api": "",
     "list": [
+        ["Butterfly", "https://github.com/jerryc127/hexo-theme-butterfly/commits/dev.atom", "https://cdn.gahotx.cn/photo/github.jpg"],
+        ["Twikoo", "https://github.com/imaegoo/twikoo/commits/main.atom", "https://cdn.gahotx.cn/photo/github.jpg"]
         # 示例1：
-        ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
-        ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
+        # ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
+        # ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
         # 示例2：使用suffix的配置如下
         # 程序目前自动获取 "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed", "index.xml" 这些后缀
         # 如果目标地址的后缀不在其中，就可以在这里添加
         # 比如 https://elizen.me/hello.xml ，填写：
-        ["elizen", "https://elizen.me/", "https://akilar.top/images/headimage.png", "hello.xml"],
+        # ["elizen", "https://elizen.me/", "https://akilar.top/images/headimage.png", "hello.xml"],
     ]
 }
 
@@ -68,8 +70,7 @@ GITHUB_FRIENDS_LINKS = {
 # block site list
 # 添加屏蔽站点
 BLOCK_SITE = [
-    # "https://vian.top/",
-    # "https://dusays.com/"
+    # "https://gahotx.cn/",
 ]
 
 # 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
