@@ -35,7 +35,8 @@ SETTINGS_FRIENDS_LINKS = {
     "json_api": "",
     "list": [
         ["Butterfly", "https://github.com/jerryc127/hexo-theme-butterfly/commits/dev.atom", "https://cdn.gahotx.cn/photo/github.jpg"],
-        ["Twikoo", "https://github.com/imaegoo/twikoo/commits/main.atom", "https://cdn.gahotx.cn/photo/github.jpg"]
+        ["Twikoo", "https://github.com/imaegoo/twikoo/commits/main.atom", "https://cdn.gahotx.cn/photo/github.jpg"],
+        ["标签插件", "https://github.com/Akilarlxh/hexo-butterfly-tag-plugins-plus/commits/master.atom", "https://cdn.gahotx.cn/photo/github.jpg"]
         # 示例1：
         # ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
         # ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
