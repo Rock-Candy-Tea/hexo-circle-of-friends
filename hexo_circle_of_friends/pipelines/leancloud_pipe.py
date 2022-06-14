@@ -74,7 +74,9 @@ class LeancloudPipeline:
         # print(self.userdata)
 
         self.friendlist_push()
-
+        # 查询此时的所有文章
+        self.query_friendspoor()
+        # 过期文章清除
         self.outdate_clean(settings.OUTDATE_CLEAN)
         print("----------------------")
         print("友链总数 : %d" % self.total_friend_num)
