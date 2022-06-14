@@ -1,4 +1,4 @@
-leancloud==2.9.0
+leancloud==2.9.7
 fastapi==0.68.0
 uvicorn==0.14.0
 requests

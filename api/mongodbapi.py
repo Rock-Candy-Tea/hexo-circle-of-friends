@@ -6,6 +6,7 @@ import random
 from urllib import parse
 from hexo_circle_of_friends import settings
 from pymongo import MongoClient
+from hexo_circle_of_friends.utils.process_time import time_compare
 
 
 def db_init():
@@ -135,6 +136,28 @@ def query_post(link, num, rule):
         # 如果user为空直接返回
         return {"message": "not found"}
     return api_json
+
+
+def query_lost_friends(days):
+    # 初始化数据库连接
+    post_collection, friend_db_collection = db_init()
+    # 查询
+    posts = list(post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0, "created": 0, "avatar": 0, "link": 0, "title": 0}))
+    friends = list(friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0, "avatar": 0}))
+    name_2_link_map = {user.get("name"): user.get("link") for user in friends}
+    lost_friends = {
+        "total_lost_num": 0,
+        "lost_friends": {}
+    }
+
+    for i in posts:
+        if time_compare(i.get("updated"), days):
+            # 超过了指定天数
+            lost_friends_dict = lost_friends["lost_friends"]
+            if not lost_friends_dict.get(i.get("author")):
+                lost_friends["total_lost_num"] += 1
+                lost_friends["lost_friends"][i.get("author")] = name_2_link_map.get(i.get("author"))
+    return lost_friends
 
 
 def query_post_json(jsonlink, list, start, end, rule):
