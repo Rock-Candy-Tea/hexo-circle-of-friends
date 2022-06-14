@@ -86,10 +86,8 @@ def post(link: str = None, num: int = -1, rule: str = "created"):
 
 @app.get("/lostfriends", tags=["API"], summary="返回所有大于指定时间的友链信息")
 def lost_friends(days: int = OUTDATE_CLEAN):
-    """返回所有大于指定时间的友链信息，默认距离今天3个月以上（90天以上）判定为失联友链
-    - year： 年
-    - month： 月
-    - day： 日
+    """返回所有大于指定时间的友链信息，默认距离今天2个月以上（60天以上）判定为失联友链
+    days: 默认为60天，取自配置文件settings.py中的OUTDATE_CLEAN
     """
     return query_lost_friends(days)
 
