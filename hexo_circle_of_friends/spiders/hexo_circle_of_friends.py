@@ -17,7 +17,7 @@ from hexo_circle_of_friends.utils.process_time import format_time
 # from hexo_circle_of_friends import items todo use items
 
 # 日志记录配置
-if sys.platform=="linux":
+if sys.platform == "linux":
     # linux，输出到文件
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.WARNING)

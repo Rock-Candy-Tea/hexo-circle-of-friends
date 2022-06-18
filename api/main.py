@@ -20,6 +20,8 @@ elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
 elif settings.DATABASE == "mongodb":
     from api.mongodbapi import *
 
+OUTDATE_CLEAN = settings.OUTDATE_CLEAN
+
 app = FastAPI()
 
 origins = [
@@ -37,76 +39,76 @@ app.add_middleware(
 
 @app.get("/all", tags=["API"], summary="返回完整统计信息")
 def all(start: int = 0, end: int = -1, rule: str = "updated"):
-    '''返回数据库统计信息和文章信息列表
+    """返回数据库统计信息和文章信息列表
     - start: 文章信息列表从 按rule排序后的顺序 的开始位置
     - end: 文章信息列表从 按rule排序后的顺序 的结束位置
     - rule: 文章排序规则（创建时间/更新时间）
-    '''
+    """
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
     return query_all(list, start, end, rule)
 
 
 @app.get("/friend", tags=["API"], summary="返回所有友链")
 def friend():
-    '''返回数据库友链列表
-    '''
+    """返回数据库友链列表
+    """
     return query_friend()
 
 
 @app.get("/randomfriend", tags=["API"], summary="返回随机友链")
 def random_friend(num: int = 1):
-    '''
+    """
     随机返回num个友链信息：
     - num=1，返回友链信息的字典
     - num>1，返回包含num个友链信息字典的列表
-    '''
+    """
     return query_random_friend(num)
 
 
 @app.get("/randompost", tags=["API"], summary="返回随机文章")
 def random_post(num: int = 1):
-    '''
+    """
     随机返回num篇文章信息：
     - num=1，返回文章信息的字典
     - num>1，返回包含num个文章信息字典的列表
-    '''
+    """
     return query_random_post(num)
 
 
 @app.get("/post", tags=["API"], summary="返回指定链接的所有文章")
 def post(link: str = None, num: int = -1, rule: str = "created"):
-    '''返回指定链接的数据库内文章信息列表
+    """返回指定链接的数据库内文章信息列表
     - link: 链接地址
     - num: 指定链接的文章信息列表 按rule排序后的顺序的前num篇
     - rule: 文章排序规则（创建时间/更新时间）
-    '''
+    """
     return query_post(link, num, rule)
 
-@app.get("/lostfriend", tags=["API"], summary="返回所有大于指定时间的友链信息")
-def lost_friend(year: int = 0, month: int = 3, day: int = 0):
-    '''返回所有大于指定时间的友链信息，默认大于3个月判定为失联友链
-    - year： 年
-    - month： 月
-    - day： 日
-    '''
-    pass
+@app.get("/lostfriends", tags=["API"], summary="返回所有大于指定时间的友链信息")
+def lost_friends(days: int = OUTDATE_CLEAN):
+    """返回所有大于指定时间的友链信息，默认距离今天2个月以上（60天以上）判定为失联友链
+    days: 默认为60天，取自配置文件settings.py中的OUTDATE_CLEAN
+    """
+    return query_lost_friends(days)
 
 
 @app.get("/postjson", tags=["API"], summary="返回指定所有链接的所有文章")
 def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"):
-    '''获取公共库中指定链接列表的文章信息列表
+    """获取公共库中指定链接列表的文章信息列表
     - jsonlink: 友链链接json的cdn地址
     - start: 文章信息列表从 按rule排序后的顺序 的开始位置
     - end: 文章信息列表从 按rule排序后的顺序 的结束位置
     - rule: 文章排序规则（创建时间/更新时间）
-    '''
+    """
     list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
     return query_post_json(jsonlink, list, start, end, rule)
 
 
 @app.get("/version", tags=["version"], summary="返回版本信息")
 async def version():
-    # status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
+    """版本检查
+    status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
+    """
     api_json = {"status": 0}
     if settings.VERSION:
         try:

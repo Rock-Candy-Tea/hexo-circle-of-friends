@@ -11,6 +11,7 @@ from sqlalchemy import create_engine
 from hexo_circle_of_friends.models import Friend, Post
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
+from hexo_circle_of_friends.utils.process_time import time_compare
 
 
 def db_init():
@@ -187,6 +188,28 @@ def query_post(link, num, rule, ):
         return {"message": "not found"}
 
     return api_json
+
+
+def query_lost_friends(days):
+    # 初始化数据库连接
+    session = db_init()
+    # 查询
+    posts = session.query(Post).all()
+    friends = session.query(Friend).all()
+    name_2_link_map = {user.name: user.link for user in friends}
+    lost_friends = {
+        "total_lost_num": 0,
+        "lost_friends": {}
+    }
+
+    for i in posts:
+        if time_compare(i.updated, days):
+            # 超过了指定天数
+            lost_friends_dict = lost_friends["lost_friends"]
+            if not lost_friends_dict.get(i.author):
+                lost_friends["total_lost_num"] += 1
+                lost_friends["lost_friends"][i.author] = name_2_link_map.get(i.author)
+    return lost_friends
 
 
 def query_post_json(jsonlink, list, start, end, rule):

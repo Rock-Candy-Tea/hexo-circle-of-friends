@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 import re
 
 today_parsed = datetime.now() + timedelta(hours=8)
@@ -22,6 +22,22 @@ def content_check(*args):
             # 大于当前时间
             return
     return True
+
+# 时间比较
+def time_compare(checked_time, days):
+    """
+    用于检查待检测时间距今是否超过指定天数
+    :param checked_time: 需要检查的时间
+    :param days: 指定天数
+    :return:
+    """
+    # 计算差值
+    res = today_parsed - datetime.strptime(checked_time, "%Y-%m-%d")
+    if res.days <= days:
+        # 未超过
+        return False
+    else:
+        return True
 
 
 def format_time(times):

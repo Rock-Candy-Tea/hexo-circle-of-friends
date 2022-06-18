@@ -5,7 +5,7 @@
 部署教程：[文档](https://fcircle-doc.js.cool/) | [备用地址](https://fcircle-doc.is-a.dev/)
 
 ```
-4.3.2 dev版本：
+4.3.2 支持：
 - 支持 gitee 和 github 上的 issuse 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar、next主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
@@ -23,13 +23,13 @@
 - 将额外友链页和环境变量友链统一为LINK，在配置文件中配置
 - 提供一个简单的快速部署脚本
 
-相较上版本的bug修复和改动：
-- 修复了mysqlapi的连接问题
+最近改动：
 - 添加mongodb workflow
-- 修复leancloud api在created规则下报错
-- 修复mongodb插入数据报错问题
-- 解决请求文章时domain不规则的报错
-- 更新requirements依赖库
 - randomfriend和randompost两个接口支持随机N篇功能
+- 新增lostfriends接口，用于快速查询失联友链
+- 修复leancloud过期文章清理不生效的问题
+- 添加自定义日志信息
+- 修复leancloud接口中统计的数量和实际数量不同的问题
+- 修复leancloud接口中创建时间和更新时间颠倒问题
 ```
 
