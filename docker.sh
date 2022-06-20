@@ -1,6 +1,6 @@
 #!/bin/bash
 # Start the first process
-nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler.log 2>&1 &
+nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
 ps aux |grep run |grep -q -v grep
 PROCESS_1_STATUS=$?
 echo "run.py status..."
@@ -11,7 +11,7 @@ exit $PROCESS_1_STATUS
 fi
 sleep 5
 # Start the second process
-nohup python3 -u ./api/main.py > /tmp/api.log 2>&1 &
+nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &
 ps aux |grep main |grep -q -v grep
 PROCESS_2_STATUS=$?
 echo "main.py status..."

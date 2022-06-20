@@ -14,7 +14,7 @@ env:
   # 通用配置
   STORAGE_TYPE: sqlite # 请修改为你的存储方式，默认为leancloud
   PROXY: ${{ secrets.PROXY }} # 可选，http代理
-  # leancloud、mysql、sqlite配置三选一即可
+  # leancloud、mysql、sqlite、mongodb配置四选一即可
   # leancloud配置
   APPID: ${{ secrets.APPID }}
   APPKEY: ${{ secrets.APPKEY }}
@@ -88,3 +88,11 @@ jobs:
         rebase: 'true'
         name: ${{ env.GITHUB_NAME }}
         email: ${{ env.GITHUB_EMAIL }}
+
+    - name: mongodb Update posts # mongodb
+      if: ${{ env.STORAGE_TYPE == 'mongodb' }}
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      working-directory: ./hexo_circle_of_friends
+      run: |
+        python run.py
