@@ -26,7 +26,8 @@
 最近改动：
 - 添加mongodb workflow
 - randomfriend和randompost两个接口支持随机N篇功能
-- 新增lostfriends接口，用于快速查询失联友链
+- 新增friendstatus接口，用于快速查询友链状态
+- 修复vercel无法获取部分接口的问题
 - 修复leancloud过期文章清理不生效的问题
 - 添加自定义日志信息
 - 修复leancloud接口中统计的数量和实际数量不同的问题
