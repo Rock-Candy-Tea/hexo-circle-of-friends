@@ -138,26 +138,35 @@ def query_post(link, num, rule):
     return api_json
 
 
-def query_lost_friends(days):
+def query_friend_status(days):
     # 初始化数据库连接
     post_collection, friend_db_collection = db_init()
     # 查询
-    posts = list(post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0, "created": 0, "avatar": 0, "link": 0, "title": 0}))
+    posts = list(post_collection.find({}, {'_id': 0, "rule": 0, "createdAt": 0, "created": 0, "avatar": 0, "link": 0,
+                                           "title": 0}))
     friends = list(friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0, "avatar": 0}))
     name_2_link_map = {user.get("name"): user.get("link") for user in friends}
-    lost_friends = {
+    friend_status = {
+        "total_friend_num": len(name_2_link_map),
         "total_lost_num": 0,
-        "lost_friends": {}
+        "total_not_lost_num": 0,
+        "lost_friends": {},
+        "not_lost_friends": {},
     }
-
+    not_lost_friends = {}
     for i in posts:
-        if time_compare(i.get("updated"), days):
-            # 超过了指定天数
-            lost_friends_dict = lost_friends["lost_friends"]
-            if not lost_friends_dict.get(i.get("author")):
-                lost_friends["total_lost_num"] += 1
-                lost_friends["lost_friends"][i.get("author")] = name_2_link_map.get(i.get("author"))
-    return lost_friends
+        if not time_compare(i.get("updated"), days):
+            # 未超过指定天数，未失联
+            if name_2_link_map.get(i.get("author")):
+                not_lost_friends[i.get("author")] = name_2_link_map.pop(i.get("author"))
+            else:
+                pass
+    # 统计信息更新，失联友链更新
+    friend_status["total_not_lost_num"] = len(not_lost_friends)
+    friend_status["total_lost_num"] = friend_status["total_friend_num"] - friend_status["total_not_lost_num"]
+    friend_status["not_lost_friends"] = not_lost_friends
+    friend_status["lost_friends"] = name_2_link_map
+    return friend_status
 
 
 def query_post_json(jsonlink, list, start, end, rule):
