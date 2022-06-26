@@ -1,16 +1,7 @@
 {
     "version": 2,
     "public": true,
-    "builds": [{ "src": "api/main.py", "use": "@vercel/python" }],
     "routes": [
-        { "src": "/all", "dest": "api/main.py" },
-        { "src": "/friend", "dest": "api/main.py" },
-        { "src": "/randomfriend", "dest": "api/main.py" },
-        { "src": "/randompost", "dest": "api/main.py" },
-        { "src": "/post", "dest": "api/main.py" },
-        { "src": "/postjson", "dest": "api/main.py" },
-        { "src": "/docs", "dest": "api/main.py" },
-        { "src": "/openapi.json", "dest": "api/main.py" },
-        { "src": "/version", "dest": "api/main.py" }
+        { "src": "/.*", "dest": "api/main.py" }
     ]
 }
