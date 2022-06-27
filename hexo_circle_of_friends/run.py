@@ -49,9 +49,11 @@ def initsettings(setting):
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
     elif DATABASE == "mongodb":
         setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
-    # 如果配置了json_api友链，在这里进行获取
-    if SETTINGS_FRIENDS_LINKS["json_api"].startswith("http"):
-        settings_friends_json_parse(setting)
+    # 如果配置了json_api友链，在这里进行获取 todo 扩展json_api友链部分
+    if SETTINGS_FRIENDS_LINKS["enable"] and SETTINGS_FRIENDS_LINKS["json_api"]:
+        json_api = SETTINGS_FRIENDS_LINKS["json_api"]
+        if json_api.startswith("http"):
+            settings_friends_json_parse(setting)
 
 
 if __name__ == '__main__':
