@@ -1,5 +1,5 @@
 import json
-from hexo_circle_of_friends.utils.logger import get_logger
+from logger import get_logger
 # 日志记录配置
 logger = get_logger()
 

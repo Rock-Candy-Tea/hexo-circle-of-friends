@@ -9,7 +9,7 @@ from multiprocessing.context import Process
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
-from hexo_circle_of_friends.utils.logger import get_logger
+from utils.logger import get_logger
 
 # 日志记录配置
 logger = get_logger()
