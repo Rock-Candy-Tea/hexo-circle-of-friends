@@ -7,6 +7,7 @@ import requests
 import leancloud
 from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.process_time import time_compare
+from utils import start_end_check
 
 
 def db_init():
@@ -16,7 +17,7 @@ def db_init():
         leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
 
 
-def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
+def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     # Verify key
     db_init()
 
@@ -41,6 +42,14 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     article_num = len(query_list)
     last_updated_time = max([item.get('createdAt').strftime('%Y-%m-%d %H:%M:%S') for item in query_list])
 
+    # 检查start、end的合法性
+    start, end, message = start_end_check(start, end, article_num)
+    if message:
+        return {"message": message}
+    # 检查rule的合法性
+    if rule != "created" and rule != "updated":
+        return {"message": "rule error, please use 'created'/'updated'"}
+
     data['statistical_data'] = {
         'friends_num': friends_num,
         'active_num': active_num,
@@ -53,7 +62,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     article_data = []
     for item in query_list:
         itemlist = {}
-        for elem in list:
+        for elem in li:
             if elem == 'created':
                 itemlist[elem] = item.get('created')
             elif elem == 'avatar':
@@ -61,15 +70,6 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
             else:
                 itemlist[elem] = item.get(elem)
         article_data_init.append(itemlist)
-
-    if end == -1:
-        end = min(article_num, 1000)
-    if start < 0 or start >= min(article_num, 1000):
-        return {"message": "start error"}
-    if end <= 0 or end > min(article_num, 1000):
-        return {"message": "end error"}
-    if rule != "created" and rule != "updated":
-        return {"message": "rule error, please use 'created'/'updated'"}
 
     rules = []
     # list sort 是 稳定 的，这意味着当多个记录具有相同的键值时，将**保留其原始顺序**

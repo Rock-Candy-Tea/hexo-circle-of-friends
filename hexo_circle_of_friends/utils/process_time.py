@@ -5,6 +5,7 @@ import re
 
 today_parsed = datetime.now() + timedelta(hours=8)
 
+
 # 时间格式检查
 def format_check(*args):
     for time in args:
@@ -22,6 +23,7 @@ def content_check(*args):
             # 大于当前时间
             return
     return True
+
 
 # 时间比较
 def time_compare(checked_time, days):

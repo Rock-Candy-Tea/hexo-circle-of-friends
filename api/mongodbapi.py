@@ -7,6 +7,7 @@ from urllib import parse
 from hexo_circle_of_friends import settings
 from pymongo import MongoClient
 from hexo_circle_of_friends.utils.process_time import time_compare
+from utils import start_end_check
 
 
 def db_init():
@@ -24,12 +25,11 @@ def db_init():
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     post_collection, friend_db_collection = db_init()
     article_num = post_collection.count_documents({})
-    if end == -1:
-        end = min(article_num, 1000)
-    if start < 0 or start >= min(article_num, 1000):
-        return {"message": "start error"}
-    if end <= 0 or end > min(article_num, 1000):
-        return {"message": "end error"}
+    # 检查start、end的合法性
+    start, end, message = start_end_check(start, end, article_num)
+    if message:
+        return {"message": message}
+    # 检查rule的合法性
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
 
