@@ -9,8 +9,9 @@ from ..utils import process_time
 class DuplicatesPipeline:
     def __init__(self):
         self.data_link_set = set()  # 通过链接对post文章数据的去重
-        self.data_title_set = set() # 通过标题对post文章数据的去重
+        self.data_title_set = set()  # 通过标题对post文章数据的去重
         self.friends_set = set()  # friends filter set 用于对friends的去重
+
     def process_item(self, item, spider):
         if "userdata" in item.keys():
             #  userdata filter

@@ -33,7 +33,7 @@ LINK = [
 
 # 配置项友链
 # enable：# 是否启用配置项友链 True/False（针对还未适配主题或者有定制需求的用户）
-# json_api：通过api获取配置项友链，返回格式必须为：{"friends":[[友链1],[友链2],[友链3],[友链4]....]}，友链内容同LINK字段格式
+# json_api：通过json格式配置友链，详见：https://fcircle-doc.js.cool/#/developmentdoc?id=配置项json友链
 # list字段填写格式：["name", "link", "avatar","suffix"]，其中：
 #       name：必填，友链的名字
 #       link：必填，友链主页地址
@@ -99,7 +99,7 @@ DEPLOY_TYPE = "github"
 
 ##############################除非您了解本项目，否则请勿修改以下内容################################
 
-VERSION = "4.3.2"
+VERSION = "4.3.3"
 
 # debug
 # debug模式

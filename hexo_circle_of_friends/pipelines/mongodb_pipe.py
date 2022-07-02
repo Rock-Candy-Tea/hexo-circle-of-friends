@@ -139,7 +139,7 @@ class MongoDBPipeline:
                 print("上传数据失败，请检查：%s" % friend.get("link"))
         return len(friends), error_num
 
-    def friendpoor_push(self,item):
+    def friendpoor_push(self, item):
         item["createdAt"] = today
         try:
             self.posts.replace_one({"link": item.get("link")}, item, upsert=True)
@@ -148,4 +148,3 @@ class MongoDBPipeline:
         print("----------------------")
         print(item["author"])
         print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
-

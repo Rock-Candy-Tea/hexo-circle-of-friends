@@ -1,38 +1,22 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 import datetime
-import sys
 import scrapy
 import queue
 import feedparser
 import re
-import logging
-from logging import handlers
 from scrapy.http.request import Request
 from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.get_url import GetUrl
 from hexo_circle_of_friends.utils.regulations import reg_volantis, reg_normal
 from hexo_circle_of_friends.utils.process_time import format_time
+from hexo_circle_of_friends.utils.logger import get_logger
 
 # from hexo_circle_of_friends import items todo use items
 
 # 日志记录配置
-if sys.platform == "linux":
-    # linux，输出到文件
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.WARNING)
-    handler = handlers.RotatingFileHandler("/tmp/crawler.log", mode="w", maxBytes=1024, backupCount=3, encoding="utf-8")
-    logger.addHandler(handler)
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-    handler.setFormatter(formatter)
-else:
-    # 其它平台，标准输出
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.WARNING)
-    handler = logging.StreamHandler(sys.stderr)
-    logger.addHandler(handler)
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s")
-    handler.setFormatter(formatter)
+logger = get_logger()
+
 # post_parsers = ["theme_butterfly_parse"]
 # 文章页解析器
 post_parsers = [
