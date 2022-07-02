@@ -4,12 +4,15 @@ import os
 import time
 import requests
 import schedule
+import sys
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)
 from multiprocessing.context import Process
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
-from utils.logger import get_logger
+from hexo_circle_of_friends.utils.logger import get_logger
 
 # 日志记录配置
 logger = get_logger()
