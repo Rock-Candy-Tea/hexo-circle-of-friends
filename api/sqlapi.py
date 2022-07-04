@@ -12,7 +12,7 @@ from hexo_circle_of_friends.models import Friend, Post
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
-from utils import start_end_check
+from api.utils import start_end_check
 
 
 def db_init():

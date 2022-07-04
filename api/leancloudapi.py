@@ -7,7 +7,7 @@ import requests
 import leancloud
 from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.process_time import time_compare
-from utils import start_end_check
+from api.utils import start_end_check
 
 
 def db_init():

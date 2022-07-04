@@ -7,7 +7,7 @@ from urllib import parse
 from hexo_circle_of_friends import settings
 from pymongo import MongoClient
 from hexo_circle_of_friends.utils.process_time import time_compare
-from utils import start_end_check
+from api.utils import start_end_check
 
 
 def db_init():
