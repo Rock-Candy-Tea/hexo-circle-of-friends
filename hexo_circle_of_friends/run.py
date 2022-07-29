@@ -12,20 +12,22 @@ from multiprocessing.context import Process
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
 from settings import *
-from hexo_circle_of_friends.utils.logger import get_logger
+from hexo_circle_of_friends.utils import baselogger
 
 # 日志记录配置
-logger = get_logger()
+logger = baselogger.get_logger(__name__)
 
 
 def main():
+    # init logging
+    baselogger.init_logging_conf()
     # 获取settings
     setting = get_project_settings()
     # init settings
     initsettings(setting)
     process = CrawlerProcess(setting)
     didntWorkSpider = []
-    for spider_name in process.spiders.list():
+    for spider_name in process.spider_loader.list():
         if spider_name in didntWorkSpider:
             continue
         # print("Running spider %s" % (spider_name))

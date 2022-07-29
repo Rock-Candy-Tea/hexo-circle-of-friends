@@ -5,8 +5,10 @@ import leancloud
 import re
 from .. import settings
 from datetime import datetime, timedelta
+from ..utils import baselogger
 
 today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+logger = baselogger.get_logger(__name__)
 
 
 class LeancloudPipeline:
@@ -160,7 +162,12 @@ class LeancloudPipeline:
         friendpoor.set('avatar', item['avatar'])
         friendpoor.set('rule', item['rule'])
         friendpoor.save()
-        print("----------------------")
-        print(item["author"])
-        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
+
+        info = f"""\033[1;34m\n——————————————————————————————————————————————————————————————————————————————
+        {item['author']}\n《{item['title']}》\n文章发布时间：{item['created']}\t\t采取的爬虫规则为：{item['rule']}
+        ——————————————————————————————————————————————————————————————————————————————\033[0m"""
+        logger.info(info)
+        # print("----------------------")
+        # print(item["author"])
+        # print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
         self.total_post_num += 1

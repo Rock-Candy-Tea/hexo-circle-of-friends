@@ -10,12 +10,12 @@ from hexo_circle_of_friends import settings
 from hexo_circle_of_friends.utils.get_url import GetUrl
 from hexo_circle_of_friends.utils.regulations import reg_volantis, reg_normal
 from hexo_circle_of_friends.utils.process_time import format_time
-from hexo_circle_of_friends.utils.logger import get_logger
+from hexo_circle_of_friends.utils.baselogger import get_logger
 
 # from hexo_circle_of_friends import items todo use items
 
 # 日志记录配置
-logger = get_logger()
+logger = get_logger(__name__)
 
 # post_parsers = ["theme_butterfly_parse"]
 # 文章页解析器

@@ -131,7 +131,7 @@ FRIENDPAGE_LINK = [
 
 
 BOT_NAME = 'hexo_circle_of_friends'
-LOG_LEVEL = "ERROR"
+LOG_ENABLED = False
 SPIDER_MODULES = ['hexo_circle_of_friends.spiders']
 NEWSPIDER_MODULE = 'hexo_circle_of_friends.spiders'
 USER_AGENT_LIST = [
