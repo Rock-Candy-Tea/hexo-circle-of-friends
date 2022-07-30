@@ -6,18 +6,20 @@ from lxml import etree
 import uvicorn
 import os
 
-from hexo_circle_of_friends import settings
+# todo 爬虫正在运行时无法修改配置！
+from hexo_circle_of_friends.utils.project import get_user_settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-if settings.DATABASE == 'leancloud':
+settings = get_user_settings()
+if settings["DATABASE"] == 'leancloud':
     from api.leancloudapi import *
-elif settings.DATABASE == "mysql" or settings.DATABASE == "sqlite":
+elif settings["DATABASE"] == "mysql" or settings["DATABASE"] == "sqlite":
     from api.sqlapi import *
-elif settings.DATABASE == "mongodb":
+elif settings["DATABASE"] == "mongodb":
     from api.mongodbapi import *
 
-OUTDATE_CLEAN = settings.OUTDATE_CLEAN
+OUTDATE_CLEAN = settings["OUTDATE_CLEAN"]
 
 app = FastAPI()
 
@@ -143,9 +145,9 @@ async def fetch(session, url):
 
 
 if __name__ == "__main__":
-    if settings.DEPLOY_TYPE == "docker":
+    if settings["DEPLOY_TYPE"] == "docker":
         uvicorn.run("main:app", host="0.0.0.0")
-    elif settings.DEPLOY_TYPE == "server":
+    elif settings["DEPLOY_TYPE"] == "server":
         EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
         uvicorn.run("main:app", host="0.0.0.0", port=EXPOSE_PORT)
     else:

@@ -26,7 +26,7 @@ class ExitHooks(object):
         self.exception = exc
 
     def excepthook(self, exc_type, exc_value, tb):
-        self.logger.error("SYSTEM ERROR",exc_info=(exc_type, exc_value, tb))
+        self.logger.error("SYSTEM ERROR", exc_info=(exc_type, exc_value, tb))
 
 
 def init_logging_conf():
@@ -118,7 +118,3 @@ def cal_run_time(*args, **kwargs):
         return cal_print
 
     return run_time
-
-
-
-

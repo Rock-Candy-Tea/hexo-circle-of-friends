@@ -4,14 +4,14 @@ import os
 import random
 
 from urllib import parse
-from hexo_circle_of_friends import settings
+from hexo_circle_of_friends import scrapy_conf
 from pymongo import MongoClient
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api.utils import start_end_check
+from api.utils.validate_params import start_end_check
 
 
 def db_init():
-    if settings.DEBUG:
+    if scrapy_conf.DEBUG:
         URI = "mongodb+srv://root:@cluster0.wgfbv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
     else:
         URI = os.environ.get("MONGODB_URI")

@@ -15,12 +15,13 @@ from utils import project
 baselogger.init_logging_conf()
 logger = baselogger.get_logger(__name__)
 
+
 def main():
     # 读取用户配置
     user_conf = project.get_user_settings()
     # 获取settings
     settings = get_project_settings()
-    # init settings
+    # 初始化settings
     initsettings(settings, user_conf)
     process = CrawlerProcess(settings)
     didntWorkSpider = []
@@ -111,28 +112,29 @@ def sub_process_start():
     process.join()  # 阻塞等待进程执行完毕
 
 
-def initsettings(setting, user_conf):
+def initsettings(settings, user_conf):
     db = user_conf["DATABASE"]
     # 根据所配置的数据库类型选择pipeline
     if db == 'leancloud':
-        setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.leancloud_pipe.LeancloudPipeline"] = 300
+        settings["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.leancloud_pipe.LeancloudPipeline"] = 300
     elif db == 'mysql' or db == "sqlite":
-        setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
+        settings["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.sql_pipe.SQLPipeline"] = 300
     elif db == "mongodb":
-        setting["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
+        settings["ITEM_PIPELINES"]["hexo_circle_of_friends.pipelines.mongodb_pipe.MongoDBPipeline"] = 300
 
     setting_friends = user_conf["SETTINGS_FRIENDS_LINKS"]
     # 如果配置了json_api友链，在这里进行获取
     if setting_friends["enable"] and setting_friends["json_api"]:
         json_api = setting_friends["json_api"]
         settings_friends_json_read(json_api, user_conf)
-    for k,v in user_conf.items():
-        setting.set(k,v)
+    # 添加用户配置
+    for k, v in user_conf.items():
+        settings.set(k, v)
 
 
 if __name__ == '__main__':
-    user_conf = project.get_user_settings()
-    DEPLOY_TYPE = user_conf["DEPLOY_TYPE"]
+    conf = project.get_user_settings()
+    DEPLOY_TYPE = conf["DEPLOY_TYPE"]
     if DEPLOY_TYPE == "docker" or DEPLOY_TYPE == "server":
         # server/docker部署
         # 根据环境变量获取运行间隔时间，默认6小时运行一次

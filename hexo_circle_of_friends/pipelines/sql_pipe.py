@@ -3,7 +3,7 @@
 import os
 import re
 
-from .. import models, scrapy_conf
+from .. import models
 from ..utils import baselogger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session

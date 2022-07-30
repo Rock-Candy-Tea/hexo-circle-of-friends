@@ -5,14 +5,14 @@ import json
 import random
 import requests
 import leancloud
-from hexo_circle_of_friends import settings
+from hexo_circle_of_friends import scrapy_conf
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api.utils import start_end_check
+from api.utils.validate_params import start_end_check
 
 
 def db_init():
-    if settings.DEBUG:
-        leancloud.init(settings.LC_APPID, settings.LC_APPKEY)
+    if scrapy_conf.DEBUG:
+        leancloud.init(scrapy_conf.LC_APPID, scrapy_conf.LC_APPKEY)
     else:
         leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
 

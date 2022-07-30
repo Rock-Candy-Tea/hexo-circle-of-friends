@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 import yaml
-import traceback
 from . import baselogger
 import os
 

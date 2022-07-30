@@ -6,29 +6,35 @@ import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import requests
 from urllib import parse
-from hexo_circle_of_friends import settings
+from hexo_circle_of_friends import scrapy_conf
+from hexo_circle_of_friends.utils.project import get_user_settings
 from sqlalchemy import create_engine
 from hexo_circle_of_friends.models import Friend, Post
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api.utils import start_end_check
+from api.utils.validate_params import start_end_check
 
 
 def db_init():
-    if settings.DEBUG:
-        if settings.DATABASE == "sqlite":
+    settings = get_user_settings()
+    if scrapy_conf.DEBUG:
+        if settings["DATABASE"] == "sqlite":
             conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
-        elif settings.DATABASE == "mysql":
+        elif settings["DATABASE"] == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                    % ("root", "123456", "localhost", "test")
+        else:
+            raise
     else:
-        if settings.DATABASE == "sqlite":
+        if settings["DATABASE"] == "sqlite":
             conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
-        elif settings.DATABASE == "mysql":
+        elif settings["DATABASE"] == "mysql":
             conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
                    % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
                       , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
+        else:
+            raise
     try:
         engine = create_engine(conn, pool_recycle=-1)
     except:
@@ -102,7 +108,8 @@ def query_random_friend(num):
     if num < 1:
         return {"message": "param 'num' error"}
     session = db_init()
-    if settings.DATABASE == "sqlite":
+    settings = get_user_settings()
+    if settings["DATABASE"] == "sqlite":
         data: list = session.query(Friend).order_by(func.random()).limit(num).all()
     else:
         data: list = session.query(Friend).order_by(func.rand()).limit(num).all()
@@ -126,7 +133,8 @@ def query_random_post(num):
     if num < 1:
         return {"message": "param 'num' error"}
     session = db_init()
-    if settings.DATABASE == "sqlite":
+    settings = get_user_settings()
+    if settings["DATABASE"] == "sqlite":
         data: list = session.query(Post).order_by(func.random()).limit(num).all()
     else:
         data: list = session.query(Post).order_by(func.rand()).limit(num).all()
