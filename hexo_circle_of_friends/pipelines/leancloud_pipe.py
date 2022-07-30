@@ -3,7 +3,6 @@
 import os
 import leancloud
 import re
-from .. import settings
 from datetime import datetime, timedelta
 from ..utils import baselogger
 
@@ -20,8 +19,9 @@ class LeancloudPipeline:
         self.err_friend_num = 0
 
     def open_spider(self, spider):
-        if settings.DEBUG:
-            leancloud.init(settings.LC_APPID, settings.LC_APPKEY)
+        settings = spider.settings
+        if settings["DEBUG"]:
+            leancloud.init(settings["LC_APPID"], settings["LC_APPKEY"])
         else:
             leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
         self.Friendslist = leancloud.Object.extend('friend_list')
@@ -74,12 +74,12 @@ class LeancloudPipeline:
     def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
-
-        self.friendlist_push()
+        settings = spider.settings
+        self.friendlist_push(settings)
         # 查询此时的所有文章
         self.query_friendspoor()
         # 过期文章清除
-        self.outdate_clean(settings.OUTDATE_CLEAN)
+        self.outdate_clean(settings["OUTDATE_CLEAN"])
         print("----------------------")
         print("友链总数 : %d" % self.total_friend_num)
         print("失联友链数 : %d" % self.err_friend_num)
@@ -126,7 +126,7 @@ class LeancloudPipeline:
         # print('\n')
         # print('-------结束删除规则----------')
 
-    def friendlist_push(self):
+    def friendlist_push(self,settings):
         for index, item in enumerate(self.userdata):
             friendlist = self.Friendslist()
             friendlist.set('friendname', item[0])
@@ -135,9 +135,9 @@ class LeancloudPipeline:
             if item[0] in self.nonerror_data:
                 # print("未失联的用户")
                 friendlist.set('error', "false")
-            elif settings.BLOCK_SITE:
+            elif settings["BLOCK_SITE"]:
                 error = True
-                for url in settings.BLOCK_SITE:
+                for url in settings["BLOCK_SITE"]:
                     if re.match(url, item[1]):
                         friendlist.set('error', "false")
                         error = False

@@ -1,104 +1,4 @@
-################################请修改以下内容################################
-# 友链页地址
-# 参数说明：
-# link：必填，在这里填写你的友链页面地址
-# theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
-#   - common1: 通用主题1，请参考：https://fcircle-doc.js.cool/#/developmentdoc?id=友链页适配
-#   - common2: 通用主题2，请参考：https://fcircle-doc.js.cool/#/developmentdoc?id=友链页适配
-#   - butterfly：butterfly主题
-#   - fluid：fluid主题
-#   - matery：matery主题
-#   - nexmoe：nexmoe主题
-#   - stun：stun主题
-#   - sakura: sakura主题
-#   - volantis：volantis主题
-#   - Yun：Yun主题
-#   - stellar：stellar主题
-# 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。***至少配置一个***
-LINK = [
-    {
-        "link": "https://zfe.space/link/",  # 友链页地址1，修改为你的友链页地址
-        "theme": "butterfly"
-    },
-    #     {
-    #     "link": "https://noionion.top/link/",  # 友链页地址2
-    #     "theme": "butterfly",  # 友链页的获取策略
-    # },
-    #     {
-    #     "link": "https://immmmm.com/about/",  # 友链页地址3
-    #     "theme": "common",  # 友链页的获取策略
-    # }
-
-]
-
-# 配置项友链
-# enable：# 是否启用配置项友链 True/False（针对还未适配主题或者有定制需求的用户）
-# json_api：通过json格式配置友链，详见：https://fcircle-doc.js.cool/#/developmentdoc?id=配置项json友链
-# list字段填写格式：["name", "link", "avatar","suffix"]，其中：
-#       name：必填，友链的名字
-#       link：必填，友链主页地址
-#       avatar：必填，头像地址
-#       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
-SETTINGS_FRIENDS_LINKS = {
-    "enable": False,
-    "json_api": "",
-    "list": [
-        # 示例1：
-        ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
-        ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
-        # 示例2：使用suffix的配置如下
-        # 程序目前自动获取 "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed", "index.xml" 这些后缀
-        # 如果目标地址的后缀不在其中，就可以在这里添加
-        # 比如 https://elizen.me/hello.xml ，填写：
-        ["elizen", "https://elizen.me/", "https://akilar.top/images/headimage.png", "hello.xml"],
-    ]
-}
-
-# get links from gitee
-# 从gitee issue中获取友链
-GITEE_FRIENDS_LINKS = {
-    "enable": False,  # True 开启gitee issue兼容
-    "type": "normal",  # volantis/stellar用户请在这里填写volantis
-    "owner": "ccknbc",  # 填写你的gitee用户名
-    "repo": "blogroll",  # 填写你的gitee仓库名
-    "state": "open"  # 填写抓取的issue状态(open/closed)
-}
-
-# get links from github
-# 从github issue中获取友链
-GITHUB_FRIENDS_LINKS = {
-    "enable": False,  # True 开启github issue兼容
-    "type": "normal",  # volantis/stellar用户请在这里填写volantis
-    "owner": "ccknbc",  # 填写你的github用户名
-    "repo": "ccknbc-actions",  # 填写你的github仓库名
-    "state": "open"  # 填写抓取的issue状态(open/closed)
-}
-
-# block site list
-# 添加屏蔽站点，支持正则表达式
-BLOCK_SITE = [
-    # "https://example.com/",
-    # r".*\.com",  # 含有.com的全部屏蔽
-    # r"^http://",  # http开头的全部屏蔽
-]
-
-# 启用HTTP代理，此项设为True，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
-HTTP_PROXY = False
-
-# 过期文章清除（天）
-OUTDATE_CLEAN = 60
-
-# 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
-DATABASE = "leancloud"
-
-# 部署方式，可选项：github，server，docker；默认为github
-DEPLOY_TYPE = "github"
-
-################################请修改以上内容################################
-
-
-##############################除非您了解本项目，否则请勿修改以下内容################################
-
+############################## 除非您了解本项目，否则请勿修改本文件 ################################
 VERSION = "4.3.3"
 
 # debug
@@ -128,7 +28,6 @@ FRIENDPAGE_LINK = [
         "theme": "volantis"
     },
 ]
-
 
 BOT_NAME = 'hexo_circle_of_friends'
 LOG_ENABLED = False

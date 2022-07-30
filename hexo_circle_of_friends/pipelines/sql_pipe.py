@@ -3,7 +3,7 @@
 import os
 import re
 
-from .. import models, settings
+from .. import models, scrapy_conf
 from ..utils import baselogger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -19,16 +19,18 @@ class SQLPipeline:
         self.nonerror_data = set()  # 能够根据友链link获取到文章的人
 
     def open_spider(self, spider):
-        if settings.DEBUG:
-            if settings.DATABASE == "sqlite":
+        settings = spider.settings
+        db = settings["DATABASE"]
+        if settings["DEBUG"]:
+            if db == "sqlite":
                 conn = "sqlite:///data.db"
-            elif settings.DATABASE == "mysql":
+            elif db == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                        % ("root", "123456", "localhost", "test")
         else:
-            if settings.DATABASE == "sqlite":
+            if db == "sqlite":
                 conn = "sqlite:///data.db"
-            elif settings.DATABASE == "mysql":
+            elif db == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
                        % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
                           , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
@@ -80,9 +82,9 @@ class SQLPipeline:
     def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
-
-        self.friendlist_push()
-        self.outdate_clean(settings.OUTDATE_CLEAN)
+        settings =spider.settings
+        self.friendlist_push(settings)
+        self.outdate_clean(settings["OUTDATE_CLEAN"])
         print("----------------------")
         print("友链总数 : %d" % self.session.query(models.Friend).count())
         print("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
@@ -117,7 +119,7 @@ class SQLPipeline:
         # print('\n')
         # print('-------结束删除规则----------')
 
-    def friendlist_push(self):
+    def friendlist_push(self, settings):
         for user in self.userdata:
             friend = models.Friend(
                 name=user[0],
@@ -127,9 +129,9 @@ class SQLPipeline:
             if user[0] in self.nonerror_data:
                 # print("未失联的用户")
                 friend.error = False
-            elif settings.BLOCK_SITE:
+            elif settings["BLOCK_SITE"]:
                 error = True
-                for url in settings.BLOCK_SITE:
+                for url in settings["BLOCK_SITE"]:
                     if re.match(url, friend.link):
                         friend.error = False
                         error = False

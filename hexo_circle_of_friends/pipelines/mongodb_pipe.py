@@ -4,12 +4,10 @@ import os
 import re
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-from .. import settings
 from ..utils import baselogger
 
 today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 logger = baselogger.get_logger(__name__)
-
 
 class MongoDBPipeline:
     def __init__(self):
@@ -18,12 +16,12 @@ class MongoDBPipeline:
         self.query_post_list = []
 
     def open_spider(self, spider):
-
-        if settings.DEBUG:
-            URI = "mongodb+srv://root:@cluster0.wgfbv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+        settings = spider.settings
+        if settings["DEBUG"]:
+            uri = "mongodb+srv://root:@cluster0.wgfbv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
         else:
-            URI = os.environ.get("MONGODB_URI")
-        client = MongoClient(URI)
+            uri = os.environ.get("MONGODB_URI")
+        client = MongoClient(uri)
         db = client.fcircle
         self.posts = db.Post
         self.friends = db.Friend
@@ -69,9 +67,9 @@ class MongoDBPipeline:
     def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
-
-        count, error_num = self.friendlist_push()
-        self.outdate_clean(settings.OUTDATE_CLEAN)
+        settings = spider.settings
+        count, error_num = self.friendlist_push(settings)
+        self.outdate_clean(settings["OUTDATE_CLEAN"])
         print("----------------------")
         print("友链总数 : %d" % count)
         print("失联友链数 : %d" % error_num)
@@ -105,7 +103,7 @@ class MongoDBPipeline:
         # print('\n')
         # print('-------结束删除规则----------')
 
-    def friendlist_push(self):
+    def friendlist_push(self, settings):
         friends = []
         error_num = 0
         for user in self.userdata:
@@ -118,9 +116,9 @@ class MongoDBPipeline:
             if user[0] in self.nonerror_data:
                 # print("未失联的用户")
                 friend["error"] = False
-            elif settings.BLOCK_SITE:
+            elif settings["BLOCK_SITE"]:
                 error = True
-                for url in settings.BLOCK_SITE:
+                for url in settings["BLOCK_SITE"]:
                     if re.match(url, friend["link"]):
                         friend["error"] = False
                         error = False

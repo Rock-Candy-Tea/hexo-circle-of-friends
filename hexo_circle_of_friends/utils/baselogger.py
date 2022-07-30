@@ -26,17 +26,7 @@ class ExitHooks(object):
         self.exception = exc
 
     def excepthook(self, exc_type, exc_value, tb):
-        msg = ' Traceback (most recent call last):\n'
-        while tb:
-            filename = tb.tb_frame.f_code.co_filename
-            name = tb.tb_frame.f_code.co_name
-            lineno = tb.tb_lineno
-            msg += '   File "%.500s", line %d, in %.500s\n' % (filename, lineno, name)
-            tb = tb.tb_next
-
-        msg += ' %s: %s\n' % (exc_type.__name__, exc_value)
-        self.logger.error("SYSTEM ERROR")
-        self.logger.error(msg)
+        self.logger.error("SYSTEM ERROR",exc_info=(exc_type, exc_value, tb))
 
 
 def init_logging_conf():
@@ -89,7 +79,7 @@ def init_logging_conf():
             "class": "logging.handlers.RotatingFileHandler",
             'formatter': 'standard',
             'filename': '/tmp/crawler.log',
-            'level': 'INFO',
+            'level': 'DEBUG',
             'maxBytes': 4096000,
             'backupCount': 5,
         }
