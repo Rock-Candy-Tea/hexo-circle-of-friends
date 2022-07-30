@@ -4,10 +4,7 @@ import os
 import time
 import requests
 import schedule
-import sys
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
 from multiprocessing.context import Process
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess

@@ -4,11 +4,8 @@ import re
 import aiohttp
 from lxml import etree
 import uvicorn
-import sys
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(BASE_DIR)
 from hexo_circle_of_friends import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

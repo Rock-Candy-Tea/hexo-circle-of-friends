@@ -1,5 +1,7 @@
 #!/bin/bash
-pip3 install -r ./hexo_circle_of_friends/requirements.txt -i https://pypi.douban.com/simple/
+BASE_PATH=$(cd $(dirname $0); pwd)
+export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}
+pip3 install -r ${BASE_PATH}/hexo_circle_of_friends/requirements.txt -i https://pypi.douban.com/simple/
 
 ### 通用配置
 export EXPOSE_PORT=8000
@@ -16,5 +18,6 @@ export APPKEY=""
 #export MYSQL_DB=""
 ### mongodb配置
 #export MONGODB_URI=""
-nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
-nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &
+
+nohup python3 -u ${BASE_PATH}/hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
+nohup python3 -u ${BASE_PATH}/api/main.py > /tmp/api_stdout.log 2>&1 &
