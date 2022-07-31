@@ -109,28 +109,28 @@ async def version():
     """版本检查
     status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
     """
+    VERSION = scrapy_conf.VERSION
     api_json = {"status": 0}
-    if settings.VERSION:
-        try:
-            async with aiohttp.ClientSession() as session:
-                urls = [
-                    "https://hexo-circle-of-friends-doc.vercel.app/version.txt",
-                    "https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
-                    "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
-                ]
-                tasks = [asyncio.create_task(fetch(session, url)) for url in urls]
-                done, pending = await asyncio.wait(tasks)
-                for d in done:
-                    if d.result():
-                        api_json["current_version"] = settings.VERSION
-                        api_json["latest_version"] = d.result()
-        except:
-            api_json["current_version"] = settings.VERSION
-            api_json["status"] = 2
-            return api_json
-        if settings.VERSION != api_json["latest_version"]:
-            api_json["status"] = 1
+    try:
+        async with aiohttp.ClientSession() as session:
+            urls = [
+                "https://hexo-circle-of-friends-doc.vercel.app/version.txt",
+                "https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
+                "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
+            ]
+            tasks = [asyncio.create_task(fetch(session, url)) for url in urls]
+            done, pending = await asyncio.wait(tasks)
+            for d in done:
+                if d.result():
+                    api_json["current_version"] = VERSION
+                    api_json["latest_version"] = d.result()
+    except:
+        api_json["current_version"] = VERSION
+        api_json["status"] = 2
         return api_json
+    if VERSION != api_json["latest_version"]:
+        api_json["status"] = 1
+    return api_json
 
 
 async def fetch(session, url):
@@ -151,4 +151,4 @@ if __name__ == "__main__":
         EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
         uvicorn.run("main:app", host="0.0.0.0", port=EXPOSE_PORT)
     else:
-        uvicorn.run("main:app", host="127.0.0.1")
+        uvicorn.run("main:app", host="0.0.0.0")
