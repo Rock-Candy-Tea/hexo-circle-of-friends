@@ -6,7 +6,7 @@
 
 ```
 4.3.3 支持：
-- 支持 gitee 和 github 上的 issuse 友链获取
+- 支持 gitee 和 github 上的 issues 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar、next主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
 - 支持自定义订阅后缀
