@@ -2,7 +2,7 @@
 
 你是否经常烦恼于友链过多但没有时间浏览？那么友链朋友圈将解决这一痛点。你可以随时获取友链网站的更新内容，并了解友链的活跃情况。
 
-部署教程：[文档](https://fcircle-doc.js.cool/) | [备用地址](https://fcircle-doc.is-a.dev/)
+部署教程：[文档](https://fcircle-doc.yyyzyyyz.cn/) | [备用地址](https://fcircle-doc.is-a.dev/)
 
 ```
 4.3.3 支持：
