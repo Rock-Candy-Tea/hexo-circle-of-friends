@@ -130,6 +130,7 @@ def query_post(link, num, rule):
         post["floor"] = floor + 1
         data.append(post)
     if friend:
+        # todo https://github.com/Rock-Candy-Tea/hexo-circle-of-friends/issues/60
         friend["article_num"] = len(data)
         api_json = {"statistical_data": friend, "article_data": data}
     else:
