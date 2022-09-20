@@ -70,7 +70,7 @@ def init_logging_conf():
         # Just a standalone kwarg for the root logger
         "root": {
             "level": "INFO",
-            "handlers": ["console", "file"]
+            "handlers": ["console"]
         }
     }
     # linux平台添加文件记录
@@ -84,6 +84,7 @@ def init_logging_conf():
             'backupCount': 5,
         }
         base_conf["handlers"]["file"] = handler_conf
+        base_conf["root"]["handlers"].append("file")
     dictConfig(base_conf)
 
 

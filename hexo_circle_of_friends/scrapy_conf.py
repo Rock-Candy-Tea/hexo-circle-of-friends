@@ -3,7 +3,7 @@ VERSION = "4.3.3"
 
 # debug
 # debug模式
-DEBUG = False
+DEBUG = True
 
 # lc
 # debug模式使用
@@ -24,13 +24,13 @@ HTTP_PROXY_URL = ""
 # ]
 FRIENDPAGE_LINK = [
     {
-        "link": "https://hgm.vercel.app/link/",  # 友链页地址1，修改为你的友链页地址
-        "theme": "volantis"
+        "link": "https://akilar.top/link/",  # 友链页地址1，修改为你的友链页地址
+        "theme": "butterfly"
     },
 ]
 
 BOT_NAME = 'hexo_circle_of_friends'
-LOG_ENABLED = False
+LOG_LEVEL = 'CRITICAL'
 SPIDER_MODULES = ['hexo_circle_of_friends.spiders']
 NEWSPIDER_MODULE = 'hexo_circle_of_friends.spiders'
 USER_AGENT_LIST = [

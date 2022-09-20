@@ -4,7 +4,7 @@ import yaml
 from . import baselogger
 import os
 
-os.environ["BASE_PATH"] = "/root/data/"
+os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
 
 
 def get_user_settings():
@@ -17,13 +17,13 @@ def get_user_settings():
     path = os.path.join(base_path, "hexo_circle_of_friends/dump_settings")
     try:
         logger.debug("读取远程自动配置...")
-        f = open(path, "r")
+        f = open(path, "r", encoding="utf-8")
     except FileNotFoundError:
         logger.debug("读取远程自动配置失败！")
         path = os.path.join(base_path, "hexo_circle_of_friends/fc_settings.yaml")
         try:
             logger.debug("读取本地手动配置...")
-            f = open(path, "r")
+            f = open(path, "r", encoding="utf-8")
         except:
             logger.critical("读取本地手动配置失败！请检查用户配置文件是否正确！")
             raise IOError
@@ -35,5 +35,3 @@ def get_user_settings():
     logger.debug("成功获取用户配置！")
     f.close()
     return user_conf
-
-
