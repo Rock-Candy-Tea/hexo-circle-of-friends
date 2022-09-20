@@ -4,11 +4,11 @@ import os
 import time
 import requests
 import schedule
-
+from hexo_circle_of_friends.utils import baselogger
 from multiprocessing.context import Process
 from scrapy.utils.project import get_project_settings
 from scrapy.crawler import CrawlerProcess
-from hexo_circle_of_friends.utils import baselogger
+
 from utils import project
 
 # 日志记录配置

@@ -85,6 +85,7 @@ def init_logging_conf():
         }
         base_conf["handlers"]["file"] = handler_conf
         base_conf["root"]["handlers"].append("file")
+    logging.getLogger('scrapy').propagate = False
     dictConfig(base_conf)
 
 

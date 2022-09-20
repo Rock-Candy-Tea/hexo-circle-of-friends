@@ -4,7 +4,8 @@ import yaml
 from . import baselogger
 import os
 
-os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
+# os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
+os.environ["BASE_PATH"] = "/root/data"
 
 
 def get_user_settings():
