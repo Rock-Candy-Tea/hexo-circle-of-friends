@@ -149,8 +149,8 @@ async def fetch(session, url):
 
 @app.post("/login", tags=["API"], summary="login")
 def login(password: str = Body(default=None, embed=True)):
-    token = get_or_create_token(password)
-    return password
+    password_hash = get_or_create_token(password)
+    return password_hash
 
 
 if __name__ == "__main__":

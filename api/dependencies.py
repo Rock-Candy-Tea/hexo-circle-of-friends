@@ -35,6 +35,7 @@ def get_or_create_token(password: str):
         headers={"WWW-Authenticate": "Bearer"},
     )
     password_hash = get_password_hash(password)
+    return password_hash
     # try:
     #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     #     return payload
@@ -43,4 +44,3 @@ def get_or_create_token(password: str):
     #         raise credentials_exception
     # except JWTError:
     #     return "123"
-    print()
