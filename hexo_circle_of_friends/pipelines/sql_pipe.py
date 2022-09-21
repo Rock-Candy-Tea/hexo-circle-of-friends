@@ -52,7 +52,7 @@ class SQLPipeline:
         self.session.query(models.Friend).delete()
         # 获取post表数据
         self.query_post()
-        print("Initialization complete")
+        logger.info("Initialization complete")
 
     def process_item(self, item, spider):
         if "userdata" in item.keys():
@@ -141,10 +141,10 @@ class SQLPipeline:
                         friend.error = False
                         error = False
                 if error:
-                    print("请求失败，请检查链接： %s" % friend.link)
+                    logger.error("请求失败，请检查链接： %s" % friend.link)
                     friend.error = True
             else:
-                print("请求失败，请检查链接： %s" % friend.link)
+                logger.error("请求失败，请检查链接： %s" % friend.link)
                 friend.error = True
             self.session.add(friend)
             self.session.commit()

@@ -30,7 +30,7 @@ class MongoDBPipeline:
         self.query_post()
 
         self.friends.delete_many({})
-        print("Initialization complete")
+        logger.info("Initialization complete")
 
     def process_item(self, item, spider):
         if "userdata" in item.keys():
@@ -123,11 +123,11 @@ class MongoDBPipeline:
                         friend["error"] = False
                         error = False
                 if error:
-                    print("请求失败，请检查链接： %s" % friend["link"])
+                    logger.error("请求失败，请检查链接： %s" % friend["link"])
                     friend["error"] = True
                     error_num += 1
             else:
-                print("请求失败，请检查链接： %s" % friend["link"])
+                logger.error("请求失败，请检查链接： %s" % friend["link"])
                 friend["error"] = True
                 error_num += 1
             friends.append(friend)
@@ -136,7 +136,7 @@ class MongoDBPipeline:
             try:
                 self.friends.replace_one({"link": friend.get("link")}, friend, upsert=True)
             except:
-                print("上传数据失败，请检查：%s" % friend.get("link"))
+                logger.error("上传数据失败，请检查：%s" % friend.get("link"))
         return len(friends), error_num
 
     def friendpoor_push(self, item):

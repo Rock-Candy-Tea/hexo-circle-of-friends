@@ -37,7 +37,7 @@ class LeancloudPipeline:
         # print(self.query_post_list)
         # print(self.query_friend_list)
 
-        print("Initialization complete")
+        logger.info("Initialization complete")
 
     def process_item(self, item, spider):
         if "userdata" in item.keys():
@@ -143,11 +143,11 @@ class LeancloudPipeline:
                         error = False
                 if error:
                     self.err_friend_num += 1
-                    print("请求失败，请检查链接： %s" % item[1])
+                    logger.error("请求失败，请检查链接： %s" % item[1])
                     friendlist.set('error', "true")
             else:
                 self.err_friend_num += 1
-                print("请求失败，请检查链接： %s" % item[1])
+                logger.error("请求失败，请检查链接： %s" % item[1])
                 friendlist.set('error', "true")
             friendlist.save()
             self.total_friend_num += 1
