@@ -5,7 +5,7 @@ import re
 import sys
 
 from .. import models
-from ..utils import baselogger,project
+from ..utils import baselogger, project
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime, timedelta
@@ -32,17 +32,20 @@ class SQLPipeline:
             elif db == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                        % ("root", "123456", "localhost", "test")
+            else:
+                raise Exception("SQL连接失败，不支持的数据库！")
         else:
             if db == "sqlite":
-                conn = "sqlite:///data.db"
+                conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
             elif db == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
-                       % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
-                          , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
+                conn = f"mysql+pymysql://{os.environ['MYSQL_USERNAME']}:{os.environ['MYSQL_PASSWORD']}" \
+                       f"@{os.environ['MYSQL_IP']}:{os.environ['MYSQL_PORT']}/{os.environ['MYSQL_DB']}?charset=utf8mb4"
+            else:
+                raise Exception("SQL连接失败，不支持的数据库！")
         try:
             self.engine = create_engine(conn, pool_recycle=-1)
         except:
-            raise Exception("MySQL连接失败")
+            raise Exception("SQL连接失败")
         Session = sessionmaker(bind=self.engine)
         self.session = scoped_session(Session)
 
