@@ -110,7 +110,7 @@ async def version():
     status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
     """
     VERSION = scrapy_conf.VERSION
-    api_json = {"status": 0}
+    api_json = {"status": 0, "current_version": VERSION}
     try:
         async with aiohttp.ClientSession() as session:
             urls = [
@@ -121,11 +121,12 @@ async def version():
             tasks = [asyncio.create_task(fetch(session, url)) for url in urls]
             done, pending = await asyncio.wait(tasks)
             for d in done:
-                if d.result():
-                    api_json["current_version"] = VERSION
+                if not d.exception() and d.result():
                     api_json["latest_version"] = d.result()
+                    break
+            else:
+                api_json["status"] = 2
     except:
-        api_json["current_version"] = VERSION
         api_json["status"] = 2
         return api_json
     if VERSION != api_json["latest_version"]:

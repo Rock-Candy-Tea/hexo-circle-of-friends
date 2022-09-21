@@ -2,9 +2,10 @@
 # Author：yyyz
 import os
 import re
+import sys
 
 from .. import models
-from ..utils import baselogger
+from ..utils import baselogger,project
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime, timedelta
@@ -20,10 +21,14 @@ class SQLPipeline:
 
     def open_spider(self, spider):
         settings = spider.settings
+        base_path = project.get_base_path()
         db = settings["DATABASE"]
         if settings["DEBUG"]:
             if db == "sqlite":
-                conn = "sqlite:///data.db"
+                if sys.platform == "win32":
+                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
+                else:
+                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
             elif db == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                        % ("root", "123456", "localhost", "test")
@@ -82,16 +87,16 @@ class SQLPipeline:
     def close_spider(self, spider):
         # print(self.nonerror_data)
         # print(self.userdata)
-        settings =spider.settings
+        settings = spider.settings
         self.friendlist_push(settings)
         self.outdate_clean(settings["OUTDATE_CLEAN"])
-        print("----------------------")
-        print("友链总数 : %d" % self.session.query(models.Friend).count())
-        print("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
-        print("共 %d 篇文章" % self.session.query(models.Post).count())
+        logger.info("----------------------")
+        logger.info("友链总数 : %d" % self.session.query(models.Friend).count())
+        logger.info("失联友链数 : %d" % self.session.query(models.Friend).filter_by(error=True).count())
+        logger.info("共 %d 篇文章" % self.session.query(models.Post).count())
 
-        print("最后运行于：%s" % today)
-        print("done!")
+        logger.info("最后运行于：%s" % today)
+        logger.info("done!")
 
     def query_post(self):
         try:

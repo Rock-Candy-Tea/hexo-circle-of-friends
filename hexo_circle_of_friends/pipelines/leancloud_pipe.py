@@ -80,12 +80,12 @@ class LeancloudPipeline:
         self.query_friendspoor()
         # 过期文章清除
         self.outdate_clean(settings["OUTDATE_CLEAN"])
-        print("----------------------")
-        print("友链总数 : %d" % self.total_friend_num)
-        print("失联友链数 : %d" % self.err_friend_num)
-        print("共 %d 篇文章" % self.total_post_num)
-        print("最后运行于：%s" % today)
-        print("done!")
+        logger.info("----------------------")
+        logger.info("友链总数 : %d" % self.total_friend_num)
+        logger.info("失联友链数 : %d" % self.err_friend_num)
+        logger.info("共 %d 篇文章" % self.total_post_num)
+        logger.info("最后运行于：%s" % today)
+        logger.info("done!")
 
     def query_friendspoor(self):
         try:
@@ -126,7 +126,7 @@ class LeancloudPipeline:
         # print('\n')
         # print('-------结束删除规则----------')
 
-    def friendlist_push(self,settings):
+    def friendlist_push(self, settings):
         for index, item in enumerate(self.userdata):
             friendlist = self.Friendslist()
             friendlist.set('friendname', item[0])

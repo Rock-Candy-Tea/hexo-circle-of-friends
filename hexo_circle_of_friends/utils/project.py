@@ -4,8 +4,10 @@ import yaml
 from . import baselogger
 import os
 
-# os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
-os.environ["BASE_PATH"] = "/root/data"
+os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
+
+
+# os.environ["BASE_PATH"] = "/root/data"
 
 
 def get_user_settings():
@@ -36,3 +38,10 @@ def get_user_settings():
     logger.debug("成功获取用户配置！")
     f.close()
     return user_conf
+
+
+def get_base_path():
+    base_path = os.environ.get("BASE_PATH")
+    assert base_path, "Environment variable 'BASE_PATH' is not detected," \
+                      "make sure it is added!"
+    return base_path

@@ -70,12 +70,12 @@ class MongoDBPipeline:
         settings = spider.settings
         count, error_num = self.friendlist_push(settings)
         self.outdate_clean(settings["OUTDATE_CLEAN"])
-        print("----------------------")
-        print("友链总数 : %d" % count)
-        print("失联友链数 : %d" % error_num)
-        print("共 %d 篇文章" % self.posts.count_documents({}))
-        print("最后运行于：%s" % today)
-        print("done!")
+        logger.info("----------------------")
+        logger.info("友链总数 : %d" % count)
+        logger.info("失联友链数 : %d" % error_num)
+        logger.info("共 %d 篇文章" % self.posts.count_documents({}))
+        logger.info("最后运行于：%s" % today)
+        logger.info("done!")
 
     def query_post(self):
         try:
