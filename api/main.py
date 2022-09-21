@@ -8,8 +8,10 @@ import os
 
 # todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
+from api.dependencies import get_or_create_token
+from api import items
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
@@ -36,7 +38,7 @@ app.add_middleware(
 )
 
 
-@app.get("/all", tags=["API"], summary="返回完整统计信息")
+@app.get("/all", tags=["PUBLIC_API"], summary="返回完整统计信息")
 def all(start: int = 0, end: int = -1, rule: str = "updated"):
     """返回数据库统计信息和文章信息列表
     - start: 文章信息列表从 按rule排序后的顺序 的开始位置
@@ -47,14 +49,14 @@ def all(start: int = 0, end: int = -1, rule: str = "updated"):
     return query_all(list, start, end, rule)
 
 
-@app.get("/friend", tags=["API"], summary="返回所有友链")
+@app.get("/friend", tags=["PUBLIC_API"], summary="返回所有友链")
 def friend():
     """返回数据库友链列表
     """
     return query_friend()
 
 
-@app.get("/randomfriend", tags=["API"], summary="返回随机友链")
+@app.get("/randomfriend", tags=["PUBLIC_API"], summary="返回随机友链")
 def random_friend(num: int = 1):
     """
     随机返回num个友链信息：
@@ -64,7 +66,7 @@ def random_friend(num: int = 1):
     return query_random_friend(num)
 
 
-@app.get("/randompost", tags=["API"], summary="返回随机文章")
+@app.get("/randompost", tags=["PUBLIC_API"], summary="返回随机文章")
 def random_post(num: int = 1):
     """
     随机返回num篇文章信息：
@@ -74,7 +76,7 @@ def random_post(num: int = 1):
     return query_random_post(num)
 
 
-@app.get("/post", tags=["API"], summary="返回指定链接的所有文章")
+@app.get("/post", tags=["PUBLIC_API"], summary="返回指定链接的所有文章")
 def post(link: str = None, num: int = -1, rule: str = "created"):
     """返回指定链接的数据库内文章信息列表
     - link: 链接地址
@@ -84,7 +86,7 @@ def post(link: str = None, num: int = -1, rule: str = "created"):
     return query_post(link, num, rule)
 
 
-@app.get("/friendstatus", tags=["API"], summary="按照指定时间划分失联/未失联的友链信息")
+@app.get("/friendstatus", tags=["PUBLIC_API"], summary="按照指定时间划分失联/未失联的友链信息")
 def friend_status(days: int = OUTDATE_CLEAN):
     """按照指定时间划分失联/未失联的友链信息，默认距离今天2个月以上（60天以上）判定为失联友链
     days: 默认为60天，取自配置文件settings.py中的OUTDATE_CLEAN
@@ -92,7 +94,7 @@ def friend_status(days: int = OUTDATE_CLEAN):
     return query_friend_status(days)
 
 
-@app.get("/postjson", tags=["API"], summary="返回指定所有链接的所有文章")
+@app.get("/postjson", tags=["PUBLIC_API"], summary="返回指定所有链接的所有文章")
 def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"):
     """获取公共库中指定链接列表的文章信息列表
     - jsonlink: 友链链接json的cdn地址
@@ -104,7 +106,7 @@ def postjson(jsonlink: str, start: int = 0, end: int = -1, rule: str = "updated"
     return query_post_json(jsonlink, list, start, end, rule)
 
 
-@app.get("/version", tags=["version"], summary="返回版本信息")
+@app.get("/version", tags=["PUBLIC_API"], summary="返回版本信息")
 async def version():
     """版本检查
     status:0 不需要更新；status:1 需要更新 status:2 检查更新失败
@@ -143,6 +145,12 @@ async def fetch(session, url):
             html = etree.HTML(content)
             content = str(html.xpath("//body//div[@class='BorderGrid-cell']//div[@class='d-flex']/span/text()")[0])
             return content
+
+
+@app.post("/login", tags=["API"], summary="login")
+def login(password: str = Body(default=None, embed=True)):
+    token = get_or_create_token(password)
+    return password
 
 
 if __name__ == "__main__":
