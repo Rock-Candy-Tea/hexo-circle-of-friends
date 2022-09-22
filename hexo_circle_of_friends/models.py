@@ -2,12 +2,21 @@
 # Author：yyyz
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, BOOLEAN, DateTime
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 Model = declarative_base()
 
 
-class Friend(Model):
+class AbstractBase(Model):
+    __abstract__ = True
+
+    def to_dict(self):
+        model_dict = dict(self.__dict__)
+        del model_dict['_sa_instance_state']
+        return model_dict
+
+
+class Friend(AbstractBase):
     __tablename__ = 'friends'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256))
@@ -17,7 +26,7 @@ class Friend(Model):
     createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
 
 
-class Post(Model):
+class Post(AbstractBase):
     __tablename__ = 'posts'
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(256))
@@ -28,3 +37,10 @@ class Post(Model):
     avatar = Column(String(1024))
     rule = Column(String(256))
     createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
+
+
+class Config(AbstractBase):
+    __tablename__ = 'config'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    password = Column(String(1024))
+    token = Column(String(1024))

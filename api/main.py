@@ -8,18 +8,17 @@ import os
 
 # todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings
-from fastapi import FastAPI, Depends, Body
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api.dependencies import get_or_create_token
-from api import items
+from api.items import PassWord
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
-    from api.leancloudapi import *
+    from api.leancloud.leancloudapi import *
 elif settings["DATABASE"] == "mysql" or settings["DATABASE"] == "sqlite":
-    from api.sqlapi import *
+    from api.sql.sqlapi import *
 elif settings["DATABASE"] == "mongodb":
-    from api.mongodbapi import *
+    from api.mongodb.mongodbapi import *
 
 OUTDATE_CLEAN = settings["OUTDATE_CLEAN"]
 
@@ -147,10 +146,14 @@ async def fetch(session, url):
             return content
 
 
-@app.post("/login", tags=["API"], summary="login")
-def login(password: str = Body(default=None, embed=True)):
-    password_hash = get_or_create_token(password)
-    return password_hash
+@app.get("/login_with_token", tags=["Manage"])
+def login_with_token(token: str = Depends(login_with_token_)):
+    return token
+
+
+@app.post("/login", tags=["Manage"])
+def login(password: PassWord):
+    return login_(password)
 
 
 if __name__ == "__main__":
@@ -160,4 +163,4 @@ if __name__ == "__main__":
         EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
         uvicorn.run("main:app", host="0.0.0.0", port=EXPOSE_PORT)
     else:
-        uvicorn.run("main:app", host="0.0.0.0")
+        uvicorn.run("main:app", host="0.0.0.0", reload=True)

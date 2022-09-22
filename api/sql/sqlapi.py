@@ -4,56 +4,24 @@ import os
 import sys
 import json
 import requests
+from typing import Union
+from fastapi import Depends
 from urllib import parse
 from hexo_circle_of_friends import scrapy_conf
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from sqlalchemy import create_engine
-from hexo_circle_of_friends.models import Friend, Post
+from hexo_circle_of_friends.models import Friend, Post, Config
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
 from api.utils.validate_params import start_end_check
-
-
-def db_init():
-    settings = get_user_settings()
-    base_path = get_base_path()
-    if scrapy_conf.DEBUG:
-        if settings["DATABASE"] == "sqlite":
-            if sys.platform == "win32":
-                conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
-            else:
-                conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
-            # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
-        elif settings["DATABASE"] == "mysql":
-            conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
-                   % ("root", "123456", "localhost", "test")
-        else:
-            raise
-    else:
-        if settings["DATABASE"] == "sqlite":
-            if sys.platform == "win32":
-                conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
-            else:
-                conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
-            # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
-        elif settings["DATABASE"] == "mysql":
-            conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
-                   % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
-                      , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
-        else:
-            raise
-    try:
-        engine = create_engine(conn, pool_recycle=-1)
-    except:
-        raise Exception("MySQL连接失败")
-    Session = sessionmaker(bind=engine)
-    session = scoped_session(Session)
-    return session
+from api import dependencies as dep
+from . import db_interface, security
+from jose import JWTError, jwt
 
 
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
-    session = db_init()
+    session = db_interface.db_init()
     article_num = session.query(Post).count()
     # 检查start、end的合法性
     start, end, message = start_end_check(start, end, article_num)
@@ -92,7 +60,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
 
 
 def query_friend():
-    session = db_init()
+    session = db_interface.db_init()
     friends = session.query(Friend).limit(1000).all()
     session.close()
 
@@ -115,7 +83,7 @@ def query_friend():
 def query_random_friend(num):
     if num < 1:
         return {"message": "param 'num' error"}
-    session = db_init()
+    session = db_interface.db_init()
     settings = get_user_settings()
     if settings["DATABASE"] == "sqlite":
         data: list = session.query(Friend).order_by(func.random()).limit(num).all()
@@ -140,7 +108,7 @@ def query_random_friend(num):
 def query_random_post(num):
     if num < 1:
         return {"message": "param 'num' error"}
-    session = db_init()
+    session = db_interface.db_init()
     settings = get_user_settings()
     if settings["DATABASE"] == "sqlite":
         data: list = session.query(Post).order_by(func.random()).limit(num).all()
@@ -166,7 +134,7 @@ def query_random_post(num):
 
 
 def query_post(link, num, rule, ):
-    session = db_init()
+    session = db_interface.db_init()
     if link is None:
         user = session.query(Friend).filter_by(error=False).order_by(func.random()).first()
         domain = parse.urlsplit(user.link).netloc
@@ -208,7 +176,7 @@ def query_post(link, num, rule, ):
 
 def query_friend_status(days):
     # 初始化数据库连接
-    session = db_init()
+    session = db_interface.db_init()
     # 查询
     posts = session.query(Post).all()
     friends = session.query(Friend).all()
@@ -237,7 +205,7 @@ def query_friend_status(days):
 
 
 def query_post_json(jsonlink, list, start, end, rule):
-    session = db_init()
+    session = db_interface.db_init()
 
     headers = {
         "Cookie": "arccount62298=c; arccount62019=c",
@@ -295,3 +263,53 @@ def query_post_json(jsonlink, list, start, end, rule):
     }
     data['article_data'] = post_data
     return data
+
+
+def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
+    # credentials_exception = HTTPException(
+    #     status_code=status.HTTP_401_UNAUTHORIZED,
+    #     detail="Could not validate credentials",
+    #     headers={"WWW-Authenticate": "Bearer"},
+    # )
+    payload = jwt.decode(token, dep.SECRET_KEY, algorithms=[dep.ALGORITHM])
+    # try:
+    #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    #     username: str = payload.get("sub")
+    #     if username is None:
+    #         raise credentials_exception
+    #     token_data = TokenData(username=username)
+    # except JWTError:
+    #     raise credentials_exception
+    # user = get_user(fake_users_db, username=token_data.username)
+    # if user is None:
+    #     raise credentials_exception
+    return payload
+
+
+def login_(password):
+    session = db_interface.db_init()
+    config = session.query(Config).all()
+    if not config:
+        # turn plain pwd to hashed pwd
+        password_hash = dep.create_password_hash(password.password)
+        # 未保存pwd，生成对应token并保存
+        data = {"password_hash": password_hash}
+        token = dep.encode_access_token(data)
+        tb_obj = Config(password=password_hash, token=token)
+        session.add(tb_obj)
+    elif len(config) == 1:
+        # 保存了pwd，通过pwd验证
+        if dep.verify_password(password.password, config[0].password):
+            # 更新token
+            data = {"password_hash": config[0].password}
+            token = dep.encode_access_token(data)
+            session.query(Config).filter_by(password=config[0].password).update({"token": token})
+        else:
+            # 401
+            return dep.credentials_exception
+    else:
+        # 401
+        return dep.credentials_exception
+    session.commit()
+    session.close()
+    return token
