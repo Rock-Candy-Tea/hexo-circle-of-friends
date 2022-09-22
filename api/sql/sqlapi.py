@@ -271,7 +271,16 @@ def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
     #     detail="Could not validate credentials",
     #     headers={"WWW-Authenticate": "Bearer"},
     # )
-    payload = jwt.decode(token, dep.SECRET_KEY, algorithms=[dep.ALGORITHM])
+
+    try:
+        payload = jwt.decode(token, dep.SECRET_KEY, algorithms=[dep.ALGORITHM])
+        password_hash: str = payload.get("sub")
+        # todo validate
+        if password_hash is None:
+            raise dep.credentials_exception
+        # token_data = TokenData(username=username)
+    except JWTError:
+        raise dep.credentials_exception
     # try:
     #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     #     username: str = payload.get("sub")
