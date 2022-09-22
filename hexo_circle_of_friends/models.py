@@ -44,3 +44,8 @@ class Config(AbstractBase):
     id = Column(Integer, primary_key=True, autoincrement=True)
     password = Column(String(1024))
     token = Column(String(1024))
+
+class Secert(AbstractBase):
+    __tablename__ = 'SECRET'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    secert_key = Column(String(1024))

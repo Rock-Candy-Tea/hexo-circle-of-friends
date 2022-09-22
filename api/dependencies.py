@@ -32,7 +32,6 @@ def verify_password(plain_password, hashed_password):
 
 
 def get_or_create_token(password: str):
-
     password_hash = create_password_hash(password)
     return password_hash
     # try:
@@ -45,14 +44,15 @@ def get_or_create_token(password: str):
     #     return "123"
 
 
-def encode_access_token(data: dict, expires_delta: timedelta = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)):
+def encode_access_token(data: dict, secert_key: str,
+                        expires_delta: timedelta = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, secert_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def decode_access_token(token: str):
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+def decode_access_token(token: str, secert_key: str):
+    payload = jwt.decode(token, secert_key, algorithms=[ALGORITHM])
     return payload

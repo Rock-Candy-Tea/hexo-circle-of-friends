@@ -147,8 +147,8 @@ async def fetch(session, url):
 
 
 @app.get("/login_with_token", tags=["Manage"])
-def login_with_token(token: str = Depends(login_with_token_)):
-    return token
+def login_with_token(payload: str = Depends(login_with_token_)):
+    return payload
 
 
 @app.post("/login", tags=["Manage"])

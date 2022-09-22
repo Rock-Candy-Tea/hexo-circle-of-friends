@@ -266,44 +266,27 @@ def query_post_json(jsonlink, list, start, end, rule):
 
 
 def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
-    # credentials_exception = HTTPException(
-    #     status_code=status.HTTP_401_UNAUTHORIZED,
-    #     detail="Could not validate credentials",
-    #     headers={"WWW-Authenticate": "Bearer"},
-    # )
-
+    # 获取或者创建（首次）secert_key
+    secert_key = security.get_secert_key()
     try:
-        payload = jwt.decode(token, dep.SECRET_KEY, algorithms=[dep.ALGORITHM])
-        password_hash: str = payload.get("sub")
-        # todo validate
-        if password_hash is None:
-            raise dep.credentials_exception
-        # token_data = TokenData(username=username)
+        payload = dep.decode_access_token(token, secert_key)
     except JWTError:
         raise dep.credentials_exception
-    # try:
-    #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    #     username: str = payload.get("sub")
-    #     if username is None:
-    #         raise credentials_exception
-    #     token_data = TokenData(username=username)
-    # except JWTError:
-    #     raise credentials_exception
-    # user = get_user(fake_users_db, username=token_data.username)
-    # if user is None:
-    #     raise credentials_exception
+
     return payload
 
 
 def login_(password):
     session = db_interface.db_init()
     config = session.query(Config).all()
+    # 获取或者创建（首次）secert_key
+    secert_key = security.get_secert_key()
     if not config:
         # turn plain pwd to hashed pwd
         password_hash = dep.create_password_hash(password.password)
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
-        token = dep.encode_access_token(data)
+        token = dep.encode_access_token(data, secert_key)
         tb_obj = Config(password=password_hash, token=token)
         session.add(tb_obj)
     elif len(config) == 1:
@@ -311,7 +294,7 @@ def login_(password):
         if dep.verify_password(password.password, config[0].password):
             # 更新token
             data = {"password_hash": config[0].password}
-            token = dep.encode_access_token(data)
+            token = dep.encode_access_token(data, secert_key)
             session.query(Config).filter_by(password=config[0].password).update({"token": token})
         else:
             # 401
