@@ -5,12 +5,13 @@ import aiohttp
 from lxml import etree
 import uvicorn
 import os
+import json
 
 # todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api.items import PassWord, FcSettings
+from api.items import PassWord, FcSettings as item_fc_settings
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
@@ -153,14 +154,13 @@ def login_with_token(payload: str = Depends(login_with_token_)):
 
 @app.post("/login", tags=["Manage"])
 def login(password: PassWord):
-    return login_(password)
+    return login_(password.password)
 
 
 @app.put("/update_settings", tags=["Manage"])
-def update_settings(fc_settings: FcSettings, payload: str = Depends(login_with_token)):
-    print(fc_settings)
-
-    pass
+def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
+    fc_settings = json.dumps(fc_settings.dict())
+    return update_settings_(fc_settings)
 
 
 if __name__ == "__main__":

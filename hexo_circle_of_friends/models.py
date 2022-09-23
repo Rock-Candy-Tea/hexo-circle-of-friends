@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, BOOLEAN, DateTime
+from sqlalchemy import Column, Integer, String, BOOLEAN, DateTime, TEXT
 from datetime import datetime, timedelta
 
 Model = declarative_base()
@@ -55,4 +55,4 @@ class Secret(AbstractBase):
 class FcSettings(AbstractBase):
     __tablename__ = 'fc_settings'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    secret_key = Column(String(1024))
+    data = Column(TEXT)

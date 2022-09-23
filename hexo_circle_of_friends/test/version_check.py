@@ -37,6 +37,6 @@ async def main():
         print(len(new_li))
 
 if __name__ == '__main__':
-    # find users who is using fc-version 4.3+
+    # find users who are using fc-version 4.3+
     asyncio.run(main())
 

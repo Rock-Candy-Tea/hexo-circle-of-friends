@@ -53,11 +53,13 @@ class SQLEngine(object):
         return engine
 
 
+def create_all_table():
+    engine = SQLEngine()
+    models.Model.metadata.create_all(engine)
+
+
 def db_init():
     engine = SQLEngine()
     Session = sessionmaker(bind=engine)
     session = scoped_session(Session)
     return session
-
-
-

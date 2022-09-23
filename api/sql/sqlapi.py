@@ -7,17 +7,15 @@ import requests
 from typing import Union
 from fastapi import Depends
 from urllib import parse
-from hexo_circle_of_friends import scrapy_conf
-from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
-from sqlalchemy import create_engine
-from hexo_circle_of_friends.models import Friend, Post, Auth
-from sqlalchemy.orm import sessionmaker, scoped_session
+from jose import JWTError
+from hexo_circle_of_friends.utils.project import get_user_settings
+from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
 from api.utils.validate_params import start_end_check
 from api import dependencies as dep
 from . import db_interface, security
-from jose import JWTError, jwt
+from ..utils import split_text
 
 
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
@@ -276,14 +274,14 @@ def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
     return payload
 
 
-def login_(password):
+def login_(password: str):
     session = db_interface.db_init()
     config = session.query(Auth).all()
     # 获取或者创建（首次）secret_key
     secret_key = security.get_secret_key()
     if not config:
         # turn plain pwd to hashed pwd
-        password_hash = dep.create_password_hash(password.password)
+        password_hash = dep.create_password_hash(password)
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
         token = dep.encode_access_token(data, secret_key)
@@ -291,7 +289,7 @@ def login_(password):
         session.add(tb_obj)
     elif len(config) == 1:
         # 保存了pwd，通过pwd验证
-        if dep.verify_password(password.password, config[0].password):
+        if dep.verify_password(password, config[0].password):
             # 更新token
             data = {"password_hash": config[0].password}
             token = dep.encode_access_token(data, secret_key)
@@ -305,3 +303,21 @@ def login_(password):
     session.commit()
     session.close()
     return token
+
+
+def update_settings_(fc_settings: str):
+    session = db_interface.db_init()
+    # delete before insert into new settings
+    session.query(FcSettings).delete()
+    db_interface.create_all_table()
+    # 插入新配置
+    # 切分长字段
+    split_blocks = split_text.split(fc_settings)
+    add_list = []
+    for blocks in split_blocks:
+        tb_obj = FcSettings(data=blocks)
+        add_list.append(tb_obj)
+    session.bulk_save_objects(add_list)
+    session.commit()
+    session.close()
+    return True  # todo 返回格式统一
