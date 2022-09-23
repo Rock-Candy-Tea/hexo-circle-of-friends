@@ -321,3 +321,9 @@ def update_settings_(fc_settings: str):
     session.commit()
     session.close()
     return True  # todo 返回格式统一
+
+def read_settings_():
+    session = db_interface.db_init()
+    fcsettings = session.query(FcSettings).all()
+
+    # return settings

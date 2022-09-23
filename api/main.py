@@ -163,6 +163,11 @@ def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_
     return update_settings_(fc_settings)
 
 
+@app.get("/read_settings", tags=["Manage"])
+def read_settings(payload: str = Depends(login_with_token)):
+    return read_settings_()
+
+
 if __name__ == "__main__":
     if settings["DEPLOY_TYPE"] == "docker":
         uvicorn.run("main:app", host="0.0.0.0")
