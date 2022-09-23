@@ -10,7 +10,7 @@ import os
 from hexo_circle_of_friends.utils.project import get_user_settings
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api.items import PassWord
+from api.items import PassWord, FcSettings
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
@@ -154,6 +154,13 @@ def login_with_token(payload: str = Depends(login_with_token_)):
 @app.post("/login", tags=["Manage"])
 def login(password: PassWord):
     return login_(password)
+
+
+@app.put("/update_settings", tags=["Manage"])
+def update_settings(fc_settings: FcSettings, payload: str = Depends(login_with_token)):
+    print(fc_settings)
+
+    pass
 
 
 if __name__ == "__main__":

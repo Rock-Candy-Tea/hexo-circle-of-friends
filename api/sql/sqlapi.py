@@ -10,7 +10,7 @@ from urllib import parse
 from hexo_circle_of_friends import scrapy_conf
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from sqlalchemy import create_engine
-from hexo_circle_of_friends.models import Friend, Post, Config
+from hexo_circle_of_friends.models import Friend, Post, Auth
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
@@ -266,8 +266,8 @@ def query_post_json(jsonlink, list, start, end, rule):
 
 
 def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
-    # 获取或者创建（首次）secert_key
-    secert_key = security.get_secert_key()
+    # 获取或者创建（首次）secret_key
+    secert_key = security.get_secret_key()
     try:
         payload = dep.decode_access_token(token, secert_key)
     except JWTError:
@@ -278,24 +278,24 @@ def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
 
 def login_(password):
     session = db_interface.db_init()
-    config = session.query(Config).all()
-    # 获取或者创建（首次）secert_key
-    secert_key = security.get_secert_key()
+    config = session.query(Auth).all()
+    # 获取或者创建（首次）secret_key
+    secret_key = security.get_secret_key()
     if not config:
         # turn plain pwd to hashed pwd
         password_hash = dep.create_password_hash(password.password)
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
-        token = dep.encode_access_token(data, secert_key)
-        tb_obj = Config(password=password_hash, token=token)
+        token = dep.encode_access_token(data, secret_key)
+        tb_obj = Auth(password=password_hash, token=token)
         session.add(tb_obj)
     elif len(config) == 1:
         # 保存了pwd，通过pwd验证
         if dep.verify_password(password.password, config[0].password):
             # 更新token
             data = {"password_hash": config[0].password}
-            token = dep.encode_access_token(data, secert_key)
-            session.query(Config).filter_by(password=config[0].password).update({"token": token})
+            token = dep.encode_access_token(data, secret_key)
+            session.query(Auth).filter_by(password=config[0].password).update({"token": token})
         else:
             # 401
             return dep.credentials_exception

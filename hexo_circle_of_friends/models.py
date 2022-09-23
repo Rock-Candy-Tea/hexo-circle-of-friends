@@ -39,13 +39,20 @@ class Post(AbstractBase):
     createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
 
 
-class Config(AbstractBase):
-    __tablename__ = 'config'
+class Auth(AbstractBase):
+    __tablename__ = 'auth'
     id = Column(Integer, primary_key=True, autoincrement=True)
     password = Column(String(1024))
     token = Column(String(1024))
 
-class Secert(AbstractBase):
-    __tablename__ = 'SECRET'
+
+class Secret(AbstractBase):
+    __tablename__ = 'secret'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    secert_key = Column(String(1024))
+    secret_key = Column(String(1024))
+
+
+class FcSettings(AbstractBase):
+    __tablename__ = 'fc_settings'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    secret_key = Column(String(1024))
