@@ -8,10 +8,11 @@ from typing import Union
 from fastapi import Depends
 from urllib import parse
 from jose import JWTError
-from hexo_circle_of_friends.utils.project import get_user_settings
+from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
+from api.utils.github_upload import create_or_update_file, get_b64encoded_data
 from api.utils.validate_params import start_end_check
 from api import dependencies as dep
 from . import db_interface, security
@@ -305,7 +306,7 @@ def login_(password: str):
     return token
 
 
-def update_settings_(fc_settings: str):
+async def update_settings_(fc_settings: str):
     session = db_interface.db_init()
     # delete before insert into new settings
     session.query(FcSettings).delete()
@@ -320,10 +321,27 @@ def update_settings_(fc_settings: str):
     session.bulk_save_objects(add_list)
     session.commit()
     session.close()
+
+    settings = get_user_settings()
+    if settings["DEPLOY_TYPE"] == "github" and settings["DATABASE"] == "sqlite":
+        # github+sqlite需要特殊处理
+        base_path = get_base_path()
+        with open(os.path.join(base_path, "data.db"), "rb") as f:  # 路径
+            data = f.read()
+        # 对于github，需要将sqlite配置上传
+        gh_access_token = os.environ.get("GH_TOKEN", "")
+        gh_name = os.environ.get("GH_NAME", "")
+        gh_email = os.environ.get("GH_EMAIL", "")
+        repo_name = "hexo-circle-of-friends"
+
+        await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "data.db", get_b64encoded_data(data))
+
     return True  # todo 返回格式统一
+
 
 def read_settings_():
     session = db_interface.db_init()
+
     fcsettings = session.query(FcSettings).all()
 
     # return settings

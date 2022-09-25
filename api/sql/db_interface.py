@@ -24,9 +24,9 @@ class SQLEngine(object):
         if scrapy_conf.DEBUG:
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
-                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
+                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}?check_same_thread=False"
                 else:
-                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
+                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
@@ -36,9 +36,9 @@ class SQLEngine(object):
         else:
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
-                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
+                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}?check_same_thread=False"
                 else:
-                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
+                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \

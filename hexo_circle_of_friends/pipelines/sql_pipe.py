@@ -26,9 +26,9 @@ class SQLPipeline:
         if settings["DEBUG"]:
             if db == "sqlite":
                 if sys.platform == "win32":
-                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}"
+                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}?check_same_thread=False"
                 else:
-                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
+                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
             elif db == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
                        % ("root", "123456", "localhost", "test")
@@ -36,7 +36,7 @@ class SQLPipeline:
                 raise Exception("SQL连接失败，不支持的数据库！")
         else:
             if db == "sqlite":
-                conn = f"sqlite:////{os.path.join(base_path, 'data.db')}"
+                conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
             elif db == "mysql":
                 conn = f"mysql+pymysql://{os.environ['MYSQL_USERNAME']}:{os.environ['MYSQL_PASSWORD']}" \
                        f"@{os.environ['MYSQL_IP']}:{os.environ['MYSQL_PORT']}/{os.environ['MYSQL_DB']}?charset=utf8mb4"

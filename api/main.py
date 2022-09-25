@@ -158,14 +158,14 @@ def login(password: PassWord):
 
 
 @app.put("/update_settings", tags=["Manage"])
-def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
+async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
     fc_settings = json.dumps(fc_settings.dict())
-    return update_settings_(fc_settings)
+    return await update_settings_(fc_settings)
 
 
 @app.get("/read_settings", tags=["Manage"])
-def read_settings(payload: str = Depends(login_with_token)):
-    return read_settings_()
+async def read_settings(payload: str = Depends(login_with_token)):
+    return await read_settings_()
 
 
 if __name__ == "__main__":
