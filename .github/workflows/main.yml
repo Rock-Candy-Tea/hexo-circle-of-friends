@@ -1,16 +1,17 @@
 name: update-friends-posts
 
-on: 
+on:
   push:
-    branches: 
-     - master
+    branches:
+      - master
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
   watch:
-    types: [started]
+    types: [ started ]
 
 env:
   BASE_PATH: .
+  PYTHONPATH: ${{ env.BASE_PATH }}
   # 在这里查看需要添加的secert
   # 通用配置
   STORAGE_TYPE: leancloud # 请修改为你的存储方式，默认为leancloud
@@ -37,63 +38,63 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
+      - name: Checkout
+        uses: actions/checkout@master
 
-    - name: Set up Python
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
 
-    - name: Install requirements
-      working-directory: ./hexo_circle_of_friends
-      run: |
-        pip install -r requirements.txt
+      - name: Install requirements
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          pip install -r requirements.txt
 
-    - name: leancloud Update posts # leancloud
-      if: ${{ env.STORAGE_TYPE == 'leancloud' }}
-      env:
-        APP_ID: ${{ secrets.APPID }}
-        APP_KEY: ${{ secrets.APPKEY }}
-        LINK: ${{ secrets.LINK }}
-        PROXY: ${{ secrets.PROXY }}
-      working-directory: ./hexo_circle_of_friends
-      run: | 
-        python run.py
+      - name: leancloud Update posts # leancloud
+        if: ${{ env.STORAGE_TYPE == 'leancloud' }}
+        env:
+          APP_ID: ${{ secrets.APPID }}
+          APP_KEY: ${{ secrets.APPKEY }}
+          LINK: ${{ secrets.LINK }}
+          PROXY: ${{ secrets.PROXY }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
 
-    - name: mysql Update posts # mysql
-      if: ${{ env.STORAGE_TYPE == 'mysql' }}
-      env:
-        MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
-        MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        MYSQL_IP: ${{ secrets.MYSQL_IP }}
-        MYSQL_DB: ${{ secrets.MYSQL_DB }}
-      working-directory: ./hexo_circle_of_friends
-      run: |
-        python run.py
+      - name: mysql Update posts # mysql
+        if: ${{ env.STORAGE_TYPE == 'mysql' }}
+        env:
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_IP: ${{ secrets.MYSQL_IP }}
+          MYSQL_DB: ${{ secrets.MYSQL_DB }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
 
-    - name: sqlite Update posts # sqlite
-      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      env:
-        SQLITE_DB: ${{ secrets.SQLITE_DB }}
-      run: |
-        python ./hexo_circle_of_friends/run.py
+      - name: sqlite Update posts # sqlite
+        if: ${{ env.STORAGE_TYPE == 'sqlite' }}
+        env:
+          SQLITE_DB: ${{ secrets.SQLITE_DB }}
+        run: |
+          python ./hexo_circle_of_friends/run.py
 
-    - name: Push sqlite data # sqlite push
-      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
-      uses: github-actions-x/commit@v2.9
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "Update data.db"
-        files: data.db
-        rebase: 'true'
-        name: ${{ env.GITHUB_NAME }}
-        email: ${{ env.GITHUB_EMAIL }}
+      - name: Push sqlite data # sqlite push
+        if: ${{ env.STORAGE_TYPE == 'sqlite' }}
+        uses: github-actions-x/commit@v2.9
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update data.db"
+          files: data.db
+          rebase: 'true'
+          name: ${{ env.GITHUB_NAME }}
+          email: ${{ env.GITHUB_EMAIL }}
 
-    - name: mongodb Update posts # mongodb
-      if: ${{ env.STORAGE_TYPE == 'mongodb' }}
-      env:
-        MONGODB_URI: ${{ secrets.MONGODB_URI }}
-      working-directory: ./hexo_circle_of_friends
-      run: |
-        python run.py
+      - name: mongodb Update posts # mongodb
+        if: ${{ env.STORAGE_TYPE == 'mongodb' }}
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        working-directory: ./hexo_circle_of_friends
+        run: |
+          python run.py
