@@ -1,13 +1,13 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 import yaml
-from . import baselogger
 import os
+from . import baselogger
 
 # os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
 
 
-os.environ["BASE_PATH"] = "/root/data"
+# os.environ["BASE_PATH"] = "/root/data"
 
 
 def get_user_settings():
