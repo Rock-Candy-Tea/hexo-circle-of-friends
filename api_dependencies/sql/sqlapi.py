@@ -7,7 +7,7 @@ from fastapi import Depends
 from urllib import parse
 from jose import JWTError
 from hexo_circle_of_friends.utils.project import get_user_settings
-from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
+from hexo_circle_of_friends.models import Friend, Post, Auth
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
 from api_dependencies.utils.validate_params import start_end_check
@@ -301,11 +301,3 @@ def login_(password: str):
     session.commit()
     session.close()
     return format_response.standard_response(token=token)
-
-
-def read_settings_():
-    session = db_interface.db_init()
-
-    fcsettings = session.query(FcSettings).all()
-    # todo
-    # return settings

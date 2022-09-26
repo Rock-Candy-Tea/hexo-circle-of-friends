@@ -50,9 +50,3 @@ class Secret(AbstractBase):
     __tablename__ = 'secret'
     id = Column(Integer, primary_key=True, autoincrement=True)
     secret_key = Column(String(1024))
-
-
-class FcSettings(AbstractBase):
-    __tablename__ = 'fc_settings'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    data = Column(TEXT)

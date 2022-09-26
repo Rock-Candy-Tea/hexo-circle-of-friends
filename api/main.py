@@ -177,8 +177,8 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
         repo_name = "hexo-circle-of-friends"
         message = "Update dump_settings.yaml"
         resp = await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
-                                                      "dump_settings.yaml",
-                                                      get_b64encoded_data(data), message)
+                                           "dump_settings.yaml",
+                                           get_b64encoded_data(data), message)
         return format_response.standard_response(**resp)
 
     else:
@@ -190,7 +190,8 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
 
 @app.get("/read_settings", tags=["Manage"])
 async def read_settings(payload: str = Depends(login_with_token)):
-    return await read_settings_()
+    current_settings = get_user_settings()
+    return format_response.standard_response(current_settings=current_settings)
 
 
 if __name__ == "__main__":
