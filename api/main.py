@@ -176,10 +176,10 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
         gh_email = os.environ.get("GH_EMAIL", "")
         repo_name = "hexo-circle-of-friends"
         message = "Update dump_settings.yaml"
-        content = await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
+        resp = await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
                                                       "dump_settings.yaml",
                                                       get_b64encoded_data(data), message)
-        return format_response.standard_response(message=content)
+        return format_response.standard_response(**resp)
 
     else:
         dump_path = os.path.join(base_path, "dump_settings.yaml")

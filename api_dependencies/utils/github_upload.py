@@ -44,6 +44,7 @@ async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: st
     api: https://docs.github.com/cn/rest/repos/contents#get-repository-content
     api: https://docs.github.com/cn/rest/repos/contents#create-or-update-file-contents
     """
+    resp = {}
     body = {"message": message,
             "committer": {"name": gh_name, "email": gh_email},
             "content": data}
@@ -56,10 +57,16 @@ async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: st
             if sha:
                 body["sha"] = sha
         async with session.put(content_url, verify_ssl=False, json=body) as response:
-            status = response.status
             # 200更新，201上传
-            content = await response.text()
-            return content
+            status = response.status
+            if status == 200:
+                resp["message"] = "更新文件至github成功"
+            elif status == 201:
+                resp["message"] = "上传文件至github成功"
+            else:
+                resp["message"] = "上传失败"
+            resp["code"] = status
+            return resp
 
 
 if __name__ == '__main__':
