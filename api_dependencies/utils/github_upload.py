@@ -66,7 +66,7 @@ async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: st
             else:
                 resp["message"] = "上传失败"
             resp["code"] = status
-            return resp
+    return resp
 
 
 if __name__ == '__main__':

@@ -261,9 +261,9 @@ def query_post_json(jsonlink, list, start, end, rule):
     return data
 
 
-def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
+async def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
     # 获取或者创建（首次）secret_key
-    secert_key = security.get_secret_key()
+    secert_key = await security.get_secret_key()
     try:
         payload = dep.decode_access_token(token, secert_key)
     except JWTError:
@@ -272,11 +272,11 @@ def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
     return payload
 
 
-def login_(password: str):
+async def login_(password: str):
     session = db_interface.db_init()
     config = session.query(Auth).all()
     # 获取或者创建（首次）secret_key
-    secret_key = security.get_secret_key()
+    secret_key = await security.get_secret_key()
     if not config:
         # turn plain pwd to hashed pwd
         password_hash = dep.create_password_hash(password)

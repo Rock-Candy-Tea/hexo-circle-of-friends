@@ -4,6 +4,7 @@ import yaml
 import os
 from . import baselogger
 
+
 # os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
 
 
@@ -11,10 +12,12 @@ from . import baselogger
 
 
 def get_base_path():
-    base_path = os.environ.get("BASE_PATH", os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    base_path = os.environ.get("BASE_PATH",
+                               os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     # assert base_path, "Environment variable 'BASE_PATH' is not detected," \
     #                   f"make sure it is added! {os.getcwd()},,{sys.argv[0]}"
     return base_path
+
 
 def get_user_settings():
     """
@@ -44,5 +47,3 @@ def get_user_settings():
     logger.debug("成功获取用户配置！")
     f.close()
     return user_conf
-
-

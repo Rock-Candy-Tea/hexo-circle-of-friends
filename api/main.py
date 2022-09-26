@@ -14,7 +14,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, FcSettings as item_fc_settings
 from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
-from api_dependencies import format_response
+from api_dependencies import format_response, tools
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
@@ -151,20 +151,21 @@ async def fetch(session, url):
 
 
 @app.get("/login_with_token", tags=["Manage"])
-def login_with_token(payload: str = Depends(login_with_token_)):
+async def login_with_token(payload: str = Depends(login_with_token_)):
     return format_response.standard_response(message="Login success")
 
 
 @app.post("/login", tags=["Manage"])
-def login(password: PassWord):
-    return login_(password.password)
+async def login(password: PassWord):
+    return await login_(password.password)
 
 
 @app.put("/update_settings", tags=["Manage"])
 async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
     base_path = get_base_path()
     # fc_settings = json.dumps(fc_settings.dict())
-    if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
+    if tools.is_vercel_sqlite():
+        # vercel+sqlite特殊处理
         dump_path = "/tmp/dump_settings.yaml"
         with open(dump_path, 'w', encoding="utf-8") as f:
             yaml.safe_dump(fc_settings.dict(), f)
@@ -190,6 +191,12 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
 
 @app.get("/read_settings", tags=["Manage"])
 async def read_settings(payload: str = Depends(login_with_token)):
+    current_settings = get_user_settings()
+    return format_response.standard_response(current_settings=current_settings)
+
+
+@app.get("/restart_api", tags=["Manage"])
+async def restart_api(payload: str = Depends(login_with_token)):
     current_settings = get_user_settings()
     return format_response.standard_response(current_settings=current_settings)
 
