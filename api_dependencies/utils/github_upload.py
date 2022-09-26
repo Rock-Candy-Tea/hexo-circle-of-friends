@@ -38,13 +38,13 @@ async def create_or_update_secret(gh_access_token: str, gh_name: str, repo_name:
 
 
 async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: str, repo_name: str, file_path: str,
-                                data: str):
+                                data: str, message: str):
     """
     Create or update github repo file.
     api: https://docs.github.com/cn/rest/repos/contents#get-repository-content
     api: https://docs.github.com/cn/rest/repos/contents#create-or-update-file-contents
     """
-    body = {"message": "Update data.db",
+    body = {"message": message,
             "committer": {"name": gh_name, "email": gh_email},
             "content": data}
     headers = {"Authorization": f"Bearer {gh_access_token}"}

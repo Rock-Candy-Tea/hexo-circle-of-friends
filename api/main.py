@@ -166,16 +166,16 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
         dump_path = "/tmp/dump_settings.yaml"
         with open(dump_path, 'w', encoding="utf-8") as f:
             yaml.safe_dump(fc_settings.dict(), f)
-        with open(dump_path,"rb") as f:
+        with open(dump_path, "rb") as f:
             data = f.read()
         # 需要将sqlite配置data.db上传
         gh_access_token = os.environ.get("GH_TOKEN", "")
         gh_name = os.environ.get("GH_NAME", "")
         gh_email = os.environ.get("GH_EMAIL", "")
         repo_name = "hexo-circle-of-friends"
-
+        message = "Update dump_settings.yaml"
         await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "dump_settings.yaml",
-                                    get_b64encoded_data(data))
+                                    get_b64encoded_data(data), message)
 
     else:
         dump_path = os.path.join(base_path, "dump_settings.yaml")
