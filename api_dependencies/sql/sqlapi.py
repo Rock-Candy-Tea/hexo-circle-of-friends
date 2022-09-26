@@ -10,7 +10,7 @@ from hexo_circle_of_friends.utils.project import get_user_settings, get_base_pat
 from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api import create_or_update_file, get_b64encoded_data
+from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
 from api_dependencies.utils.validate_params import start_end_check
 from .. import dependencies as dep
 from . import db_interface, security
