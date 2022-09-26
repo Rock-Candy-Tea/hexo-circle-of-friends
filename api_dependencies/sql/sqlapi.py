@@ -1,10 +1,8 @@
 # -*- coding:utf-8 -*-
 
 import os
-import sys
 import json
 import requests
-from typing import Union
 from fastapi import Depends
 from urllib import parse
 from jose import JWTError
@@ -12,9 +10,9 @@ from hexo_circle_of_friends.utils.project import get_user_settings, get_base_pat
 from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api.utils.github_upload import create_or_update_file, get_b64encoded_data
-from api.utils.validate_params import start_end_check
-from api import dependencies as dep
+from api import create_or_update_file, get_b64encoded_data
+from api_dependencies.utils.validate_params import start_end_check
+from .. import dependencies as dep
 from . import db_interface, security
 from ..utils import split_text
 

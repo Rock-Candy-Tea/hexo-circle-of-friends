@@ -11,15 +11,15 @@ import json
 from hexo_circle_of_friends.utils.project import get_user_settings
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api.items import PassWord, FcSettings as item_fc_settings
+from api_dependencies.items import PassWord, FcSettings as item_fc_settings
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
-    from api.leancloud.leancloudapi import *
+    from api_dependencies.leancloud.leancloudapi import *
 elif settings["DATABASE"] == "mysql" or settings["DATABASE"] == "sqlite":
-    from api.sql.sqlapi import *
+    from api_dependencies.sql.sqlapi import *
 elif settings["DATABASE"] == "mongodb":
-    from api.mongodb.mongodbapi import *
+    from api_dependencies.mongodb.mongodbapi import *
 
 OUTDATE_CLEAN = settings["OUTDATE_CLEAN"]
 
