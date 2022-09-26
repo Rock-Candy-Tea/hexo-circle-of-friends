@@ -21,12 +21,13 @@ class SQLEngine(object):
     def __get_sql_engine():
         settings = get_user_settings()
         base_path = get_base_path()
+        db_path = os.path.join(base_path, 'data.db')
         if scrapy_conf.DEBUG:
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
-                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}?check_same_thread=False"
+                    conn = rf"sqlite:///{db_path}?check_same_thread=False"
                 else:
-                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
+                    conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
@@ -36,9 +37,20 @@ class SQLEngine(object):
         else:
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
-                    conn = rf"sqlite:///{os.path.join(base_path, 'data.db')}?check_same_thread=False"
+                    conn = rf"sqlite:///{db_path}?check_same_thread=False"
+                elif os.environ.get("VERCEL"):
+                    # vercel production environment is a read-only file system
+                    # see: https://github.com/vercel/community/discussions/314?sort=new
+                    # here are temporary storage solution: copy base_path/data.db to /tmp/data.db
+                    # Most containers have a /tmp folder. It's a UNIX convention.
+                    # Usually held in memory and cleared on reboot. Don't need to create the folder yourself.
+                    with open(db_path, "rb") as f:
+                        binary_content = f.read()
+                    with open("/tmp/data.db", "wb") as f:
+                        f.write(binary_content)
+                    conn = f"sqlite:////tmp/data.db?check_same_thread=False"
                 else:
-                    conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
+                    conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
                 conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \

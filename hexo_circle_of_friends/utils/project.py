@@ -10,13 +10,19 @@ from . import baselogger
 # os.environ["BASE_PATH"] = "/root/data"
 
 
+def get_base_path():
+    base_path = os.environ.get("BASE_PATH", os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    # assert base_path, "Environment variable 'BASE_PATH' is not detected," \
+    #                   f"make sure it is added! {os.getcwd()},,{sys.argv[0]}"
+    return base_path
+
 def get_user_settings():
     """
     加载用户配置文件
     :return:
     """
     logger = baselogger.get_logger(__name__)
-    base_path = os.environ.get("BASE_PATH", "")
+    base_path = get_base_path()
     path = os.path.join(base_path, "hexo_circle_of_friends/dump_settings")
     try:
         logger.debug("读取远程自动配置...")
@@ -40,8 +46,3 @@ def get_user_settings():
     return user_conf
 
 
-def get_base_path():
-    base_path = os.environ.get("BASE_PATH")
-    assert base_path, "Environment variable 'BASE_PATH' is not detected," \
-                      "make sure it is added!"
-    return base_path
