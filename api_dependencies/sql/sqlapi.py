@@ -321,12 +321,12 @@ async def update_settings_(fc_settings: str):
     session.close()
 
     settings = get_user_settings()
-    if settings["DEPLOY_TYPE"] == "github" and settings["DATABASE"] == "sqlite":
-        # github+sqlite需要特殊处理
-        base_path = get_base_path()
-        with open(os.path.join(base_path, "data.db"), "rb") as f:  # 路径
+
+    if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
+        # github+vercel+sqlite需要特殊处理
+        with open("/tmp/data.db", "rb") as f:  # 路径
             data = f.read()
-        # 对于github，需要将sqlite配置上传
+        # 需要将sqlite配置data.db上传
         gh_access_token = os.environ.get("GH_TOKEN", "")
         gh_name = os.environ.get("GH_NAME", "")
         gh_email = os.environ.get("GH_EMAIL", "")

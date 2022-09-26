@@ -3,7 +3,7 @@ VERSION = "4.3.3"
 
 # debug
 # debug模式
-DEBUG = True
+DEBUG = False
 
 # lc
 # debug模式使用

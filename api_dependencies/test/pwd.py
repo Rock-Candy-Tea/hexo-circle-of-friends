@@ -54,5 +54,11 @@ def authenticate_user(fake_db, username: str, password: str):
     return user
 
 if __name__ == '__main__':
+    # import os
+    # if os.path.exists("aaa.txt"):
+    #     with open("aaa.txt", "rb") as f:
+    #         binary_content = f.read()
+    # else:
+
     r = get_password_hash("1234")
     print(r)
