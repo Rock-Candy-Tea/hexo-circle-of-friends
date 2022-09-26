@@ -9,10 +9,12 @@ import json
 import yaml
 
 # todo 爬虫正在运行时无法修改配置！
-from hexo_circle_of_friends.utils.project import get_user_settings
+from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, FcSettings as item_fc_settings
+from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
+from api_dependencies import format_response
 
 settings = get_user_settings()
 if settings["DATABASE"] == 'leancloud':
@@ -150,7 +152,7 @@ async def fetch(session, url):
 
 @app.get("/login_with_token", tags=["Manage"])
 def login_with_token(payload: str = Depends(login_with_token_)):
-    return payload
+    return format_response.standard_response(message="Login success")
 
 
 @app.post("/login", tags=["Manage"])
@@ -168,20 +170,22 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
             yaml.safe_dump(fc_settings.dict(), f)
         with open(dump_path, "rb") as f:
             data = f.read()
-        # 需要将sqlite配置data.db上传
+        # 需要将sqlite配置dump_settings.yaml上传
         gh_access_token = os.environ.get("GH_TOKEN", "")
         gh_name = os.environ.get("GH_NAME", "")
         gh_email = os.environ.get("GH_EMAIL", "")
         repo_name = "hexo-circle-of-friends"
         message = "Update dump_settings.yaml"
-        await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "dump_settings.yaml",
-                                    get_b64encoded_data(data), message)
+        content = await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
+                                                      "dump_settings.yaml",
+                                                      get_b64encoded_data(data), message)
+        return format_response.standard_response(message=content)
 
     else:
         dump_path = os.path.join(base_path, "dump_settings.yaml")
         with open(dump_path, 'w', encoding="utf-8") as f:
             yaml.safe_dump(fc_settings.dict(), f)
-    return True
+    return format_response.standard_response()
 
 
 @app.get("/read_settings", tags=["Manage"])

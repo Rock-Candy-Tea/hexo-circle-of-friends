@@ -6,15 +6,14 @@ import requests
 from fastapi import Depends
 from urllib import parse
 from jose import JWTError
-from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
+from hexo_circle_of_friends.utils.project import get_user_settings
 from hexo_circle_of_friends.models import Friend, Post, Auth, FcSettings
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
-from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
 from api_dependencies.utils.validate_params import start_end_check
-from .. import dependencies as dep
-from . import db_interface, security
-from ..utils import split_text
+from api_dependencies.sql import db_interface, security
+from api_dependencies import dependencies as dep
+from api_dependencies import format_response
 
 
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
@@ -268,7 +267,7 @@ def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
     try:
         payload = dep.decode_access_token(token, secert_key)
     except JWTError:
-        raise dep.credentials_exception
+        raise format_response.CredentialsException
 
     return payload
 
@@ -295,46 +294,46 @@ def login_(password: str):
             session.query(Auth).filter_by(password=config[0].password).update({"token": token})
         else:
             # 401
-            return dep.credentials_exception
+            return format_response.CredentialsException
     else:
         # 401
-        return dep.credentials_exception
+        return format_response.CredentialsException
     session.commit()
     session.close()
-    return token
+    return format_response.standard_response(token=token)
 
 
-async def update_settings_(fc_settings: str):
-    session = db_interface.db_init()
-    # delete before insert into new settings
-    session.query(FcSettings).delete()
-    db_interface.create_all_table()
-    # 插入新配置
-    # 切分长字段
-    split_blocks = split_text.split(fc_settings)
-    add_list = []
-    for blocks in split_blocks:
-        tb_obj = FcSettings(data=blocks)
-        add_list.append(tb_obj)
-    session.bulk_save_objects(add_list)
-    session.commit()
-    session.close()
-
-    settings = get_user_settings()
-
-    if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
-        # github+vercel+sqlite需要特殊处理
-        with open("/tmp/data.db", "rb") as f:  # 路径
-            data = f.read()
-        # 需要将sqlite配置data.db上传
-        gh_access_token = os.environ.get("GH_TOKEN", "")
-        gh_name = os.environ.get("GH_NAME", "")
-        gh_email = os.environ.get("GH_EMAIL", "")
-        repo_name = "hexo-circle-of-friends"
-
-        await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "data.db", get_b64encoded_data(data))
-
-    return True  # todo 返回格式统一
+# async def update_settings_(fc_settings: str):
+#     session = db_interface.db_init()
+#     # delete before insert into new settings
+#     session.query(FcSettings).delete()
+#     db_interface.create_all_table()
+#     # 插入新配置
+#     # 切分长字段
+#     split_blocks = split_text.split(fc_settings)
+#     add_list = []
+#     for blocks in split_blocks:
+#         tb_obj = FcSettings(data=blocks)
+#         add_list.append(tb_obj)
+#     session.bulk_save_objects(add_list)
+#     session.commit()
+#     session.close()
+#
+#     settings = get_user_settings()
+#
+#     if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
+#         # github+vercel+sqlite需要特殊处理
+#         with open("/tmp/data.db", "rb") as f:  # 路径
+#             data = f.read()
+#         # 需要将sqlite配置data.db上传
+#         gh_access_token = os.environ.get("GH_TOKEN", "")
+#         gh_name = os.environ.get("GH_NAME", "")
+#         gh_email = os.environ.get("GH_EMAIL", "")
+#         repo_name = "hexo-circle-of-friends"
+#
+#         await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "data.db", get_b64encoded_data(data))
+#
+#     return True  # todo 返回格式统一
 
 
 def read_settings_():

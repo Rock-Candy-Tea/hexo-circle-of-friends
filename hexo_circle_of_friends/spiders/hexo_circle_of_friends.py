@@ -75,6 +75,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         friendpage_link, friendpage_theme = self.init_start_urls()
         self.start_urls.extend(friendpage_link)
         for i, url in enumerate(self.start_urls):
+            logger.info(f"起始url: {url}")
             yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
 
     def init_start_urls(self):

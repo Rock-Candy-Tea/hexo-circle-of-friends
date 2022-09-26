@@ -59,6 +59,7 @@ async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: st
             status = response.status
             # 200更新，201上传
             content = await response.text()
+            return content
 
 
 if __name__ == '__main__':
