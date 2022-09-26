@@ -303,42 +303,9 @@ def login_(password: str):
     return format_response.standard_response(token=token)
 
 
-# async def update_settings_(fc_settings: str):
-#     session = db_interface.db_init()
-#     # delete before insert into new settings
-#     session.query(FcSettings).delete()
-#     db_interface.create_all_table()
-#     # 插入新配置
-#     # 切分长字段
-#     split_blocks = split_text.split(fc_settings)
-#     add_list = []
-#     for blocks in split_blocks:
-#         tb_obj = FcSettings(data=blocks)
-#         add_list.append(tb_obj)
-#     session.bulk_save_objects(add_list)
-#     session.commit()
-#     session.close()
-#
-#     settings = get_user_settings()
-#
-#     if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
-#         # github+vercel+sqlite需要特殊处理
-#         with open("/tmp/data.db", "rb") as f:  # 路径
-#             data = f.read()
-#         # 需要将sqlite配置data.db上传
-#         gh_access_token = os.environ.get("GH_TOKEN", "")
-#         gh_name = os.environ.get("GH_NAME", "")
-#         gh_email = os.environ.get("GH_EMAIL", "")
-#         repo_name = "hexo-circle-of-friends"
-#
-#         await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "data.db", get_b64encoded_data(data))
-#
-#     return True  # todo 返回格式统一
-
-
 def read_settings_():
     session = db_interface.db_init()
 
     fcsettings = session.query(FcSettings).all()
-
+    # todo
     # return settings
