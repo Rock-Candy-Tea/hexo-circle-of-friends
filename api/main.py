@@ -6,6 +6,7 @@ from lxml import etree
 import uvicorn
 import os
 import json
+import yaml
 
 # todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings
@@ -159,8 +160,28 @@ def login(password: PassWord):
 
 @app.put("/update_settings", tags=["Manage"])
 async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
-    fc_settings = json.dumps(fc_settings.dict())
-    return await update_settings_(fc_settings)
+    base_path = get_base_path()
+    # fc_settings = json.dumps(fc_settings.dict())
+    if os.environ.get("VERCEL") and settings["DATABASE"] == "sqlite":
+        dump_path = "/tmp/dump_settings.yaml"
+        with open(dump_path, 'w', encoding="utf-8") as f:
+            yaml.safe_dump(fc_settings.dict(), f)
+        with open(dump_path,"rb") as f:
+            data = f.read()
+        # 需要将sqlite配置data.db上传
+        gh_access_token = os.environ.get("GH_TOKEN", "")
+        gh_name = os.environ.get("GH_NAME", "")
+        gh_email = os.environ.get("GH_EMAIL", "")
+        repo_name = "hexo-circle-of-friends"
+
+        await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, "dump_settings.yaml",
+                                    get_b64encoded_data(data))
+
+    else:
+        dump_path = os.path.join(base_path, "dump_settings.yaml")
+        with open(dump_path, 'w', encoding="utf-8") as f:
+            yaml.safe_dump(fc_settings.dict(), f)
+    return True
 
 
 @app.get("/read_settings", tags=["Manage"])

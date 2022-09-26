@@ -23,7 +23,7 @@ def get_user_settings():
     """
     logger = baselogger.get_logger(__name__)
     base_path = get_base_path()
-    path = os.path.join(base_path, "hexo_circle_of_friends/dump_settings")
+    path = os.path.join(base_path, "dump_settings.yaml")
     try:
         logger.debug("读取远程自动配置...")
         f = open(path, "r", encoding="utf-8")

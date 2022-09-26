@@ -1,5 +1,16 @@
 from typing import Union, Dict, List
 from pydantic import BaseModel
+from hexo_circle_of_friends.utils.project import get_base_path
+import yaml
+import os
+
+base_path = get_base_path()
+try:
+    path = os.path.join(base_path, "hexo_circle_of_friends/fc_settings.yaml")
+    with open(path, "r", encoding="utf-8") as f:
+        user_conf = yaml.safe_load(f)
+except:
+    raise IOError
 
 
 class PassWord(BaseModel):
@@ -26,12 +37,12 @@ class GitFriendsLinks(BaseModel):
 
 
 class FcSettings(BaseModel):
-    LINK: Union[List[Link], None] = None
-    SETTINGS_FRIENDS_LINKS: Union[SettingsFriendsLinks, None] = None
-    GITEE_FRIENDS_LINKS: Union[GitFriendsLinks, None] = None
-    GITHUB_FRIENDS_LINKS: Union[GitFriendsLinks, None] = None
-    BLOCK_SITE: Union[List[str], None] = None
-    HTTP_PROXY: Union[bool, None] = None
-    OUTDATE_CLEAN: Union[int, None] = None
-    DATABASE: Union[str, None] = None
-    DEPLOY_TYPE: Union[str, None] = None
+    LINK: List[Link] = user_conf["LINK"]
+    SETTINGS_FRIENDS_LINKS: SettingsFriendsLinks = user_conf["SETTINGS_FRIENDS_LINKS"]
+    GITEE_FRIENDS_LINKS: GitFriendsLinks = user_conf["GITEE_FRIENDS_LINKS"]
+    GITHUB_FRIENDS_LINKS: GitFriendsLinks = user_conf["GITHUB_FRIENDS_LINKS"]
+    BLOCK_SITE: List[str] = user_conf["BLOCK_SITE"]
+    HTTP_PROXY: bool = user_conf["HTTP_PROXY"]
+    OUTDATE_CLEAN: int = user_conf["OUTDATE_CLEAN"]
+    DATABASE: str = user_conf["DATABASE"]
+    DEPLOY_TYPE: str = user_conf["DEPLOY_TYPE"]
