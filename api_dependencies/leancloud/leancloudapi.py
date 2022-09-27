@@ -377,11 +377,26 @@ async def login_(password: str):
     secret_key = await security.get_secret_key()
 
     auth = leancloud.Object.extend('auth')
+    auth_db = auth()
     query = auth.query
-    query.limit(1000)
+    query.limit(10)
 
     try:
-        query_list = query.find()
+        query.select('password', "token")
+        res = query.first()
+        obj_id = res.id
+        # 保存了pwd，通过pwd验证
+        if dep.verify_password(password, res.get("password")):
+            # 更新token
+            data = {"password_hash": res.get("password")}
+            token = dep.encode_access_token(data, secret_key)
+            auth.create_without_data(obj_id).destroy()
+            auth_db.set("password", res.get("password"))
+            auth_db.set("token", token)
+            auth_db.save()
+        else:
+            # 401
+            return format_response.CredentialsException
     except LeanCloudError as e:
         # 表不存在
         # turn plain pwd to hashed pwd
@@ -389,33 +404,9 @@ async def login_(password: str):
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
         token = dep.encode_access_token(data, secret_key)
-        auth.insert_one({"password": password_hash, "token": token})
-
-    # 查询数量
-    auth_count = auth.count_documents({})
-    # 查询结果
-    auth_res = auth.find_one({})
-    # 获取或者创建（首次）secret_key
-    secret_key = await security.get_secret_key()
-    if auth_count == 0:
-        # turn plain pwd to hashed pwd
-        password_hash = dep.create_password_hash(password)
-        # 未保存pwd，生成对应token并保存
-        data = {"password_hash": password_hash}
-        token = dep.encode_access_token(data, secret_key)
-        auth.insert_one({"password": password_hash, "token": token})
-    elif auth_count == 1:
-        # 保存了pwd，通过pwd验证
-        if dep.verify_password(password, auth_res["password"]):
-            # 更新token
-            data = {"password_hash": auth_res["password"]}
-            token = dep.encode_access_token(data, secret_key)
-            insert_stat = {"password": auth_res["password"], "token": token}
-            auth.replace_one({"password": auth_res["password"]}, insert_stat, upsert=True)
-        else:
-            # 401
-            return format_response.CredentialsException
-    else:
-        # 401
+        auth_db.set("password", password_hash)
+        auth_db.set("token", token)
+        auth_db.save()
+    except:
         return format_response.CredentialsException
     return format_response.standard_response(token=token)
