@@ -12,7 +12,7 @@ while 1:
             os.system("chmod a+x server.sh && ./server.sh")
             print("已部署！")
         elif r == "2":
-            os.system("ps -ef | grep python3 -u | grep -v grep | awk '{print $2}' | xargs kill -9")
+            os.system("ps -ef | grep 'python3 -u' | grep -v grep | awk '{print $2}' | xargs kill -9")
         elif r == "q":
             print("再见！")
             break

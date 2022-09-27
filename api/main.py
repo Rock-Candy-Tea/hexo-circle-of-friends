@@ -6,6 +6,7 @@ from lxml import etree
 import uvicorn
 import os
 import json
+import sys
 import yaml
 
 # todo 爬虫正在运行时无法修改配置！
@@ -161,7 +162,7 @@ async def login(password: PassWord):
 
 
 @app.put("/update_settings", tags=["Manage"])
-async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token)):
+async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token_)):
     base_path = get_base_path()
     # fc_settings = json.dumps(fc_settings.dict())
     if tools.is_vercel_sqlite():
@@ -190,15 +191,15 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
 
 
 @app.get("/read_settings", tags=["Manage"])
-async def read_settings(payload: str = Depends(login_with_token)):
+async def read_settings(payload: str = Depends(login_with_token_)):
     current_settings = get_user_settings()
     return format_response.standard_response(current_settings=current_settings)
 
 
 @app.get("/restart_api", tags=["Manage"])
-async def restart_api(payload: str = Depends(login_with_token)):
-    current_settings = get_user_settings()
-    return format_response.standard_response(current_settings=current_settings)
+async def restart_api(payload: str = Depends(login_with_token_)):
+    os.execl(sys.executable, sys.executable, *sys.argv)
+
 
 
 if __name__ == "__main__":

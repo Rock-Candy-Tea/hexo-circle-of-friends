@@ -25,7 +25,6 @@ async def get_env(vercel_access_token: str, project_name: str, env_name: str) ->
                 return False
 
 
-
 async def create_or_update_env(vercel_access_token: str, project_name: str, env_name: str,
                                env_value: str):
     """
