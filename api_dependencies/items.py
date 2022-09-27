@@ -1,5 +1,5 @@
 from typing import Union, Dict, List
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from hexo_circle_of_friends.utils.project import get_base_path
 import yaml
 import os
@@ -46,3 +46,27 @@ class FcSettings(BaseModel):
     OUTDATE_CLEAN: int = user_conf["OUTDATE_CLEAN"]
     DATABASE: str = user_conf["DATABASE"]
     DEPLOY_TYPE: str = user_conf["DEPLOY_TYPE"]
+
+
+class FcEnv(BaseModel):
+    PROXY: Union[str, None] = None
+    APPID: Union[str, None] = None
+    APPKEY: Union[str, None] = None
+    MYSQL_USERNAME: Union[str, None] = None
+    MYSQL_PASSWORD: Union[str, None] = None
+    MYSQL_IP: Union[str, None] = None
+    MYSQL_PORT: Union[int, None] = None
+    MYSQL_DB: Union[str, None] = None
+    GITHUB_NAME: Union[str, None] = None
+    GITHUB_EMAIL: Union[str, None] = None
+    GITHUB_TOKEN: Union[str, None] = None
+    MONGODB_URI: Union[str, None] = None
+    STORAGE_TYPE: str = "leancloud"
+    EXPOSE_PORT: int = 8000
+    RUN_PER_HOURS: int = 6
+
+    @validator('STORAGE_TYPE')
+    def storage_name_must_contain(cls, v):
+        if v not in ["leancloud", "sqlite", "mysql", "mongodb"]:
+            raise ValueError('存储方式必须为其中一个：leancloud,sqlite,mysql,mongodb')
+        return v

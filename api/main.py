@@ -13,7 +13,7 @@ import yaml
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api_dependencies.items import PassWord, FcSettings as item_fc_settings
+from api_dependencies.items import PassWord, FcEnv, FcSettings as item_fc_settings
 from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
 from api_dependencies import format_response, tools
 
@@ -196,10 +196,17 @@ async def read_settings(payload: str = Depends(login_with_token_)):
     return format_response.standard_response(current_settings=current_settings)
 
 
+# @app.put("/update_env", tags=["Manage"])
+# async def update_env(fc_env: FcEnv, payload: str = Depends(login_with_token_)):
+#     print(fc_env)
+#     if settings["DEPLOY_TYPE"] == "github":
+#
+#         return "ok"
+
+
 @app.get("/restart_api", tags=["Manage"])
 async def restart_api(payload: str = Depends(login_with_token_)):
     os.execl(sys.executable, sys.executable, *sys.argv)
-
 
 
 if __name__ == "__main__":
