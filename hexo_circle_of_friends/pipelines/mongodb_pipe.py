@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 from ..utils import baselogger
 
-today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+today = (datetime.utcnow() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 logger = baselogger.get_logger(__name__)
 
 class MongoDBPipeline:
@@ -18,7 +18,7 @@ class MongoDBPipeline:
     def open_spider(self, spider):
         settings = spider.settings
         if settings["DEBUG"]:
-            uri = "mongodb+srv://root:@cluster0.wgfbv.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+            uri = "mongodb+srv://yyyz:etmTvVcvOGlSINSm@cluster0.c6dgw.mongodb.net/?retryWrites=true&w=majority"
         else:
             uri = os.environ.get("MONGODB_URI")
         client = MongoClient(uri)

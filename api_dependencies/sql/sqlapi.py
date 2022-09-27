@@ -12,8 +12,7 @@ from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
 from api_dependencies.utils.validate_params import start_end_check
 from api_dependencies.sql import db_interface, security
-from api_dependencies import dependencies as dep
-from api_dependencies import format_response
+from api_dependencies import format_response, dependencies as dep
 
 
 def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
@@ -274,10 +273,10 @@ async def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
 
 async def login_(password: str):
     session = db_interface.db_init()
-    config = session.query(Auth).all()
+    auth = session.query(Auth).all()
     # 获取或者创建（首次）secret_key
     secret_key = await security.get_secret_key()
-    if not config:
+    if not auth:
         # turn plain pwd to hashed pwd
         password_hash = dep.create_password_hash(password)
         # 未保存pwd，生成对应token并保存
@@ -285,13 +284,13 @@ async def login_(password: str):
         token = dep.encode_access_token(data, secret_key)
         tb_obj = Auth(password=password_hash, token=token)
         session.add(tb_obj)
-    elif len(config) == 1:
+    elif len(auth) == 1:
         # 保存了pwd，通过pwd验证
-        if dep.verify_password(password, config[0].password):
+        if dep.verify_password(password, auth[0].password):
             # 更新token
-            data = {"password_hash": config[0].password}
+            data = {"password_hash": auth[0].password}
             token = dep.encode_access_token(data, secret_key)
-            session.query(Auth).filter_by(password=config[0].password).update({"token": token})
+            session.query(Auth).filter_by(password=auth[0].password).update({"token": token})
         else:
             # 401
             return format_response.CredentialsException
