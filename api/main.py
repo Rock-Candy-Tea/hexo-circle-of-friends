@@ -11,6 +11,7 @@ import yaml
 
 # todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
+from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, FcEnv, FcSettings as item_fc_settings

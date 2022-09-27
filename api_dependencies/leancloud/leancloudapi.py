@@ -5,21 +5,18 @@ import json
 import random
 import requests
 import leancloud
-from hexo_circle_of_friends import scrapy_conf
+from leancloud.errors import LeanCloudError
+from fastapi import Depends
 from hexo_circle_of_friends.utils.process_time import time_compare
+from api_dependencies import format_response, dependencies as dep
 from api_dependencies.utils.validate_params import start_end_check
-
-
-def db_init():
-    if scrapy_conf.DEBUG:
-        leancloud.init(scrapy_conf.LC_APPID, scrapy_conf.LC_APPKEY)
-    else:
-        leancloud.init(os.environ["APPID"], os.environ["APPKEY"])
+from api_dependencies.leancloud import security, db_interface
+from jose import JWTError
 
 
 def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     # Verify key
-    db_init()
+    db_interface.db_init()
 
     Friendspoor = leancloud.Object.extend('friend_poor')
     query = Friendspoor.query
@@ -95,7 +92,7 @@ def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
 
 def query_friend():
     # Verify key
-    db_init()
+    db_interface.db_init()
 
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
@@ -118,7 +115,7 @@ def query_friend():
 
 def query_random_friend(num):
     # Verify key
-    db_init()
+    db_interface.db_init()
 
     Friendlist = leancloud.Object.extend('friend_list')
     query_userinfo = Friendlist.query
@@ -150,7 +147,7 @@ def query_random_friend(num):
 
 def query_random_post(num):
     # Verify key
-    db_init()
+    db_interface.db_init()
 
     # Declare class
     Friendspoor = leancloud.Object.extend('friend_poor')
@@ -190,7 +187,7 @@ def query_random_post(num):
 
 def query_post(link, num, rule):
     # Verify key
-    db_init()
+    db_interface.db_init()
 
     # Declare class
     Friendspoor = leancloud.Object.extend('friend_poor')
@@ -254,7 +251,7 @@ def query_post(link, num, rule):
 
 def query_friend_status(days):
     # 初始化数据库连接
-    db_init()
+    db_interface.db_init()
     # 查询
     Friendspoor = leancloud.Object.extend('friend_poor')
     query = Friendspoor.query
@@ -294,7 +291,7 @@ def query_friend_status(days):
 
 def query_post_json(jsonlink, list, start, end, rule):
     # Verify key
-    db_init()
+    db_interface.db_init()
     # Declare class
     Friendspoor = leancloud.Object.extend('friend_poor')
     query = Friendspoor.query
@@ -362,3 +359,63 @@ def query_post_json(jsonlink, list, start, end, rule):
     }
     api_json['article_data'] = article_data[start:end]
     return api_json
+
+
+async def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
+    # 获取或者创建（首次）secret_key
+    secert_key = await security.get_secret_key()
+    try:
+        payload = dep.decode_access_token(token, secert_key)
+    except JWTError:
+        raise format_response.CredentialsException
+
+    return payload
+
+
+async def login_(password: str):
+    db_interface.db_init()
+    secret_key = await security.get_secret_key()
+
+    auth = leancloud.Object.extend('auth')
+    query = auth.query
+    query.limit(1000)
+
+    try:
+        query_list = query.find()
+    except LeanCloudError as e:
+        # 表不存在
+        # turn plain pwd to hashed pwd
+        password_hash = dep.create_password_hash(password)
+        # 未保存pwd，生成对应token并保存
+        data = {"password_hash": password_hash}
+        token = dep.encode_access_token(data, secret_key)
+        auth.insert_one({"password": password_hash, "token": token})
+
+    # 查询数量
+    auth_count = auth.count_documents({})
+    # 查询结果
+    auth_res = auth.find_one({})
+    # 获取或者创建（首次）secret_key
+    secret_key = await security.get_secret_key()
+    if auth_count == 0:
+        # turn plain pwd to hashed pwd
+        password_hash = dep.create_password_hash(password)
+        # 未保存pwd，生成对应token并保存
+        data = {"password_hash": password_hash}
+        token = dep.encode_access_token(data, secret_key)
+        auth.insert_one({"password": password_hash, "token": token})
+    elif auth_count == 1:
+        # 保存了pwd，通过pwd验证
+        if dep.verify_password(password, auth_res["password"]):
+            # 更新token
+            data = {"password_hash": auth_res["password"]}
+            token = dep.encode_access_token(data, secret_key)
+            insert_stat = {"password": auth_res["password"], "token": token}
+            auth.replace_one({"password": auth_res["password"]}, insert_stat, upsert=True)
+        else:
+            # 401
+            return format_response.CredentialsException
+    else:
+        # 401
+        return format_response.CredentialsException
+    return format_response.standard_response(token=token)

@@ -182,7 +182,7 @@ async def login_with_token_(token: str = Depends(dep.oauth2_scheme)):
 
 async def login_(password: str):
     session = db_interface.db_init()
-    auth = session.Auth
+    auth = session.auth
     # 查询数量
     auth_count = auth.count_documents({})
     # 查询结果
