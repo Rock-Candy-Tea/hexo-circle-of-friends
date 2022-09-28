@@ -106,15 +106,15 @@ class SQLPipeline:
                 if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
                     self.session.query(models.Post).filter_by(link=query_item.link).delete()
                     out_date_post += 1
+
+                    print("Delete: 《{}》By {} At {}".format(query_item.title, query_item.author, query_item.createAt))
             except:
-                self.session.query(models.Post).filter_by(link=query_item.link).delete()
-                out_date_post += 1
+                pass
         self.session.commit()
         self.session.close()
-        # print('\n')
-        # print('共删除了%s篇文章' % out_date_post)
-        # print('\n')
-        # print('-------结束删除规则----------')
+
+        print('\n')
+        print('共删除了%s篇文章' % out_date_post)
 
     def friendlist_push(self):
         for user in self.userdata:

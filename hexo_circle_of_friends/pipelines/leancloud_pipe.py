@@ -106,23 +106,21 @@ class LeancloudPipeline:
 
     def outdate_clean(self, time_limit):
         out_date_post = 0
-        for query_i in self.query_post_list:
+        for query_item in self.query_post_list:
 
-            updated = query_i.get('updated')
+            updated = query_item.get('updated')
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
                 if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
-                    delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
+                    delete = self.Friendspoor.create_without_data(query_item.get('objectId'))
                     out_date_post += 1
                     delete.destroy()
+
+                    print("Delete: 《{}》By {} At {}".format(query_item.title, query_item.author, query_item.createAt))
             except:
-                delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
-                delete.destroy()
-                out_date_post += 1
-        # print('\n')
-        # print('共删除了%s篇文章' % out_date_post)
-        # print('\n')
-        # print('-------结束删除规则----------')
+                pass
+        print('\n')
+        print('共删除了%s篇文章' % out_date_post)
 
     def friendlist_push(self):
         for index, item in enumerate(self.userdata):

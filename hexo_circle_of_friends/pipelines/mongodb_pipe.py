@@ -58,8 +58,7 @@ class MongoDBPipeline:
                         post_id = query_item.get("_id")
                         self.posts.delete_one({"_id": post_id})
                 except:
-                    post_id = query_item.get("_id")
-                    self.posts.delete_one({"_id": post_id})
+                    pass
 
             self.friendpoor_push(item)
 
@@ -94,15 +93,15 @@ class MongoDBPipeline:
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
                 if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
-                    result = self.posts.delete_one({"_id": query_item.get("_id")})
+                    self.posts.delete_one({"_id": query_item.get("_id")})
                     out_date_post += 1
+
+                    print("Delete: 《{}》By {} At {}".format(query_item.title, query_item.author, query_item.createAt))
             except:
-                self.posts.delete_one({"_id": query_item.get("_id")})
-                out_date_post += 1
-        # print('\n')
-        # print('共删除了%s篇文章' % out_date_post)
-        # print('\n')
-        # print('-------结束删除规则----------')
+                pass
+
+        print('\n')
+        print('共删除了%s篇文章' % out_date_post)
 
     def friendlist_push(self):
         friends = []
