@@ -205,7 +205,7 @@ async def update_github_env(github_env: GitHubEnv, payload: str = Depends(login_
         return format_response.standard_response(code=400, message="当前部署方式不是github")
     envs = github_env.dict(exclude_unset=True)
     # 优先从body中获取，其次从环境变量获取
-    gh_access_token = envs.get("GH_TOKEN") if envs.get("GH_TOKEN") else os.environ.get("GH_TOKEN")
+    gh_access_token = envs["GH_TOKEN"] if envs.get("GH_TOKEN") else os.environ.get("GH_TOKEN")
     gh_name = envs.get("GH_NAME") if envs.get("GH_NAME") else os.environ.get("GH_NAME")
     repo_name = "hexo-circle-of-friends"
     if not gh_access_token or not gh_name:
@@ -221,7 +221,7 @@ async def update_env(vercel_env: VercelEnv, payload: str = Depends(login_with_to
         return format_response.standard_response(code=400, message="当前不是vercel环境")
     envs = vercel_env.dict(exclude_unset=True)
     # 优先从body中获取，其次从环境变量获取
-    vercel_access_token = envs.get("VERCEL_ACCESS_TOKEN") if envs.get("VERCEL_ACCESS_TOKEN") else os.environ.get(
+    vercel_access_token = envs["VERCEL_ACCESS_TOKEN"] if envs.get("VERCEL_ACCESS_TOKEN") else os.environ.get(
         "VERCEL_ACCESS_TOKEN")
     if not vercel_access_token:
         return format_response.standard_response(code=400, message="缺少环境变量VERCEL_ACCESS_TOKEN")
