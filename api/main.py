@@ -203,31 +203,34 @@ async def read_settings(payload: str = Depends(login_with_token_)):
 async def update_github_env(github_env: GitHubEnv, payload: str = Depends(login_with_token_)):
     if settings["DEPLOY_TYPE"] != "github":
         return format_response.standard_response(code=400, message="当前部署方式不是github")
-    gh_access_token = os.environ.get("GH_TOKEN")
-    gh_name = os.environ.get("GH_NAME")
+    envs = github_env.dict(exclude_unset=True)
+    # 优先从body中获取，其次从环境变量获取
+    gh_access_token = envs.get("GH_TOKEN") if envs.get("GH_TOKEN") else os.environ.get("GH_TOKEN")
+    gh_name = envs.get("GH_NAME") if envs.get("GH_NAME") else os.environ.get("GH_NAME")
     repo_name = "hexo-circle-of-friends"
     if not gh_access_token or not gh_name:
         return format_response.standard_response(code=400, message="缺少环境变量GH_TOKEN或GH_NAME")
 
-    resp = await bulk_create_or_update_secret(gh_access_token, gh_name, repo_name, github_env.dict(exclude_unset=True))
+    resp = await bulk_create_or_update_secret(gh_access_token, gh_name, repo_name, envs)
     return format_response.standard_response(details=resp)
 
 
 @app.put("/update_vercel_env", tags=["Manage"])
 async def update_env(vercel_env: VercelEnv, payload: str = Depends(login_with_token_)):
-    # if not tools.is_vercel():
-    #     return format_response.standard_response(code=400, message="当前不是vercel环境")
-    vercel_access_token = os.environ.get("VERCEL_ACCESS_TOKEN")
+    if not tools.is_vercel():
+        return format_response.standard_response(code=400, message="当前不是vercel环境")
+    envs = vercel_env.dict(exclude_unset=True)
+    # 优先从body中获取，其次从环境变量获取
+    vercel_access_token = envs.get("VERCEL_ACCESS_TOKEN") if envs.get("VERCEL_ACCESS_TOKEN") else os.environ.get(
+        "VERCEL_ACCESS_TOKEN")
     if not vercel_access_token:
         return format_response.standard_response(code=400, message="缺少环境变量VERCEL_ACCESS_TOKEN")
     project_name = "hexo-circle-of-friends"
-    resp = await bulk_create_or_update_env(vercel_access_token, project_name, vercel_env.dict(exclude_unset=True))
+
+    resp = await bulk_create_or_update_env(vercel_access_token, project_name, envs)
     return format_response.standard_response(details=resp)
 
 
-#
-#
-#
 # @app.get("/read_env", tags=["Manage"])
 # async def update_env(payload: str = Depends(login_with_token_)):
 #     if settings["DEPLOY_TYPE"] == "github":
