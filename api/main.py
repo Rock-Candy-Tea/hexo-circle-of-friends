@@ -166,8 +166,8 @@ async def login(password: PassWord):
 async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(login_with_token_)):
     base_path = get_base_path()
     # fc_settings = json.dumps(fc_settings.dict())
-    if tools.is_vercel_sqlite():
-        # vercel+sqlite特殊处理
+    if tools.is_vercel():
+        # github+vercel特殊处理
         dump_path = "/tmp/dump_settings.yaml"
         with open(dump_path, 'w', encoding="utf-8") as f:
             yaml.safe_dump(fc_settings.dict(), f)
