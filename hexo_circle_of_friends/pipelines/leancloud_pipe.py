@@ -6,7 +6,7 @@ import re
 from datetime import datetime, timedelta
 from ..utils import baselogger
 
-today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+today = (datetime.utcnow() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 logger = baselogger.get_logger(__name__)
 
 
@@ -113,7 +113,7 @@ class LeancloudPipeline:
             updated = query_i.get('updated')
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
-                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
+                if (datetime.utcnow() + timedelta(hours=8) - query_time).days > time_limit:
                     delete = self.Friendspoor.create_without_data(query_i.get('objectId'))
                     out_date_post += 1
                     delete.destroy()

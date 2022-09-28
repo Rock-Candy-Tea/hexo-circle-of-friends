@@ -45,7 +45,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         self.friend_poor = queue.Queue()
 
         self.friend_list = queue.Queue()
-        self.today = (datetime.datetime.now() + datetime.timedelta(hours=8)).strftime('%Y-%m-%d')
+        self.today = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime('%Y-%m-%d')
         self.friend_url_parser = GetUrl()
 
         super(FriendpageLinkSpider, self).__init__(name, **kwargs)

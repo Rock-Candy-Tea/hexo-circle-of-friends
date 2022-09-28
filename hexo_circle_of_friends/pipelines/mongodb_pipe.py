@@ -92,7 +92,7 @@ class MongoDBPipeline:
             updated = query_item.get("updated")
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
-                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
+                if (datetime.utcnow() + timedelta(hours=8) - query_time).days > time_limit:
                     result = self.posts.delete_one({"_id": query_item.get("_id")})
                     out_date_post += 1
             except:

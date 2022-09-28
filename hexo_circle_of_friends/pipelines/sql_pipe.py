@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from datetime import datetime, timedelta
 
-today = (datetime.now() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
+today = (datetime.utcnow() + timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
 logger = baselogger.get_logger(__name__)
 
 
@@ -114,7 +114,7 @@ class SQLPipeline:
             updated = query_item.updated
             try:
                 query_time = datetime.strptime(updated, "%Y-%m-%d")
-                if (datetime.today() + timedelta(hours=8) - query_time).days > time_limit:
+                if (datetime.utcnow() + timedelta(hours=8) - query_time).days > time_limit:
                     self.session.query(models.Post).filter_by(link=query_item.link).delete()
                     out_date_post += 1
             except:
