@@ -1,16 +1,6 @@
 from typing import Union, Dict, List
 from pydantic import BaseModel, validator
-from hexo_circle_of_friends.utils.project import get_base_path
-import yaml
-import os
-
-base_path = get_base_path()
-try:
-    path = os.path.join(base_path, "hexo_circle_of_friends/fc_settings.yaml")
-    with open(path, "r", encoding="utf-8") as f:
-        user_conf = yaml.safe_load(f)
-except:
-    raise IOError
+from hexo_circle_of_friends.utils.project import get_user_settings
 
 
 class PassWord(BaseModel):
@@ -37,15 +27,15 @@ class GitFriendsLinks(BaseModel):
 
 
 class FcSettings(BaseModel):
-    LINK: List[Link] = user_conf["LINK"]
-    SETTINGS_FRIENDS_LINKS: SettingsFriendsLinks = user_conf["SETTINGS_FRIENDS_LINKS"]
-    GITEE_FRIENDS_LINKS: GitFriendsLinks = user_conf["GITEE_FRIENDS_LINKS"]
-    GITHUB_FRIENDS_LINKS: GitFriendsLinks = user_conf["GITHUB_FRIENDS_LINKS"]
-    BLOCK_SITE: List[str] = user_conf["BLOCK_SITE"]
-    HTTP_PROXY: bool = user_conf["HTTP_PROXY"]
-    OUTDATE_CLEAN: int = user_conf["OUTDATE_CLEAN"]
-    DATABASE: str = user_conf["DATABASE"]
-    DEPLOY_TYPE: str = user_conf["DEPLOY_TYPE"]
+    LINK: List[Link] = get_user_settings()["LINK"]
+    SETTINGS_FRIENDS_LINKS: SettingsFriendsLinks = get_user_settings()["SETTINGS_FRIENDS_LINKS"]
+    GITEE_FRIENDS_LINKS: GitFriendsLinks = get_user_settings()["GITEE_FRIENDS_LINKS"]
+    GITHUB_FRIENDS_LINKS: GitFriendsLinks = get_user_settings()["GITHUB_FRIENDS_LINKS"]
+    BLOCK_SITE: List[str] = get_user_settings()["BLOCK_SITE"]
+    HTTP_PROXY: bool = get_user_settings()["HTTP_PROXY"]
+    OUTDATE_CLEAN: int = get_user_settings()["OUTDATE_CLEAN"]
+    DATABASE: str = get_user_settings()["DATABASE"]
+    DEPLOY_TYPE: str = get_user_settings()["DEPLOY_TYPE"]
 
 
 class FcEnv(BaseModel):
