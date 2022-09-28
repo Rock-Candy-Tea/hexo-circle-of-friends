@@ -79,7 +79,7 @@ async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_
                 resp["details"].append(d.result())
             else:
                 resp["error"] += 1
-                resp["details"].append(str(d.exception()))
+                resp["details"].append({"message": str(d.exception())})
     return resp
 
 

@@ -14,9 +14,10 @@ from hexo_circle_of_friends.utils.project import get_user_settings, get_base_pat
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api_dependencies.items import PassWord, GitHubEnv, FcSettings as item_fc_settings
+from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, FcSettings as item_fc_settings
 from api_dependencies.utils.github_upload import bulk_create_or_update_secret, create_or_update_file, \
     get_b64encoded_data
+from api_dependencies.utils.vercel_upload import bulk_create_or_update_env
 from api_dependencies import format_response, tools
 
 settings = get_user_settings()
@@ -212,11 +213,18 @@ async def update_github_env(github_env: GitHubEnv, payload: str = Depends(login_
     return format_response.standard_response(details=resp)
 
 
-# @app.put("/update_vercel_env", tags=["Manage"])
-# async def update_env(fc_env: FcEnv, payload: str = Depends(login_with_token_)):
-#     print(fc_env)
-#     if settings["DEPLOY_TYPE"] == "github":
-#         return "ok"
+@app.put("/update_vercel_env", tags=["Manage"])
+async def update_env(vercel_env: VercelEnv, payload: str = Depends(login_with_token_)):
+    # if not tools.is_vercel():
+    #     return format_response.standard_response(code=400, message="当前不是vercel环境")
+    vercel_access_token = os.environ.get("VERCEL_ACCESS_TOKEN")
+    if not vercel_access_token:
+        return format_response.standard_response(code=400, message="缺少环境变量VERCEL_ACCESS_TOKEN")
+    project_name = "hexo-circle-of-friends"
+    resp = await bulk_create_or_update_env(vercel_access_token, project_name, vercel_env.dict(exclude_unset=True))
+    return format_response.standard_response(details=resp)
+
+
 #
 #
 #
