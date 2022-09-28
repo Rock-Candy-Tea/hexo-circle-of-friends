@@ -5,12 +5,6 @@ import os
 from . import baselogger
 
 
-# os.environ["BASE_PATH"] = "D:\code\hexo-circle-of-friends"
-
-
-# os.environ["BASE_PATH"] = "/root/data"
-
-
 def get_base_path():
     base_path = os.environ.get("BASE_PATH",
                                os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

@@ -56,8 +56,8 @@ jobs:
       - name: leancloud Update posts # leancloud
         if: ${{ env.STORAGE_TYPE == 'leancloud' }}
         env:
-          APP_ID: ${{ secrets.APPID }}
-          APP_KEY: ${{ secrets.APPKEY }}
+          APPID: ${{ secrets.APPID }}
+          APPKEY: ${{ secrets.APPKEY }}
           LINK: ${{ secrets.LINK }}
           PROXY: ${{ secrets.PROXY }}
         working-directory: ./hexo_circle_of_friends

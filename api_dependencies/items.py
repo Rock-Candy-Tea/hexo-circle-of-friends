@@ -1,5 +1,5 @@
 import os
-from typing import Union, Dict, List
+from typing import Optional, List
 from pydantic import BaseModel, validator
 from hexo_circle_of_friends.utils.project import get_user_settings
 
@@ -40,21 +40,18 @@ class FcSettings(BaseModel):
 
 
 class FcBaseEnv(BaseModel):
-    PROXY: Union[str, None] = None
-    APPID: Union[str, None] = None
-    APPKEY: Union[str, None] = None
-    MYSQL_USERNAME: Union[str, None] = None
-    MYSQL_PASSWORD: Union[str, None] = None
-    MYSQL_IP: Union[str, None] = None
-    MYSQL_PORT: Union[int, None] = None
-    MYSQL_DB: Union[str, None] = None
-    GH_NAME: Union[str, None] = None
-    GH_EMAIL: Union[str, None] = None
-    GH_TOKEN: Union[str, None] = None
-    MONGODB_URI: Union[str, None] = None
-    # STORAGE_TYPE: str = get_user_settings()["DATABASE"]
-    # EXPOSE_PORT: int = 8000
-    # RUN_PER_HOURS: int = 6
+    PROXY: Optional[str] = os.environ.get("PROXY")
+    APPID: Optional[str] = os.environ.get("APPID")
+    APPKEY: Optional[str] = os.environ.get("APPKEY")
+    MYSQL_USERNAME: Optional[str] = os.environ.get("MYSQL_USERNAME")
+    MYSQL_PASSWORD: Optional[str] = os.environ.get("MYSQL_PASSWORD")
+    MYSQL_IP: Optional[str] = os.environ.get("MYSQL_IP")
+    MYSQL_PORT: Optional[int] = os.environ.get("MYSQL_PORT")
+    MYSQL_DB: Optional[str] = os.environ.get("MYSQL_DB")
+    GH_NAME: Optional[str] = os.environ.get("GH_NAME")
+    GH_EMAIL: Optional[str] = os.environ.get("GH_EMAIL")
+    GH_TOKEN: Optional[str] = os.environ.get("GH_TOKEN")
+    MONGODB_URI: Optional[str] = os.environ.get("MONGODB_URI")
 
 
 class GitHubEnv(FcBaseEnv):
@@ -69,3 +66,8 @@ class GitHubEnv(FcBaseEnv):
 
 class VercelEnv(FcBaseEnv):
     VERCEL_ACCESS_TOKEN: str = os.environ.get("VERCEL_ACCESS_TOKEN", "")
+
+
+class ServerEnv(FcBaseEnv):
+    EXPOSE_PORT: int = os.environ["EXPOSE_PORT"] if os.environ.get("EXPOSE_PORT") else 8000
+    RUN_PER_HOURS: int = os.environ["RUN_PER_HOURS"] if os.environ.get("RUN_PER_HOURS") else 6

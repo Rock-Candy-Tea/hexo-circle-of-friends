@@ -14,7 +14,7 @@ from hexo_circle_of_friends.utils.project import get_user_settings, get_base_pat
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, FcSettings as item_fc_settings
+from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, ServerEnv, FcSettings as item_fc_settings
 from api_dependencies.utils.github_upload import bulk_create_or_update_secret, create_or_update_file, \
     get_b64encoded_data
 from api_dependencies.utils.vercel_upload import bulk_create_or_update_env
@@ -216,7 +216,7 @@ async def update_github_env(github_env: GitHubEnv, payload: str = Depends(login_
 
 
 @app.put("/update_vercel_env", tags=["Manage"])
-async def update_env(vercel_env: VercelEnv, payload: str = Depends(login_with_token_)):
+async def update_vercel_env(vercel_env: VercelEnv, payload: str = Depends(login_with_token_)):
     if not tools.is_vercel():
         return format_response.standard_response(code=400, message="当前不是vercel环境")
     envs = vercel_env.dict(exclude_unset=True)
@@ -231,15 +231,39 @@ async def update_env(vercel_env: VercelEnv, payload: str = Depends(login_with_to
     return format_response.standard_response(details=resp)
 
 
-# @app.get("/read_env", tags=["Manage"])
-# async def update_env(payload: str = Depends(login_with_token_)):
-#     if settings["DEPLOY_TYPE"] == "github":
-#         return "ok"
+@app.put("/update_server_env", tags=["Manage"])
+async def update_server_env(server_env: ServerEnv, payload: str = Depends(login_with_token_)):
+    if settings["DEPLOY_TYPE"] == "github":
+        return format_response.standard_response(code=400, message="当前部署方式不是server或docker")
+    base_path = get_base_path()
+    with open(os.path.join(base_path, "env.json"), "w") as f:
+        json.dump(server_env.dict(), f)
 
 
-# @app.get("/restart_api", tags=["Manage"])
-# async def restart_api(payload: str = Depends(login_with_token_)):
-#     os.execl(sys.executable, sys.executable, *sys.argv)
+@app.get("/restart_api", tags=["Manage"])
+async def restart_api(payload: str = Depends(login_with_token_)):
+    if settings["DEPLOY_TYPE"] == "github":
+        # todo vercel api
+        os.execl(sys.executable, sys.executable, *sys.argv)
+    else:
+        base_path = get_base_path()
+        server_sh = f"#!/bin/bash\nsleep 10s\nexport BASE_PATH={base_path}\n" + "export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}\n"
+
+        env_json_path = os.path.join(base_path, "env.json")
+        # temp_sh_path = os.path.join(base_path, "temp.sh")
+        if os.path.exists("env.json"):
+            with open(env_json_path, "r") as f:
+                envs = json.load(f)
+        else:
+            envs = {}
+        with open("temp.sh", "w") as f:
+            for name, value in envs.items():
+                if value is not None:
+                    server_sh += f"export {name}={value}\n"
+            server_sh += "nohup python3 -u ${BASE_PATH}/api/main.py >/dev/null 2>&1 &"
+            f.write(server_sh.strip())
+        os.popen("chmod a+x temp.sh && nohup ./temp.sh >/dev/null 2>&1 &")
+        os.system("ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9")
 
 
 if __name__ == "__main__":
