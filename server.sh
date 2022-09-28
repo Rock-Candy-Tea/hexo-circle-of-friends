@@ -1,4 +1,5 @@
 #!/bin/bash
+pip3 install -r ./requirements.txt -i https://pypi.douban.com/simple/
 pip3 install -r ./hexo_circle_of_friends/requirements.txt -i https://pypi.douban.com/simple/
 
 ### 通用配置
