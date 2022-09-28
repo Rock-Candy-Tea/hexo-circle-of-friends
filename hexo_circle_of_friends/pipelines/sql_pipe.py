@@ -62,6 +62,7 @@ class SQLPipeline:
                 # 未失联的人
                 self.nonerror_data.add(item["author"])
 
+            item["link"] = item["link"].replace("http://", "https://")
             # print(item)
             for query_item in self.query_post_list:
                 try:
@@ -152,6 +153,4 @@ class SQLPipeline:
         )
         self.session.add(post)
         self.session.commit()
-        print("----------------------")
-        print(item["author"])
-        print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))
+        print("New Post: 《{}》By {} At {}".format(item["title"], item["author"], item["created"]))
