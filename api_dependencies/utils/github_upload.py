@@ -1,3 +1,5 @@
+from typing import Dict
+import asyncio
 import aiohttp
 from base64 import b64encode
 from nacl import encoding, public
@@ -13,6 +15,20 @@ def encrypt(public_key: str, secret_value: str) -> str:
     sealed_box = public.SealedBox(public_key)
     encrypted = sealed_box.encrypt(secret_value.encode("utf-8"))
     return b64encode(encrypted).decode("utf-8")
+
+
+async def update(session, url, body, secret_name):
+    resp = {}
+    async with session.put(url, verify_ssl=False, json=body) as response:
+        status = response.status
+        if status == 204:
+            resp["message"] = f"更新secret:{secret_name}成功"
+        elif status == 201:
+            resp["message"] = f"上传secret:{secret_name}成功"
+        else:
+            raise Exception(f"上传或更新secret:{secret_name}失败")
+        resp["code"] = status
+    return resp
 
 
 async def create_or_update_secret(gh_access_token: str, gh_name: str, repo_name: str, secret_name: str,
@@ -32,9 +48,39 @@ async def create_or_update_secret(gh_access_token: str, gh_name: str, repo_name:
             key_id = content.get("key_id")
             key = content.get("key")
             body = {"encrypted_value": encrypt(key, secret_value), "key_id": key_id}
-        async with session.put(url, verify_ssl=False, json=body) as response:
-            status = response.status
-            content = await response.text()
+        resp = await update(session, url, body, secret_name)
+    return resp
+
+
+async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_name: str, secrets: Dict[str, str]):
+    """
+    Bulk create or update github repo secret.
+    """
+    resp = {"total": 0, "success": 0, "error": 0, "details": []}
+    headers = {"Authorization": f"Bearer {gh_access_token}"}
+    public_key_url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/secrets/public-key"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(public_key_url, verify_ssl=False) as response:
+            assert response.status == 200
+            content = await response.json()
+            key_id = content.get("key_id")
+            key = content.get("key")
+        tasks = []
+        for secret_name, secret_value in secrets.items():
+            body = {"encrypted_value": encrypt(key, secret_value), "key_id": key_id}
+            url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/secrets/{secret_name}"
+            tasks.append((url, body, secret_name))
+        t = [asyncio.create_task(update(session, task[0], task[1], task[2])) for task in tasks]
+        resp["total"] += len(t)
+        done, pending = await asyncio.wait(t)
+        for d in done:
+            if not d.exception() and d.result():
+                resp["success"] += 1
+                resp["details"].append(d.result())
+            else:
+                resp["error"] += 1
+                resp["details"].append(str(d.exception()))
+    return resp
 
 
 async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: str, repo_name: str, file_path: str,

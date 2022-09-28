@@ -14,8 +14,9 @@ from hexo_circle_of_friends.utils.project import get_user_settings, get_base_pat
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from api_dependencies.items import PassWord, FcEnv, FcSettings as item_fc_settings
-from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
+from api_dependencies.items import PassWord, GitHubEnv, FcSettings as item_fc_settings
+from api_dependencies.utils.github_upload import bulk_create_or_update_secret, create_or_update_file, \
+    get_b64encoded_data
 from api_dependencies import format_response, tools
 
 settings = get_user_settings()
@@ -197,17 +198,37 @@ async def read_settings(payload: str = Depends(login_with_token_)):
     return format_response.standard_response(current_settings=current_settings)
 
 
-# @app.put("/update_env", tags=["Manage"])
+@app.put("/update_github_env", tags=["Manage"])
+async def update_github_env(github_env: GitHubEnv, payload: str = Depends(login_with_token_)):
+    if settings["DEPLOY_TYPE"] != "github":
+        return format_response.standard_response(code=400, message="当前部署方式不是github")
+    gh_access_token = os.environ.get("GH_TOKEN")
+    gh_name = os.environ.get("GH_NAME")
+    repo_name = "hexo-circle-of-friends"
+    if not gh_access_token or not gh_name:
+        return format_response.standard_response(code=400, message="缺少环境变量GH_TOKEN或GH_NAME")
+
+    resp = await bulk_create_or_update_secret(gh_access_token, gh_name, repo_name, github_env.dict(exclude_unset=True))
+    return format_response.standard_response(details=resp)
+
+
+# @app.put("/update_vercel_env", tags=["Manage"])
 # async def update_env(fc_env: FcEnv, payload: str = Depends(login_with_token_)):
 #     print(fc_env)
 #     if settings["DEPLOY_TYPE"] == "github":
+#         return "ok"
 #
+#
+#
+# @app.get("/read_env", tags=["Manage"])
+# async def update_env(payload: str = Depends(login_with_token_)):
+#     if settings["DEPLOY_TYPE"] == "github":
 #         return "ok"
 
 
-@app.get("/restart_api", tags=["Manage"])
-async def restart_api(payload: str = Depends(login_with_token_)):
-    os.execl(sys.executable, sys.executable, *sys.argv)
+# @app.get("/restart_api", tags=["Manage"])
+# async def restart_api(payload: str = Depends(login_with_token_)):
+#     os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 if __name__ == "__main__":
