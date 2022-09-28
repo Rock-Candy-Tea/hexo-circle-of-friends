@@ -55,9 +55,9 @@ async def create_or_update_env(vercel_access_token: str, project_name: str, env_
         resp["code"] = status
     method = "更新" if res else "创建"
     if status == 200:
-        resp["message"] = f"{method}环境变量成功"
+        resp["message"] = f"{method}环境变量{env_name}成功"
     else:
-        resp["message"] = f"{method}环境变量失败"
+        resp["message"] = f"{method}环境变量{env_name}失败"
     return resp
 
 
