@@ -11,7 +11,7 @@ async def get_env(vercel_access_token: str, project_name: str, env_name: str) ->
     url = f"https://api.vercel.com/v9/projects/{project_name}/env/"
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(url, verify_ssl=False) as response:
-            assert response.status == 200
+            assert response.status == 200, f"获取{env_name}失败，error_code:{response.status}"
             content = await response.json()
             envs = content["envs"]
             for env in envs:

@@ -61,7 +61,7 @@ async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_
     public_key_url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/secrets/public-key"
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(public_key_url, verify_ssl=False) as response:
-            assert response.status == 200
+            assert response.status == 200, "获取github key_id失败"
             content = await response.json()
             key_id = content.get("key_id")
             key = content.get("key")
