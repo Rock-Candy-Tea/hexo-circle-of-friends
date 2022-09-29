@@ -58,22 +58,26 @@ while 1:
             print("再见！")
             break
         else:
-            print("输入错误~")
+            print("输入错误")
     elif r == "2":
         r = input(
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
+            update_fcsettings_yaml("docker")
             os.system("docker build -t fcircle . && docker run -di --name circle -p 8000:8000 -v /tmp/:/tmp/ fcircle")
+            os.system("docker exec nohup python3 -u ${BASE_PATH}/hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
+            os.system("docker exec nohup python3 -u ${BASE_PATH}/api/main.py > /tmp/api_stdout.log 2>&1 &")
             print("已部署！")
         elif r == "2":
             os.system("docker stop circle && docker rm circle && docker rmi fcircle")
+            print("已取消部署！")
         elif r == "q":
             print("再见！")
             break
         else:
-            print("输入错误~")
+            print("输入错误")
     elif r == "q":
         print("再见！")
         break
     else:
-        print("输入错误~")
+        print("输入错误")
