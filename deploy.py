@@ -63,7 +63,6 @@ while 1:
         r = input(
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
-            update_fcsettings_yaml("docker")
             os.system("docker run -di --name circle -p 8000:8000 -v /tmp/:/tmp/ yyyzyyyz/fcircle:latest")
             os.system("docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
             os.system("docker exec circle nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &")
