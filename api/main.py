@@ -30,7 +30,7 @@ elif settings["DATABASE"] == "mongodb":
 
 OUTDATE_CLEAN = settings["OUTDATE_CLEAN"]
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
 origins = [
     "*"
@@ -243,14 +243,12 @@ async def update_server_env(server_env: ServerEnv, payload: str = Depends(login_
 @app.get("/restart_api", tags=["Manage"])
 async def restart_api(payload: str = Depends(login_with_token_)):
     if settings["DEPLOY_TYPE"] == "github":
-        # todo vercel api
-        os.execl(sys.executable, sys.executable, *sys.argv)
+        return format_response.standard_response(code=400, message="当前部署方式不是server或docker")
     else:
         base_path = get_base_path()
         server_sh = f"#!/bin/bash\nsleep 10s\nexport BASE_PATH={base_path}\n" + "export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}\n"
 
         env_json_path = os.path.join(base_path, "env.json")
-        # temp_sh_path = os.path.join(base_path, "temp.sh")
         if os.path.exists("env.json"):
             with open(env_json_path, "r") as f:
                 envs = json.load(f)
@@ -270,7 +268,7 @@ if __name__ == "__main__":
     if settings["DEPLOY_TYPE"] == "docker":
         uvicorn.run("main:app", host="0.0.0.0")
     elif settings["DEPLOY_TYPE"] == "server":
-        EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ["EXPOSE_PORT"] else 8000
+        EXPOSE_PORT = int(os.environ["EXPOSE_PORT"]) if os.environ.get("EXPOSE_PORT") else 8000
         uvicorn.run("main:app", host="0.0.0.0", port=EXPOSE_PORT)
     else:
         uvicorn.run("main:app", host="0.0.0.0", reload=True)
