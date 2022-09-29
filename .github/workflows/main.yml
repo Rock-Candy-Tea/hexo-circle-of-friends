@@ -5,10 +5,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 0,6,12,18,21 * * *"
+    - cron: "30 * * * *"
   workflow_dispatch:
-  watch:
-    types: [started]
 
 env:
   # 在这里查看需要添加的secert
@@ -35,7 +33,6 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
     steps:
     - name: Checkout
       uses: actions/checkout@main
