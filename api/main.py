@@ -9,7 +9,6 @@ import json
 import sys
 import yaml
 
-# todo 爬虫正在运行时无法修改配置！
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
@@ -123,7 +122,7 @@ async def version():
     try:
         async with aiohttp.ClientSession() as session:
             urls = [
-                "https://hexo-circle-of-friends-doc.vercel.app/version.txt",
+                "https://fcircle-doc.yyyzyyyz.cn/version.txt",
                 "https://hiltay.github.io/hexo-circle-of-friends-doc/version.txt",
                 "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
             ]

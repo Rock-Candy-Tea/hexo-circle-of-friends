@@ -150,6 +150,3 @@ class MongoDBPipeline:
 {item['author']}\n《{item['title']}》\n文章发布时间：{item['created']}\t\t采取的爬虫规则为：{item['rule']}
 ——————————————————————————————————————————————————————————————————————————————\033[0m"""
         logger.info(info)
-        # print("----------------------")
-        # print(item["author"])
-        # print("《{}》\n文章发布时间：{}\t\t采取的爬虫规则为：{}".format(item["title"], item["created"], item["rule"]))

@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 import re
 
-today_parsed = datetime.now() + timedelta(hours=8)
+today_parsed = datetime.utcnow() + timedelta(hours=8)
 
 
 # 时间格式检查

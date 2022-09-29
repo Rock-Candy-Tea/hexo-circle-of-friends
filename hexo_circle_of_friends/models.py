@@ -23,7 +23,7 @@ class Friend(AbstractBase):
     link = Column(String(1024))
     avatar = Column(String(1024))
     error = Column(BOOLEAN)
-    createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
+    createAt = Column(DateTime, default=datetime.utcnow() + timedelta(hours=8))
 
 
 class Post(AbstractBase):
@@ -36,7 +36,7 @@ class Post(AbstractBase):
     author = Column(String(256))
     avatar = Column(String(1024))
     rule = Column(String(256))
-    createAt = Column(DateTime, default=datetime.now() + timedelta(hours=8))
+    createAt = Column(DateTime, default=datetime.utcnow() + timedelta(hours=8))
 
 
 class Auth(AbstractBase):
