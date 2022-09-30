@@ -5,7 +5,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "30 * * * *"
+    - cron: "0 0,6,12,18,21 * * *"
   workflow_dispatch:
 
 env:
@@ -78,6 +78,17 @@ jobs:
       working-directory: ./hexo_circle_of_friends
       run: |
         python run.py
+
+    - name: Push sqlite data # sqlite push
+      if: ${{ env.STORAGE_TYPE == 'sqlite' }}
+      uses: github-actions-x/commit@v2.9
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update data.db"
+        files: data.db
+        rebase: 'true'
+        name: ${{ env.GITHUB_NAME }}
+        email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts # mongodb
       if: ${{ env.STORAGE_TYPE == 'mongodb' }}
