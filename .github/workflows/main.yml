@@ -1,13 +1,12 @@
 name: update-friends-posts
 
-on: 
+on:
   push:
-    branches: 
-     - master
+    branches:
+      - main
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
-  watch:
-    types: [started]
+  workflow_dispatch:
 
 env:
   # 在这里查看需要添加的secert
@@ -29,20 +28,21 @@ env:
   GITHUB_EMAIL: ${{ secrets.GH_EMAIL }} # 你的github邮箱
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
   # mongodb配置
-  MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI 支持'mongodb://'和'mongodb+srv://'
+  MONGODB_URI: ${{ secrets.MONGODB_URI }} # mongodb URI 支持'mongodb://'和'mongodb+srv://'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@main
 
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@main
       with:
         python-version: 3.8
+        cache: "pip"
+        cache-dependency-path: "hexo_circle_of_friends/requirements.txt"
 
     - name: Install requirements
       working-directory: ./hexo_circle_of_friends
@@ -52,12 +52,12 @@ jobs:
     - name: leancloud Update posts # leancloud
       if: ${{ env.STORAGE_TYPE == 'leancloud' }}
       env:
-        APP_ID: ${{ secrets.APPID }}
-        APP_KEY: ${{ secrets.APPKEY }}
+        APPID: ${{ secrets.APPID }}
+        APPKEY: ${{ secrets.APPKEY }}
         LINK: ${{ secrets.LINK }}
         PROXY: ${{ secrets.PROXY }}
       working-directory: ./hexo_circle_of_friends
-      run: | 
+      run: |
         python run.py
 
     - name: mysql Update posts # mysql
@@ -75,8 +75,9 @@ jobs:
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
       env:
         SQLITE_DB: ${{ secrets.SQLITE_DB }}
+      working-directory: ./hexo_circle_of_friends
       run: |
-        python ./hexo_circle_of_friends/run.py
+        python run.py
 
     - name: Push sqlite data # sqlite push
       if: ${{ env.STORAGE_TYPE == 'sqlite' }}
