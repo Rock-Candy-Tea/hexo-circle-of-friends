@@ -186,10 +186,13 @@ async def update_settings(fc_settings: item_fc_settings, payload: str = Depends(
         return format_response.standard_response(**resp)
 
     else:
-        dump_path = os.path.join(base_path, "dump_settings.yaml")
-        with open(dump_path, 'w', encoding="utf-8") as f:
-            yaml.safe_dump(fc_settings.dict(), f)
-    return format_response.standard_response()
+        try:
+            dump_path = os.path.join(base_path, "dump_settings.yaml")
+            with open(dump_path, 'w', encoding="utf-8") as f:
+                yaml.safe_dump(fc_settings.dict(), f)
+            return format_response.standard_response(message="保存成功")
+        except:
+            return format_response.standard_response(code=400, message="上传配置失败")
 
 
 @app.get("/read_settings", tags=["Manage"])
@@ -237,6 +240,7 @@ async def update_server_env(server_env: ServerEnv, payload: str = Depends(login_
     base_path = get_base_path()
     with open(os.path.join(base_path, "env.json"), "w") as f:
         json.dump(server_env.dict(), f)
+    return format_response.standard_response(message="保存成功")
 
 
 @app.get("/restart_api", tags=["Manage"])
@@ -261,6 +265,13 @@ async def restart_api(payload: str = Depends(login_with_token_)):
             f.write(server_sh.strip())
         os.popen("chmod a+x temp.sh && nohup ./temp.sh >/dev/null 2>&1 &")
         os.system("ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9")
+
+
+# @app.get("/read_envs", tags=["Manage"])
+# async def read_settings(payload: str = Depends(login_with_token_)):
+#     current_settings = get_user_settings()
+#     if current_settings[""]
+#     return format_response.standard_response(current_settings=current_settings)
 
 
 if __name__ == "__main__":

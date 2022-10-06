@@ -14,7 +14,10 @@ class SQLEngine(object):
         if cls.engine is None:
             cls.engine = cls.__get_sql_engine()
             # 创建表
-            models.Model.metadata.create_all(cls.engine)
+            try:
+                models.Model.metadata.create_all(cls.engine)
+            except:
+                pass
         return cls.engine
 
     @staticmethod
