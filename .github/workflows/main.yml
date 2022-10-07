@@ -1,13 +1,12 @@
 name: update-friends-posts
 
-on:
+on: 
   push:
     branches:
-      - master
+      - main
   schedule:
     - cron: "0 0,6,12,18,21 * * *"
-  watch:
-    types: [ started ]
+  workflow_dispatch:
 
 env:
   # 在这里查看需要添加的secert
@@ -34,20 +33,19 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id  # 自己点的 start
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
+    - name: Checkout
+      uses: actions/checkout@main
 
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.8
+    - name: Set up Python
+      uses: actions/setup-python@main
+      with:
+        python-version: 3.8
 
-      - name: Install requirements
-        working-directory: ./hexo_circle_of_friends
-        run: |
-          pip install -r requirements.txt
+    - name: Install requirements
+      working-directory: ./hexo_circle_of_friends
+      run: |
+        pip install -r requirements.txt
 
       - name: set env
         run: |
