@@ -5,6 +5,25 @@ import aiohttp
 import asyncio
 
 
+async def get_envs(vercel_access_token: str, project_name: str) -> dict:
+    """返回vercel所有明文value的env"""
+    headers = {"Authorization": f"Bearer {vercel_access_token}"}
+    url = f"https://api.vercel.com/v9/projects/{project_name}/env/"
+    resp_envs = {}
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(url, verify_ssl=False) as response:
+            assert response.status == 200, f"获取环境变量失败，error_code:{response.status}"
+            content = await response.json()
+            envs = content["envs"]
+            for env in envs:
+                env_id = env.get("id")
+                url = f"https://api.vercel.com/v9/projects/{project_name}/env/{env_id}"
+                async with session.get(url, verify_ssl=False) as resp:
+                    cont = await resp.json()
+                    resp_envs[env["key"]] = cont.get("value")
+    return resp_envs
+
+
 async def get_env(vercel_access_token: str, project_name: str, env_name: str) -> Union[dict, bool]:
     """如果存在env_name，返回明文value的env，否则返回False"""
     headers = {"Authorization": f"Bearer {vercel_access_token}"}

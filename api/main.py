@@ -8,15 +8,15 @@ import os
 import json
 import sys
 import yaml
-
+from multiprocessing import Process
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, ServerEnv, FcSettings as item_fc_settings
 from api_dependencies.utils.github_upload import bulk_create_or_update_secret, create_or_update_file, \
-    get_b64encoded_data
-from api_dependencies.utils.vercel_upload import bulk_create_or_update_env
+    get_b64encoded_data, crawl_now
+from api_dependencies.utils.vercel_upload import bulk_create_or_update_env, get_envs
 from api_dependencies import format_response, tools
 
 settings = get_user_settings()
@@ -267,11 +267,41 @@ async def restart_api(payload: str = Depends(login_with_token_)):
         os.system("ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9")
 
 
-# @app.get("/read_envs", tags=["Manage"])
-# async def read_settings(payload: str = Depends(login_with_token_)):
-#     current_settings = get_user_settings()
-#     if current_settings[""]
-#     return format_response.standard_response(current_settings=current_settings)
+@app.get("/read_envs", tags=["Manage"])
+async def read_envs(payload: str = Depends(login_with_token_)):
+    if settings["DEPLOY_TYPE"] == "github":
+        # 从环境变量获取vercel_access_token
+        vercel_access_token = os.environ.get("VERCEL_ACCESS_TOKEN")
+        if not vercel_access_token:
+            return format_response.standard_response(code=400, message="缺少环境变量VERCEL_ACCESS_TOKEN")
+        project_name = "hexo-circle-of-friends"
+        resp_envs = await get_envs(vercel_access_token, project_name)
+    else:
+        # docker/server
+        resp_envs = ServerEnv()
+    return format_response.standard_response(current_envs=resp_envs)
+
+
+@app.get("/run_crawl_now", tags=["Manage"])
+async def run_crawl_now(payload: str = Depends(login_with_token_)):
+    if settings["DEPLOY_TYPE"] == "github":
+        # 获取gh_access_token
+        gh_access_token = os.environ.get("GH_TOKEN")
+        gh_name = os.environ.get("GH_NAME")
+        if not gh_access_token or not gh_name:
+            return format_response.standard_response(code=400, message="缺少环境变量GH_TOKEN或GH_NAME")
+        repo_name = "hexo-circle-of-friends"
+        resp = await crawl_now(gh_access_token, gh_name, repo_name)
+    else:
+        # docker/server
+        from hexo_circle_of_friends.run import main
+        try:
+            process = Process(target=main)
+            process.start()
+            resp = {"code": 200, "message": "运行成功"}
+        except:
+            resp = {"code": 500, "message": "运行失败"}
+    return format_response.standard_response(code=resp["code"], message=resp["message"])
 
 
 if __name__ == "__main__":

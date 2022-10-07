@@ -115,6 +115,28 @@ async def create_or_update_file(gh_access_token: str, gh_name: str, gh_email: st
     return resp
 
 
+async def crawl_now(gh_access_token: str, gh_name: str, repo_name: str):
+    """
+    Create a github workflow run.
+    api: https://docs.github.com/cn/rest/actions/workflows#create-a-workflow-dispatch-event
+    """
+    resp = {}
+    # ref: 运行main分支下的action
+    body = {"ref": "main"}
+    headers = {"Authorization": f"Bearer {gh_access_token}"}
+    content_url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/workflows/main.yml/dispatches"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.post(content_url, verify_ssl=False, json=body) as response:
+            assert response.status == 204
+            if response.status != 204:
+                resp["message"] = "运行失败"
+                resp["code"] = 500
+            else:
+                resp["message"] = "运行成功"
+                resp["code"] = 200
+    return resp
+
+
 if __name__ == '__main__':
     # import asyncio
     # loop = asyncio.get_event_loop()
