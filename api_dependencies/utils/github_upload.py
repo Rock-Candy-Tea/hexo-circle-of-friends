@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 import asyncio
 import aiohttp
 from base64 import b64encode
@@ -52,7 +52,8 @@ async def create_or_update_secret(gh_access_token: str, gh_name: str, repo_name:
     return resp
 
 
-async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_name: str, secrets: Dict[str, str]):
+async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_name: str,
+                                       secrets: Dict[str, Union[int, str]]):
     """
     Bulk create or update github repo secret.
     """
@@ -67,7 +68,7 @@ async def bulk_create_or_update_secret(gh_access_token: str, gh_name: str, repo_
             key = content.get("key")
         tasks = []
         for secret_name, secret_value in secrets.items():
-            body = {"encrypted_value": encrypt(key, secret_value), "key_id": key_id}
+            body = {"encrypted_value": encrypt(key, str(secret_value)), "key_id": key_id}
             url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/secrets/{secret_name}"
             tasks.append((url, body, secret_name))
         t = [asyncio.create_task(update(session, task[0], task[1], task[2])) for task in tasks]
