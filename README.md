@@ -6,7 +6,8 @@
 
 ```
 5.0.0 支持：
-- 更好的前端和管理面板，告别繁琐的配置
+- 更好的前端
+- 新增前端管理面板，告别繁琐的配置，管理朋友圈更加方便
 - 支持 gitee 和 github 上的 issues 友链获取
 - 支持butterfly、volantis、matery、sakura、fluid、nexmoe、Yun、stun、stellar、next主题的友链和文章获取
 - 支持feed订阅规则，如atom、rss等规则（支持wordpress类型的博客）
