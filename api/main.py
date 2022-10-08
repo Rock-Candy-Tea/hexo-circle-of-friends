@@ -246,7 +246,15 @@ async def update_server_env(server_env: ServerEnv, payload: str = Depends(login_
 @app.get("/restart_api", tags=["Manage"])
 async def restart_api(payload: str = Depends(login_with_token_)):
     if settings["DEPLOY_TYPE"] == "github":
-        return format_response.standard_response(code=400, message="当前部署方式不是server或docker")
+        gh_access_token = os.environ.get("GH_TOKEN", "")
+        gh_name = os.environ.get("GH_NAME", "")
+        gh_email = os.environ.get("GH_EMAIL", "")
+        repo_name = "hexo-circle-of-friends"
+        message = "auto restart"
+        data = b"1"
+        await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
+                                    "restartfile",
+                                    get_b64encoded_data(data), message)
     else:
         base_path = get_base_path()
         server_sh = f"#!/bin/bash\nsleep 10s\nexport BASE_PATH={base_path}\n" + "export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}\n"
