@@ -80,14 +80,14 @@ async def create_or_update_env(vercel_access_token: str, project_name: str, env_
     return resp
 
 
-async def bulk_create_or_update_env(vercel_access_token: str, project_name: str, envs: Dict[str, str]):
+async def bulk_create_or_update_env(vercel_access_token: str, project_name: str, envs: Dict[str, Union[str, int]]):
     """
     Bulk create or update vercel project secret.
     """
     resp = {"total": 0, "success": 0, "error": 0, "details": []}
     tasks = []
     for env_name, env_value in envs.items():
-        tasks.append((env_name, env_value))
+        tasks.append((env_name, str(env_value)))
     t = [asyncio.create_task(create_or_update_env(vercel_access_token, project_name, task[0], task[1])) for task in
          tasks]
     resp["total"] += len(t)
