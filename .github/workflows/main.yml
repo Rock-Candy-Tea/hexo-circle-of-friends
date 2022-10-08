@@ -29,6 +29,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # github token
   # mongodb配置
   MONGODB_URI: ${{ secrets.MONGODB_URI }}  # mongodb URI 支持'mongodb://'和'mongodb+srv://'
+  TZ: Asia/Shanghai
 
 jobs:
   build:
