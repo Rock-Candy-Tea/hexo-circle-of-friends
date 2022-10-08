@@ -155,7 +155,7 @@ def query_post(link, num, rule, ):
     if user:
         api_json = {
             "statistical_data": {
-                "author": user.name,
+                "name": user.name,
                 "link": user.link,
                 "avatar": user.avatar,
                 "article_num": len(posts)

@@ -232,7 +232,7 @@ def query_post(link, num, rule):
     if num < 0 or num > min(article_num, 1000):
         num = min(article_num, 1000)
     api_json['statistical_data'] = {
-        "author": author,
+        "name": author,
         "link": link,
         "avatar": avatar,
         "article_num": num
