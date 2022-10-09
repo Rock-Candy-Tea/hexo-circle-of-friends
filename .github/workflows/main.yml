@@ -100,3 +100,6 @@ jobs:
       working-directory: ./hexo_circle_of_friends
       run: |
         python run.py
+        
+    - name: keep alive
+      uses: gautamkrishnar/keepalive-workflow@master # keep workflows from being suspended when no commit for a long time
