@@ -66,7 +66,7 @@ GITHUB_FRIENDS_LINKS: {
 # block site list
 # 添加屏蔽站点，支持正则表达式
 BLOCK_SITE: [
-#    https://example.com/,
+#    https://example.com/, # 屏蔽 https://example.com/
 #    .*\.com,  # 含有.com的全部屏蔽
 #    ^http://,  # http开头的全部屏蔽
 ]
@@ -78,7 +78,8 @@ HTTP_PROXY: false
 # 过期文章清除（天）
 OUTDATE_CLEAN: 60
 
-# 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为leancloud
+# 5.x以后默认为sqlite，同时不建议使用leancloud
+# 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为sqlite
 DATABASE: "sqlite"
 
 # 部署方式，可选项：github，server，docker；默认为github
