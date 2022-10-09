@@ -13,7 +13,7 @@ def update_fcsettings_yaml(deploy_type: str):
         yaml.safe_dump(fc_settings, f)
 
 
-def server_deploy():
+def server_deploy(port):
     server_sh = """
     #!/bin/bash
     BASE_PATH=$(cd $(dirname $0); pwd)
@@ -31,6 +31,9 @@ def server_deploy():
         for name, value in envs.items():
             if value is not None:
                 server_sh += f"export {name}={value}\n"
+        if port == "":
+            port = 8000
+        server_sh += f"export EXPOSE_PORT={port}"
         server_sh += """
         nohup python3 -u ${BASE_PATH}/hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
         nohup python3 -u ${BASE_PATH}/api/main.py > /tmp/api_stdout.log 2>&1 &
@@ -48,7 +51,8 @@ while 1:
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
             update_fcsettings_yaml("server")
-            server_deploy()
+            server_port = input("指定api服务端口，按回车不输入则默认为8000")
+            server_deploy(server_port)
             print("已部署！")
         elif r == "2":
             os.system("ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9")
@@ -63,8 +67,12 @@ while 1:
         r = input(
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
-            os.system("docker run -di --name circle -p 8000:8000 -v /tmp/:/tmp/ yyyzyyyz/fcircle:latest")
-            os.system("docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
+            docker_port = input("指定api服务端口，按回车不输入则默认为8000")
+            if docker_port == "":
+                docker_port = 8000
+            os.system(f"docker run -di --name circle -p {docker_port}:8000 -v /tmp/:/tmp/ yyyzyyyz/fcircle:latest")
+            os.system(
+                "docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
             os.system("docker exec circle nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &")
             print("已部署！")
         elif r == "2":
