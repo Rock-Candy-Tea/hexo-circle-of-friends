@@ -9,7 +9,7 @@ def update_fcsettings_yaml(deploy_type: str):
     with open("hexo_circle_of_friends/fc_settings.yaml", "r", encoding="utf-8") as f:
         fc_settings = yaml.safe_load(f)
     fc_settings["DEPLOY_TYPE"] = deploy_type
-    with open("hexo_circle_of_friends/dump_settings.yaml", "w", encoding="utf-8") as f:
+    with open("dump_settings.yaml", "w", encoding="utf-8") as f:
         yaml.safe_dump(fc_settings, f)
 
 

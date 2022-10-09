@@ -257,7 +257,8 @@ async def restart_api(payload: str = Depends(login_with_token_)):
                                     get_b64encoded_data(data), message)
     else:
         base_path = get_base_path()
-        server_sh = f"#!/bin/bash\nsleep 10s\nexport BASE_PATH={base_path}\n" + "export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}\n"
+        kill_self = r"ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9"
+        server_sh = f"#!/bin/bash\nsleep 10s\n{kill_self}\nexport BASE_PATH={base_path}\n" + "export PYTHONPATH=${PYTHONPATH}:${BASE_PATH}\n"
 
         env_json_path = os.path.join(base_path, "env.json")
         if os.path.exists(env_json_path):
@@ -274,7 +275,7 @@ async def restart_api(payload: str = Depends(login_with_token_)):
 
             f.write(server_sh.strip())
         os.popen("chmod a+x temp.sh && nohup ./temp.sh >/dev/null 2>&1 &")
-        os.system("ps -ef | egrep 'python3 -u|python3 -c' | grep -v grep | awk '{print $2}' | xargs kill -9")
+        return format_response.standard_response(message="已重启")
 
 
 @app.get("/read_envs", tags=["Manage"])
