@@ -5,7 +5,7 @@ from hexo_circle_of_friends import scrapy_conf, models
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-
+from api_dependencies import tools
 
 class SQLEngine(object):
     engine = None
@@ -41,18 +41,25 @@ class SQLEngine(object):
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
                     conn = rf"sqlite:///{db_path}?check_same_thread=False"
-                elif os.environ.get("VERCEL"):
+                elif tools.is_vercel_sqlite():
                     # Vercel production environment is a read-only file system.
                     # See: https://github.com/vercel/community/discussions/314?sort=new
                     # Here are temporary storage solution: copy base_path/data.db to /tmp/data.db
                     # Most containers have a /tmp folder. It's a UNIX convention, and
                     # usually held in memory and cleared on reboot. Don't need to create by yourself.
-                    if os.path.exists(db_path):
+                    if os.path.exists("/tmp/data.db"):
+                        # 当前请求已存在临时存储
+                        conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                    elif os.path.exists(db_path):
+                        # 当前请求不存在临时存储，但存在github上传的data.db
                         with open(db_path, "rb") as f:
                             binary_content = f.read()
                         with open("/tmp/data.db", "wb") as f:
                             f.write(binary_content)
-                    conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                        conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                    else:
+                        # 此时vercel部署环境还没有data.db，返回异常
+                        raise "data.db path empty"
                 else:
                     conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
