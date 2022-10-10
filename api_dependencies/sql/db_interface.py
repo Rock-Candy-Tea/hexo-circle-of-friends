@@ -5,7 +5,7 @@ from hexo_circle_of_friends import scrapy_conf, models
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-
+from api_dependencies import tools
 
 class SQLEngine(object):
     engine = None
@@ -41,7 +41,7 @@ class SQLEngine(object):
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
                     conn = rf"sqlite:///{db_path}?check_same_thread=False"
-                elif os.environ.get("VERCEL"):
+                elif tools.is_vercel_sqlite():
                     # Vercel production environment is a read-only file system.
                     # See: https://github.com/vercel/community/discussions/314?sort=new
                     # Here are temporary storage solution: copy base_path/data.db to /tmp/data.db
