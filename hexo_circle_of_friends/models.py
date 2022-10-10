@@ -43,7 +43,6 @@ class Auth(AbstractBase):
     __tablename__ = 'auth'
     id = Column(Integer, primary_key=True, autoincrement=True)
     password = Column(String(1024))
-    token = Column(String(1024))
 
 
 class Secret(AbstractBase):

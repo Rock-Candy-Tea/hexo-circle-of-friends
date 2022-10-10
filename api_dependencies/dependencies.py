@@ -21,19 +21,6 @@ def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_or_create_token(password: str):
-    password_hash = create_password_hash(password)
-    return password_hash
-    # try:
-    #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    #     return payload
-    #     username: str = payload.get("sub")
-    #     if username is None:
-    #         raise credentials_exception
-    # except JWTError:
-    #     return "123"
-
-
 def encode_access_token(data: dict, secert_key: str,
                         expires_delta: timedelta = timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)):
     to_encode = data.copy()

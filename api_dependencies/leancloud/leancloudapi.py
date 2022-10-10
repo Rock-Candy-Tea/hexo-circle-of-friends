@@ -382,7 +382,7 @@ async def login_(password: str):
     query.limit(10)
 
     try:
-        query.select('password', "token")
+        query.select('password')
         res = query.first()
         obj_id = res.id
         # 保存了pwd，通过pwd验证
@@ -390,10 +390,6 @@ async def login_(password: str):
             # 更新token
             data = {"password_hash": res.get("password")}
             token = dep.encode_access_token(data, secret_key)
-            auth.create_without_data(obj_id).destroy()
-            auth_db.set("password", res.get("password"))
-            auth_db.set("token", token)
-            auth_db.save()
         else:
             # 401
             return format_response.CredentialsException
@@ -405,7 +401,6 @@ async def login_(password: str):
         data = {"password_hash": password_hash}
         token = dep.encode_access_token(data, secret_key)
         auth_db.set("password", password_hash)
-        auth_db.set("token", token)
         auth_db.save()
     except:
         return format_response.CredentialsException

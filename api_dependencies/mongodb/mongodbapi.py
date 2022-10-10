@@ -194,15 +194,13 @@ async def login_(password: str):
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
         token = dep.encode_access_token(data, secret_key)
-        auth.insert_one({"password": password_hash, "token": token})
+        auth.insert_one({"password": password_hash})
     elif auth_count == 1:
         # 保存了pwd，通过pwd验证
         if dep.verify_password(password, auth_res["password"]):
             # 更新token
             data = {"password_hash": auth_res["password"]}
             token = dep.encode_access_token(data, secret_key)
-            insert_stat = {"password": auth_res["password"], "token": token}
-            auth.replace_one({"password": auth_res["password"]}, insert_stat, upsert=True)
         else:
             # 401
             return format_response.CredentialsException

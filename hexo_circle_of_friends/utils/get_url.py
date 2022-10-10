@@ -106,7 +106,7 @@ class GetUrl:
         if not name:
             name = response.css('a.friend-card span::text').extract()
         if not name:
-            name = response.css('a.friend-card p::text').extract()
+            name = response.css('a.friend-card p.friend-name::text').extract()
         self.handle(avatar, link, name, queue, "volantis")
 
     def get_Yun_url(self, response, queue):

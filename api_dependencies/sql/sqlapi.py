@@ -282,7 +282,7 @@ async def login_(password: str):
         # 未保存pwd，生成对应token并保存
         data = {"password_hash": password_hash}
         token = dep.encode_access_token(data, secret_key)
-        tb_obj = Auth(password=password_hash, token=token)
+        tb_obj = Auth(password=password_hash)
         session.add(tb_obj)
     elif len(auth) == 1:
         # 保存了pwd，通过pwd验证
@@ -290,7 +290,6 @@ async def login_(password: str):
             # 更新token
             data = {"password_hash": auth[0].password}
             token = dep.encode_access_token(data, secret_key)
-            session.query(Auth).filter_by(password=auth[0].password).update({"token": token})
         else:
             # 401
             return format_response.CredentialsException
