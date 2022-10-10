@@ -47,14 +47,18 @@ class SQLEngine(object):
                     # Here are temporary storage solution: copy base_path/data.db to /tmp/data.db
                     # Most containers have a /tmp folder. It's a UNIX convention, and
                     # usually held in memory and cleared on reboot. Don't need to create by yourself.
-                    if os.path.exists(db_path):
+                    if os.path.exists("/tmp/data.db"):
+                        # 当前请求已存在临时存储
+                        conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                    elif os.path.exists(db_path):
+                        # 当前请求不存在临时存储，但存在github上传的data.db
                         with open(db_path, "rb") as f:
                             binary_content = f.read()
                         with open("/tmp/data.db", "wb") as f:
                             f.write(binary_content)
                         conn = f"sqlite:////tmp/data.db?check_same_thread=False"
                     else:
-                        # 此时vercel部署环境还没有data.db，返回空
+                        # 此时vercel部署环境还没有data.db，返回异常
                         raise "data.db path empty"
                 else:
                     conn = f"sqlite:////{db_path}?check_same_thread=False"
