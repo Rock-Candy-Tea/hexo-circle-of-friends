@@ -52,7 +52,10 @@ class SQLEngine(object):
                             binary_content = f.read()
                         with open("/tmp/data.db", "wb") as f:
                             f.write(binary_content)
-                    conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                        conn = f"sqlite:////tmp/data.db?check_same_thread=False"
+                    else:
+                        # 此时vercel部署环境还没有data.db，返回空
+                        raise "data.db path empty"
                 else:
                     conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
