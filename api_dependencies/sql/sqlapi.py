@@ -11,7 +11,7 @@ from hexo_circle_of_friends.models import Friend, Post, Auth
 from sqlalchemy.sql.expression import desc, func
 from hexo_circle_of_friends.utils.process_time import time_compare
 from api_dependencies.utils.validate_params import start_end_check
-from api_dependencies.utils.github_upload import create_or_update_file, get_b64encoded_data
+from api_dependencies.utils.github_interface import create_or_update_file, get_b64encoded_data
 from api_dependencies.sql import db_interface, security
 from api_dependencies import format_response, tools, dependencies as dep
 

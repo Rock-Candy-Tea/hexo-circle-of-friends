@@ -138,6 +138,33 @@ async def crawl_now(gh_access_token: str, gh_name: str, repo_name: str):
     return resp
 
 
+async def check_crawler_status(gh_access_token: str, gh_name: str, repo_name: str):
+    """
+    Check github workflow run status.
+    api: https://docs.github.com/cn/rest/actions/workflow-runs#list-workflow-runs-for-a-repository
+    """
+    resp = {}
+    headers = {"Authorization": f"Bearer {gh_access_token}"}
+    content_url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/runs"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(content_url, verify_ssl=False) as response:
+            if response.status == 200:
+                content = await response.json()
+                resp["message"] = "检查运行状态成功"
+                resp["code"] = 200
+                # in_progress(运行中)；completed(已完成)；queued（队列中）
+                status = content["workflow_runs"][0]["status"]
+                if status == "in_progress" or "queued":
+                    resp["status"] = "运行中"
+                else:
+                    resp["status"] = "未运行"
+            else:
+                resp["message"] = "检查运行状态失败"
+                resp["code"] = 500
+                resp["status"] = "未知"
+    return resp
+
+
 if __name__ == '__main__':
     # import asyncio
     # loop = asyncio.get_event_loop()

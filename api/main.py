@@ -14,9 +14,9 @@ from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, ServerEnv, FcSettings as item_fc_settings
-from api_dependencies.utils.github_upload import bulk_create_or_update_secret, create_or_update_file, \
-    get_b64encoded_data, crawl_now
-from api_dependencies.utils.vercel_upload import bulk_create_or_update_env, get_envs
+from api_dependencies.utils.github_interface import bulk_create_or_update_secret, create_or_update_file, \
+    get_b64encoded_data, crawl_now, check_crawler_status
+from api_dependencies.utils.vercel_interface import bulk_create_or_update_env, get_envs
 from api_dependencies import format_response, tools
 
 settings = get_user_settings()
@@ -313,6 +313,35 @@ async def run_crawl_now(payload: str = Depends(login_with_token_)):
         except:
             resp = {"code": 500, "message": "运行失败"}
     return format_response.standard_response(code=resp["code"], message=resp["message"])
+
+
+@app.get("/crawler_status", tags=["Manage"])
+async def crawler_status(payload: str = Depends(login_with_token_)):
+    """
+    查看crawler运行状态
+    status: 运行中；未运行；未知
+    """
+    if settings["DEPLOY_TYPE"] == "github":
+        # 获取gh_access_token
+        gh_access_token = os.environ.get("GH_TOKEN")
+        gh_name = os.environ.get("GH_NAME")
+        if not gh_access_token or not gh_name:
+            return format_response.standard_response(code=400, message="缺少环境变量GH_TOKEN或GH_NAME")
+        repo_name = "hexo-circle-of-friends"
+        resp = await check_crawler_status(gh_access_token, gh_name, repo_name)
+    else:
+        # docker/server
+        resp = {"code": 200, "message": "检查成功"}
+        res = os.popen("ps -ef | egrep 'hexo_circle_of_friends/run.py' | grep -v grep | wc -l").read().strip()
+        if res == "1":
+            resp["status"] = "未运行"
+        elif res == "2":
+            resp["status"] = "运行中"
+        else:
+            resp["code"] = 500
+            resp["message"] = "检查运行状态失败"
+            resp["status"] = "未知"
+    return format_response.standard_response(**resp)
 
 
 if __name__ == "__main__":
