@@ -154,7 +154,7 @@ async def check_crawler_status(gh_access_token: str, gh_name: str, repo_name: st
                 resp["code"] = 200
                 # in_progress(运行中)；completed(已完成)；queued（队列中）
                 status = content["workflow_runs"][0]["status"]
-                if status == "in_progress" or "queued":
+                if status == "in_progress" or status == "queued":
                     resp["status"] = "运行中"
                 else:
                     resp["status"] = "未运行"
