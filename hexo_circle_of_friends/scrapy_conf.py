@@ -1,5 +1,5 @@
 ############################## 除非您了解本项目，否则请勿修改本文件 ################################
-VERSION = "5.0.2"
+VERSION = "5.0.3"
 
 # debug
 # debug模式
@@ -23,10 +23,6 @@ HTTP_PROXY_URL = ""
 #     "https://www.zyoushuo.cn/friends/",  # volantis
 # ]
 FRIENDPAGE_LINK = [
-    {
-        "link": "https://akilar.top/link/",  # 友链页地址1，修改为你的友链页地址
-        "theme": "butterfly"
-    },
 ]
 
 BOT_NAME = 'hexo_circle_of_friends'

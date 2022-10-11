@@ -332,10 +332,13 @@ async def crawler_status(payload: str = Depends(login_with_token_)):
     else:
         # docker/server
         resp = {"code": 200, "message": "检查成功"}
-        res = os.popen("ps -ef | egrep 'hexo_circle_of_friends/run.py' | grep -v grep | wc -l").read().strip()
-        if res == "1":
+        # restart_api:两个run；run_crawl_now两个main
+        check_restart_api = int(os.popen(
+            "ps -ef | egrep 'hexo_circle_of_friends/run.py' | grep -v grep | wc -l").read().strip())
+        check_run_crawl_now = int(os.popen("ps -ef | egrep 'api/main.py' | grep -v grep | wc -l").read().strip())
+        if check_restart_api < 1 and check_run_crawl_now == 1:
             resp["status"] = "未运行"
-        elif res == "2":
+        elif check_restart_api == 2 or check_run_crawl_now == 2:
             resp["status"] = "运行中"
         else:
             resp["code"] = 500
