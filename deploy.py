@@ -51,7 +51,7 @@ while 1:
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
             update_fcsettings_yaml("server")
-            server_port = input("指定api服务端口，按回车不输入则默认为8000")
+            server_port = input("指定api服务端口，按回车不输入则默认为8000：")
             server_deploy(server_port)
             print("已部署！")
         elif r == "2":
