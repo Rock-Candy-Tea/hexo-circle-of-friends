@@ -51,8 +51,8 @@ def all(start: int = 0, end: int = -1, rule: str = "updated"):
     - end: 文章信息列表从 按rule排序后的顺序 的结束位置
     - rule: 文章排序规则（创建时间/更新时间）
     """
-    list = ['title', 'created', 'updated', 'link', 'author', 'avatar']
-    return query_all(list, start, end, rule)
+    list_ = ['title', 'created', 'updated', 'link', 'author', 'avatar']
+    return query_all(list_, start, end, rule)
 
 
 @app.get("/friend", tags=["PUBLIC_API"], summary="返回所有友链")

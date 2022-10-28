@@ -16,7 +16,7 @@ from api_dependencies.sql import db_interface, security
 from api_dependencies import format_response, tools, dependencies as dep
 
 
-def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
+def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     session = db_interface.db_init()
     article_num = session.query(Post).count()
     # 检查start、end的合法性
@@ -47,7 +47,7 @@ def query_all(list, start: int = 0, end: int = -1, rule: str = "updated"):
     post_data = []
     for k in range(len(posts)):
         item = {'floor': start + k + 1}
-        for elem in list:
+        for elem in li:
             item[elem] = getattr(posts[k], elem)
         post_data.append(item)
     session.close()

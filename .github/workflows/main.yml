@@ -11,6 +11,7 @@ on:
 env:
   # 在这里查看需要添加的secert
   # 通用配置
+  SIMPLE_MODE: false
   STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }} # 请修改为你的存储方式，默认为leancloud
   PROXY: ${{ secrets.PROXY }} # 可选，http代理
   # leancloud、mysql、sqlite、mongodb配置四选一即可
@@ -51,6 +52,19 @@ jobs:
     - name: set env
       run: |
         echo "BASE_PATH=$(pwd)" >> $GITHUB_ENV && echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
+    - name: simple mode push
+      if: ${{ env.SIMPLE_MODE }}
+      uses: github-actions-x/commit@v2.9
+      run: |
+        python ./hexo_circle_of_friends/utils/simple_mode_transform_json.py
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: "Update data.json"
+        files: data.json
+        rebase: 'true'
+        name: github-actions[bot]
+        email: github-actions@noreply.github.com
 
     - name: leancloud Update posts # leancloud
       if: ${{ env.STORAGE_TYPE == 'leancloud' }}
