@@ -76,7 +76,7 @@ jobs:
         python run.py
 
     - name: sqlite Update posts # sqlite
-      if: ${{ env.STORAGE_TYPE == 'sqlite' || env.SIMPLE_MODE }}
+      if: ${{ env.STORAGE_TYPE == 'sqlite' || env.SIMPLE_MODE == "true" }}
       env:
         PYTHONPATH: ${{ env.PYTHONPATH }}
         SQLITE_DB: ${{ secrets.SQLITE_DB }}
@@ -103,12 +103,12 @@ jobs:
         python run.py
 
     - name: simple mode transform # 极简模式转换
-      if: ${{ env.SIMPLE_MODE }}
+      if: ${{ env.SIMPLE_MODE == "true" }}
       run: |
         python ./hexo_circle_of_friends/utils/simple_mode_transform_json.py
 
     - name: simple mode push # 推送极简模式
-      if: ${{ env.SIMPLE_MODE }}
+      if: ${{ env.SIMPLE_MODE == "true" }}
       uses: github-actions-x/commit@v2.9
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
