@@ -353,9 +353,9 @@ class FriendpageLinkSpider(scrapy.Spider):
         # print("theme_stellar_parse---------->" + response.url)
         rule = "stellar"
         friend = response.meta.get("friend")
-        titles = response.css(".post-list .post-title::text").extract()
-        partial_l = response.css(".post-list .post-card::attr(href)").extract()
-        createds = response.css("#post-meta time::attr(datetime)").extract()
+        titles = response.css(".post-list .post-card:not(.photo) .post-title::text").extract()
+        partial_l = response.css(".post-list .post-card:not(.photo)::attr(href)").extract()
+        createds = response.css(".post-list .post-card:not(.photo) #post-meta time::attr(datetime)").extract()
         updateds = []
         try:
             for post_info in self.process_theme_postinfo(friend, partial_l, titles, createds, updateds, rule):

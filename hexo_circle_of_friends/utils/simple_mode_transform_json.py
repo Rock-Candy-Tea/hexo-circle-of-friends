@@ -13,7 +13,7 @@ def transform():
     """
     base_path = get_base_path()
     list_ = ['title', 'created', 'updated', 'link', 'author', 'avatar']
-    data = sqlapi.query_all(list_)
+    data = sqlapi.query_all(list_, rule="created")
     with open(os.path.join(base_path, 'data.json'), "w") as f:
         json.dump(data, f)
     print(f"读取并转换完毕")
