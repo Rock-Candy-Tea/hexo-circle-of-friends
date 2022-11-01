@@ -405,3 +405,15 @@ async def login_(password: str):
     except:
         return format_response.CredentialsException
     return format_response.standard_response(token=token)
+
+
+async def db_reset_():
+    db_interface.db_init()
+    # 清除friend、post表
+    friendlist_query = leancloud.Query('friend_list')
+    friendlist = friendlist_query.limit(1000).find()
+    leancloud.Object.destroy_all(friendlist)
+    friendpoor_query = leancloud.Query('friend_poor')
+    friendpoor = friendpoor_query.limit(1000).find()
+    leancloud.Object.destroy_all(friendpoor)
+    return format_response.standard_response()

@@ -208,3 +208,13 @@ async def login_(password: str):
         # 401
         return format_response.CredentialsException
     return format_response.standard_response(token=token)
+
+
+async def db_reset_():
+    session = db_interface.db_init()
+    # 清除friend、post表
+    post_collection, friend_db_collection = session.Post, session.Friend
+    friend_db_collection.delete_many({})
+    post_collection.delete_many({})
+
+    return format_response.standard_response()

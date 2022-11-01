@@ -16,6 +16,25 @@ from api_dependencies.sql import db_interface, security
 from api_dependencies import format_response, tools, dependencies as dep
 
 
+async def vercel_update_db():
+    """
+    vercel环境需要上传data.db到github
+    :return:
+    """
+    # github+vercel将db上传
+    db_path = "/tmp/data.db"
+    with open(db_path, "rb") as f:
+        data = f.read()
+    gh_access_token = os.environ.get("GH_TOKEN", "")
+    gh_name = os.environ.get("GH_NAME", "")
+    gh_email = os.environ.get("GH_EMAIL", "")
+    repo_name = "hexo-circle-of-friends"
+    message = "Update data.db"
+    await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
+                                "data.db",
+                                get_b64encoded_data(data), message)
+
+
 def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     session = db_interface.db_init()
     article_num = session.query(Post).count()
@@ -288,18 +307,7 @@ async def login_(password: str):
         session.commit()
         session.close()
         if tools.is_vercel():
-            # github+vercel将db上传
-            db_path = "/tmp/data.db"
-            with open(db_path, "rb") as f:
-                data = f.read()
-            gh_access_token = os.environ.get("GH_TOKEN", "")
-            gh_name = os.environ.get("GH_NAME", "")
-            gh_email = os.environ.get("GH_EMAIL", "")
-            repo_name = "hexo-circle-of-friends"
-            message = "Update data.db"
-            await create_or_update_file(gh_access_token, gh_name, gh_email, repo_name,
-                                        "data.db",
-                                        get_b64encoded_data(data), message)
+            await vercel_update_db()
     elif len(auth) == 1:
         # 保存了pwd，通过pwd验证
         if dep.verify_password(password, auth[0].password):
@@ -314,3 +322,15 @@ async def login_(password: str):
         return format_response.CredentialsException
 
     return format_response.standard_response(token=token)
+
+
+async def db_reset_():
+    session = db_interface.db_init()
+    # 清除friend、post表
+    session.query(Friend).delete()
+    session.query(Post).delete()
+    session.commit()
+    session.close()
+    if tools.is_vercel():
+        await vercel_update_db()
+    return format_response.standard_response()

@@ -346,6 +346,13 @@ async def crawler_status(payload: str = Depends(login_with_token_)):
             resp["status"] = "未知"
     return format_response.standard_response(**resp)
 
+@app.delete("/db_reset", tags=["Manage"])
+async def db_reset(payload: str = Depends(login_with_token_)):
+    """
+    清空数据库中友链、文章表
+    """
+    return await db_reset_()
+
 
 if __name__ == "__main__":
     if settings["DEPLOY_TYPE"] == "docker":
