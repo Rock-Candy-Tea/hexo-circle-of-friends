@@ -41,7 +41,11 @@ class GetUrl:
         if not avatar:
             avatar = response.css('.flink-list a img::attr(src)').extract()
         if not avatar:
+            # lazyload on
             avatar = response.css('.flink .site-card .info img::attr(data-lazy-src)').extract()
+        if not avatar:
+            # lazyload off
+            avatar = response.css('.flink .site-card .info img::attr(src)').extract()
 
         link = response.css('.flink-list a::attr(href)').extract()
         if not link:
