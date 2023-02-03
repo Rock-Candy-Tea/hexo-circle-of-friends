@@ -1,9 +1,10 @@
 from typing import Dict, Union
 import asyncio
 import aiohttp
+import zipfile
 from base64 import b64encode
 from nacl import encoding, public
-
+from io import BytesIO
 
 def get_b64encoded_data(bytes_data: bytes):
     return b64encode(bytes_data).decode("utf-8")
@@ -165,9 +166,38 @@ async def check_crawler_status(gh_access_token: str, gh_name: str, repo_name: st
     return resp
 
 
+async def download_logs(gh_access_token: str, gh_name: str, repo_name: str):
+    """
+    Check github workflow run logs.
+    api: https://docs.github.com/zh/rest/actions/workflow-runs?apiVersion=2022-11-28#download-workflow-run-logs
+    """
+    resp = {}
+    headers = {"Authorization": f"Bearer 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"}
+    content_url = f"https://api.github.com/repos/hiltay/hexo-circle-of-friends/actions/runs/4081654378/logs"
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(content_url, verify_ssl=False) as response:
+            if response.status == 200:
+                logurl = str(response.url)
+                # content = await response.json()
+                async with session.get(logurl, verify_ssl=False) as res:
+                    if response.status == 200:
+                        content = await res.content.read()
+                        fio = BytesIO(content)
+                        myzip = zipfile.ZipFile(file=fio)
+                        for filename in myzip.namelist():
+                            data = myzip.read(filename).decode("utf-8")
+                            print(data)
+            else:
+                resp["message"] = "检查运行状态失败"
+                resp["code"] = 500
+                resp["status"] = "未知"
+    return resp
+
+
 if __name__ == '__main__':
-    # import asyncio
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(create_or_update_file(gh_access_token, gh_name, gh_email, repo_name, b64encoded_data))
-    # loop.close()
+
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(download_logs("a","a","a"))
+    loop.close()
     pass
