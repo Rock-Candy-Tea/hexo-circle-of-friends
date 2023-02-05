@@ -29,3 +29,5 @@
 - 增加重置数据库功能
 ```
 
+[![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)
+
