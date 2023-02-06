@@ -61,6 +61,7 @@ GITHUB_FRIENDS_LINKS: {
     owner: "ccknbc",  # 填写你的github用户名
     repo: "ccknbc-actions",  # 填写你的github仓库名
     state: "open",  # 填写抓取的issue状态(open/closed)
+    label: "active",  # 填写抓取的issue标签
 }
 
 # block site list

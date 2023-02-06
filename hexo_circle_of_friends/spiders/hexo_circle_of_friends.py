@@ -68,8 +68,10 @@ class FriendpageLinkSpider(scrapy.Spider):
             for number in range(1, 100):
                 domain = 'https://github.com'
                 dic = self.settings["GITHUB_FRIENDS_LINKS"]
-                url = domain + "/" + dic["owner"] + "/" + dic["repo"] + "/issues?q=is%3A" + dic[
-                    "state"] + '&page=' + str(number)
+                url = domain + "/" + dic["owner"] + "/" + dic["repo"] + "/issues?page=" + str(number) + '&q=is%3A' + dic[
+                    "state"]
+                if dic["label"]:
+                    url = url + '+label%3A' + dic["label"]
                 yield Request(url, callback=self.friend_poor_parse, meta={"github": {"domain": domain}})
         # 初始化起始请求链接
         friendpage_link, friendpage_theme = self.init_start_urls()
