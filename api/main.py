@@ -8,14 +8,16 @@ import os
 import json
 import sys
 import yaml
+import zipfile
 from multiprocessing import Process
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from hexo_circle_of_friends import scrapy_conf
 from fastapi import FastAPI, Depends
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from api_dependencies.items import PassWord, GitHubEnv, VercelEnv, ServerEnv, FcSettings as item_fc_settings
 from api_dependencies.utils.github_interface import bulk_create_or_update_secret, create_or_update_file, \
-    get_b64encoded_data, crawl_now, check_crawler_status
+    get_b64encoded_data, crawl_now, check_crawler_status, get_logs_url
 from api_dependencies.utils.vercel_interface import bulk_create_or_update_env, get_envs
 from api_dependencies import format_response, tools
 
@@ -346,12 +348,40 @@ async def crawler_status(payload: str = Depends(login_with_token_)):
             resp["status"] = "未知"
     return format_response.standard_response(**resp)
 
+
 @app.delete("/db_reset", tags=["Manage"])
 async def db_reset(payload: str = Depends(login_with_token_)):
     """
     清空数据库中友链、文章表
     """
     return await db_reset_()
+
+
+@app.get("/download_logs", tags=["Manage"])
+async def download_logs(payload: str = Depends(login_with_token_)):
+    """
+    下载日志
+    """
+    if settings["DEPLOY_TYPE"] == "github":
+        # 获取gh_access_token
+        gh_access_token = os.environ.get("GH_TOKEN")
+        gh_name = os.environ.get("GH_NAME")
+        if not gh_access_token or not gh_name:
+            return format_response.standard_response(code=400, message="缺少环境变量GH_TOKEN或GH_NAME")
+        repo_name = "hexo-circle-of-friends"
+        resp = await get_logs_url(gh_access_token, gh_name, repo_name)
+        return format_response.standard_response(**resp)
+    else:
+        files = os.listdir("/tmp/")
+        zippackage = []
+        for f in files:
+            if f.startswith("crawler.log"):
+                zippackage.append(os.path.join("/tmp/", f))
+        with zipfile.ZipFile("/tmp/pyq_log.zip", "w") as f:
+            for file_path in zippackage:
+                f.write(file_path)
+
+        return FileResponse(r"/tmp/pyq_log.zip", filename="pyq_log.zip")
 
 
 if __name__ == "__main__":

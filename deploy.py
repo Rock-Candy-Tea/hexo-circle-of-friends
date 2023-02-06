@@ -35,8 +35,8 @@ def server_deploy(port):
             port = 8000
         server_sh += f"export EXPOSE_PORT={port}"
         server_sh += """
-        nohup python3 -u ${BASE_PATH}/hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &
-        nohup python3 -u ${BASE_PATH}/api/main.py > /tmp/api_stdout.log 2>&1 &
+        nohup python3 -u ${BASE_PATH}/hexo_circle_of_friends/run.py
+        nohup python3 -u ${BASE_PATH}/api/main.py
             """
         f.write(server_sh.strip())
     os.system("chmod a+x temp.sh && ./temp.sh && rm -f temp.sh")
@@ -67,13 +67,14 @@ while 1:
         r = input(
             "请选择：\n——————————————————————————————————\n| 1、部署 | 2、取消部署 | q、退出 |\n——————————————————————————————————\n")
         if r == "1":
-            docker_port = input("指定api服务端口，按回车不输入则默认为8000")
+            docker_port = input("指定api服务端口，按回车不输入则默认为8000\n")
             if docker_port == "":
                 docker_port = 8000
             os.system(f"docker run -di --name circle -p {docker_port}:8000 -v /tmp/:/tmp/ yyyzyyyz/fcircle:latest")
-            os.system(
-                "docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
-            os.system("docker exec circle nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &")
+            # os.system("docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 &")
+            os.system("docker exec circle nohup python3 -u ./hexo_circle_of_friends/run.py")
+            # os.system("docker exec circle nohup python3 -u ./api/main.py > /tmp/api_stdout.log 2>&1 &")
+            os.system("docker exec circle nohup python3 -u ./api/main.py")
             print("已部署！")
         elif r == "2":
             os.system("docker stop circle && docker rm circle && docker rmi yyyzyyyz/fcircle:latest")

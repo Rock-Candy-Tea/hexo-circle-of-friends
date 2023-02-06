@@ -9,3 +9,7 @@ ENV BASEPATH=/home/fcircle_src/
 ENV PYTHONPATH=/home/fcircle_src/
 RUN $PIP install -r ./hexo_circle_of_friends/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple \
 && ln -snf /usr/share/zoneinfo/$TimeZone /etc/localtime && echo $TimeZone > /etc/timezone
+
+# docker login
+# docker build -t yyyzyyyz/fcircle . \
+# docker push yyyzyyyz/fcircle

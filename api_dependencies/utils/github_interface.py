@@ -1,10 +1,7 @@
 from typing import Dict, Union
-import asyncio
 import aiohttp
-import zipfile
 from base64 import b64encode
 from nacl import encoding, public
-from io import BytesIO
 
 def get_b64encoded_data(bytes_data: bytes):
     return b64encode(bytes_data).decode("utf-8")
@@ -166,31 +163,37 @@ async def check_crawler_status(gh_access_token: str, gh_name: str, repo_name: st
     return resp
 
 
-async def download_logs(gh_access_token: str, gh_name: str, repo_name: str):
+async def get_logs_url(gh_access_token: str, gh_name: str, repo_name: str):
     """
-    Check github workflow run logs.
+    Get latest github workflow run logs' url.
     api: https://docs.github.com/zh/rest/actions/workflow-runs?apiVersion=2022-11-28#download-workflow-run-logs
     """
     resp = {}
-    headers = {"Authorization": f"Bearer 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"}
-    content_url = f"https://api.github.com/repos/hiltay/hexo-circle-of-friends/actions/runs/4081654378/logs"
+    headers = {"Authorization": f"Bearer {gh_access_token}"}
+    content_url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/runs"
     async with aiohttp.ClientSession(headers=headers) as session:
         async with session.get(content_url, verify_ssl=False) as response:
             if response.status == 200:
-                logurl = str(response.url)
-                # content = await response.json()
-                async with session.get(logurl, verify_ssl=False) as res:
-                    if response.status == 200:
-                        content = await res.content.read()
-                        fio = BytesIO(content)
-                        myzip = zipfile.ZipFile(file=fio)
-                        for filename in myzip.namelist():
-                            data = myzip.read(filename).decode("utf-8")
-                            print(data)
+                content = await response.json()
+                workflow_id = content["workflow_runs"][0]["id"]
+                url = f"https://api.github.com/repos/{gh_name}/{repo_name}/actions/runs/{workflow_id}/logs"
+                async with session.get(url, verify_ssl=False) as res:
+                    resp["code"] = 200
+                    resp["path"] = str(res.url)
+                    resp["filename"] = res.content_disposition.filename
+                    resp["content_type"] = res.content_type
+                    # content = await response.json()
+                    # async with session.get(logurl, verify_ssl=False) as res:
+                    #     if response.status == 200:
+                    #         content = await res.content.read()
+                    #         fio = BytesIO(content)
+                    #         myzip = zipfile.ZipFile(file=fio)
+                    #         for filename in myzip.namelist():
+                    #             data = myzip.read(filename).decode("utf-8")
+                    #             print(data)
             else:
-                resp["message"] = "检查运行状态失败"
+                resp["message"] = "获取失败"
                 resp["code"] = 500
-                resp["status"] = "未知"
     return resp
 
 
@@ -198,6 +201,6 @@ if __name__ == '__main__':
 
     import asyncio
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(download_logs("a","a","a"))
+    loop.run_until_complete(get_logs_url("a","a","a"))
     loop.close()
     pass
