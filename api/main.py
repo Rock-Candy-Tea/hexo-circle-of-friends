@@ -373,15 +373,13 @@ async def download_logs(payload: str = Depends(login_with_token_)):
         return format_response.standard_response(**resp)
     else:
         files = os.listdir("/tmp/")
-        zippackage = []
-        for f in files:
-            if f.startswith("crawler.log"):
-                zippackage.append(os.path.join("/tmp/", f))
         with zipfile.ZipFile("/tmp/pyq_log.zip", "w") as f:
-            for file_path in zippackage:
-                f.write(file_path)
+            for filename in files:
+                if filename.startswith("crawler.log"):
+                    f.write(os.path.join("/tmp/", filename))
 
-        return FileResponse(r"/tmp/pyq_log.zip", filename="pyq_log.zip")
+        return FileResponse(r"/tmp/pyq_log.zip", headers={"Access-Control-Expose-Headers": "Content-Disposition"},
+                            filename="pyq_log.zip")
 
 
 if __name__ == "__main__":
