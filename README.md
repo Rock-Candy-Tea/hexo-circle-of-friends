@@ -28,6 +28,7 @@
 最近改动：
 - 新增管理面板可下载运行日志
 - 前端默认加载文章数量可配置
+- docker镜像对多种架构的支持
 ```
 
 [![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)
