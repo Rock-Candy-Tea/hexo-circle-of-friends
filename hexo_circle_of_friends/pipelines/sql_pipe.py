@@ -3,7 +3,7 @@
 import os
 import re
 import sys
-
+from urllib import parse
 from .. import models
 from ..utils import baselogger, project
 from sqlalchemy import create_engine
@@ -38,7 +38,7 @@ class SQLPipeline:
             if db == "sqlite":
                 conn = f"sqlite:////{os.path.join(base_path, 'data.db')}?check_same_thread=False"
             elif db == "mysql":
-                conn = f"mysql+pymysql://{os.environ['MYSQL_USERNAME']}:{os.environ['MYSQL_PASSWORD']}" \
+                conn = f"mysql+pymysql://{os.environ['MYSQL_USERNAME']}:{parse.quote_plus(os.environ['MYSQL_PASSWORD'])}" \
                        f"@{os.environ['MYSQL_IP']}:{os.environ['MYSQL_PORT']}/{os.environ['MYSQL_DB']}?charset=utf8mb4"
             else:
                 raise Exception("SQL连接失败，不支持的数据库！")

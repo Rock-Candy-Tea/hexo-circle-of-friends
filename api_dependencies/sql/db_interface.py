@@ -1,6 +1,6 @@
 import os
 import sys
-
+from urllib import parse
 from hexo_circle_of_friends import scrapy_conf, models
 from hexo_circle_of_friends.utils.project import get_user_settings, get_base_path
 from sqlalchemy import create_engine
@@ -64,9 +64,8 @@ class SQLEngine(object):
                     conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:%s/%s?charset=utf8mb4" \
-                       % (os.environ["MYSQL_USERNAME"], os.environ["MYSQL_PASSWORD"], os.environ["MYSQL_IP"]
-                          , os.environ["MYSQL_PORT"], os.environ["MYSQL_DB"])
+                conn = f"mysql+pymysql://{os.environ['MYSQL_USERNAME']}:{parse.quote_plus(os.environ['MYSQL_PASSWORD'])}" \
+                       f"@{os.environ['MYSQL_IP']}:{os.environ['MYSQL_PORT']}/{os.environ['MYSQL_DB']}?charset=utf8mb4"
             else:
                 raise
         try:
