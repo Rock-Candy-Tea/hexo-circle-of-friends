@@ -81,7 +81,8 @@ class FriendpageLinkSpider(scrapy.Spider):
                 logger.info(f"起始url: {url}")
                 yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
         elif not self.friend_poor.empty():
-            yield Request(li[1], callback=self.friend_poor_parse)
+            # 开启配置项友链且未配置link url
+            yield Request(self.settings.get("SETTINGS_FRIENDS_LINKS").get("list")[0][1], callback=self.friend_poor_parse)
 
 
     def init_start_urls(self):

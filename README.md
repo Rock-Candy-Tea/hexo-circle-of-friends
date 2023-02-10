@@ -5,7 +5,7 @@
 部署教程：[文档](https://fcircle-doc.yyyzyyyz.cn/) | [备用地址](https://fcircle-doc.is-a.dev/)
 
 ```
-5.0.7 支持：
+5.0.8 支持：
 - 更好的前端样式
 - 极简模式
 - 新增前端管理面板，告别繁琐的配置，管理朋友圈更加方便
@@ -26,9 +26,8 @@
 - 提供一个简单的快速部署脚本
 
 最近改动：
-- 新增管理面板可下载运行日志
-- 前端默认加载文章数量可配置
-- docker镜像对多种架构的支持
+- 新增主页爬取文章数量可配置
+- 在开启配置项友链情况下，LINK可以置空
 ```
 
 [![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)

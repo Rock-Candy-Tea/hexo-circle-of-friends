@@ -33,6 +33,7 @@ class FcSettings(BaseModel):
     GITEE_FRIENDS_LINKS: GitFriendsLinks = get_user_settings()["GITEE_FRIENDS_LINKS"]
     GITHUB_FRIENDS_LINKS: GitFriendsLinks = get_user_settings()["GITHUB_FRIENDS_LINKS"]
     BLOCK_SITE: List[str] = get_user_settings()["BLOCK_SITE"]
+    MAX_POSTS_NUM: int = get_user_settings()["MAX_POSTS_NUM"]
     HTTP_PROXY: bool = get_user_settings()["HTTP_PROXY"]
     OUTDATE_CLEAN: int = get_user_settings()["OUTDATE_CLEAN"]
     DATABASE: str = get_user_settings()["DATABASE"]
