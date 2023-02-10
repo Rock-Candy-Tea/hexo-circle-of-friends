@@ -76,9 +76,13 @@ class FriendpageLinkSpider(scrapy.Spider):
         # 初始化起始请求链接
         friendpage_link, friendpage_theme = self.init_start_urls()
         self.start_urls.extend(friendpage_link)
-        for i, url in enumerate(self.start_urls):
-            logger.info(f"起始url: {url}")
-            yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
+        if self.start_urls:
+            for i, url in enumerate(self.start_urls):
+                logger.info(f"起始url: {url}")
+                yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
+        elif not self.friend_poor.empty():
+            yield Request(li[1], callback=self.friend_poor_parse)
+
 
     def init_start_urls(self):
         friendpage_link = []
@@ -203,33 +207,26 @@ class FriendpageLinkSpider(scrapy.Spider):
         d = feedparser.parse(response.text)
         version = d.version
         entries = d.entries
-        l = len(entries) if len(entries) < 5 else 5
+        success_num = 0
         try:
             init_post_info = self.init_post_info(friend, version)
-            for i in range(l):
-                entry = entries[i]
+            for entry in entries:
+                if success_num > self.settings["MAX_POSTS_NUM"]:
+                    break
                 # 标题
                 title = entry.title
                 # 链接
                 link = entry.link
                 self.process_link(link, friend[1])
                 # 创建时间
-                try:
-                    created = entry.published_parsed
-                except:
-                    try:
-                        created = entry.created_parsed
-                    except:
-                        created = entry.updated_parsed
+                created = entry.get("published_parsed", entry.get("created_parsed", entry.get("updated_parsed")))
+                if not created:
+                    continue
                 entrycreated = "{:4d}-{:02d}-{:02d}".format(created[0], created[1], created[2])
                 # 更新时间
-                try:
-                    updated = entry.updated_parsed
-                except:
-                    try:
-                        updated = entry.created_parsed
-                    except:
-                        updated = entry.published_parsed
+                updated = entry.get("updated_parsed", entry.get("created_parsed", entry.get("published_parsed")))
+                if not updated:
+                    continue
                 entryupdated = "{:4d}-{:02d}-{:02d}".format(updated[0], updated[1], updated[2])
 
                 yield self.generate_postinfo(
@@ -394,19 +391,19 @@ class FriendpageLinkSpider(scrapy.Spider):
         :param updateds: 解析出的文章更新时间列表
         :param rule: 来自于哪个解析器（解析规则）
         """
-        # 文章url不超过5篇
-        l = len(links) if len(links) < 5 else 5
+        # 文章url不超过MAX_POSTS_NUM篇
+        length = len(links) if len(links) < self.settings["MAX_POSTS_NUM"] else self.settings["MAX_POSTS_NUM"]
         # 处理标题列表
-        titles = self.process_title(titles, l)
+        titles = self.process_title(titles, length)
         # 处理创建时间和更新时间列表
-        createds, updateds = self.process_time(createds, updateds, l)
+        createds, updateds = self.process_time(createds, updateds, length)
         # 初始化文章信息数据
         init_post_info = self.init_post_info(friend, rule)
         # 如果既没有创建时间也没有更新时间则丢弃
         if not createds and not updateds:
             raise
         # 拼接文章信息
-        for i in range(l):
+        for i in range(length):
             link = self.process_link(links[i], friend[1])
             yield self.generate_postinfo(
                 init_post_info,
@@ -430,28 +427,28 @@ class FriendpageLinkSpider(scrapy.Spider):
             link = domain + link.lstrip("/")
         return link
 
-    def process_title(self, titles, lenth):
+    def process_title(self, titles, length):
         """
         将title去除换行和回车以及两边的空格，并处理为长度不超过lenth的数组并返回
         :param titles: 文章标题列表
-        :param lenth: 列表最大长度限制（取决于文章url列表）
+        :param length: 列表最大长度限制（取决于文章url列表）
         """
         if not titles:
             return None
-        for i in range(lenth):
+        for i in range(length):
             if i < len(titles):
                 titles[i] = titles[i].replace("\r", "").replace("\n", "").strip()
             else:
                 # 如果url存在，但title不存在，会将title设置为"无题"
                 titles.append("无题")
-        return titles[:lenth]
+        return titles[:length]
 
-    def process_time(self, createds, updateds, lenth):
+    def process_time(self, createds, updateds, length):
         """
         将创建时间和更新时间格式化，并处理为长度统一且不超过lenth的数组并返回
         :param createds: 创建时间列表
         :param updateds: 更新时间列表
-        :param lenth: 列表最大长度限制（取决于文章url列表）
+        :param length: 列表最大长度限制（取决于文章url列表）
         """
         # if both list are empty，return as fast as possible.
         if not createds and not updateds:
@@ -461,7 +458,7 @@ class FriendpageLinkSpider(scrapy.Spider):
         u_len = len(updateds)
         co = min(c_len, u_len)
         # 格式化长度
-        for i in range(lenth):
+        for i in range(length):
             if i < co:
                 # 交集部分
                 createds[i] = createds[i].replace("\r", "").replace("\n", "").strip()
@@ -475,13 +472,13 @@ class FriendpageLinkSpider(scrapy.Spider):
                 createds[i] = createds[i].replace("\r", "").replace("\n", "").strip()
                 updateds.append(createds[i])
             else:
-                # 长度超出createds和updateds且小于lenth，用当前时间填充
+                # 长度超出createds和updateds且小于length，用当前时间填充
                 createds.append(self.today)
                 updateds.append(self.today)
         # 格式化时间
         format_time(createds)
         format_time(updateds)
-        return createds[:lenth], updateds[:lenth]
+        return createds[:length], updateds[:length]
 
     def generate_postinfo(self, init_post_info, title, created, updated, link):
         post_info = init_post_info

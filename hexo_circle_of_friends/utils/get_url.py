@@ -136,7 +136,6 @@ class GetUrl:
         self.handle(avatar, link, name, queue, "stellar")
 
     def handle(self, avatar, link, name, queue, theme):
-        user_info = []
         if len(avatar) == len(link) == len(name):
             ...
         else:
@@ -148,16 +147,16 @@ class GetUrl:
                 if link[i] == "":
                     # 初步筛选掉不符合规则的link
                     continue
+                user_info = []
                 user_info.append(name[i])
                 user_info.append(link[i])
                 user_info.append(avatar[i])
                 queue.put(user_info)
-                user_info = []
 
     def Yun_async_link_handler(self, response, queue):
-        user_info = []
         friends = json.loads(response.text)
         for friend in friends:
+            user_info = []
             name = friend["name"]
             link = friend["url"]
             avatar = friend["avatar"]
@@ -165,4 +164,3 @@ class GetUrl:
             user_info.append(link)
             user_info.append(avatar)
             queue.put(user_info)
-            user_info = []
