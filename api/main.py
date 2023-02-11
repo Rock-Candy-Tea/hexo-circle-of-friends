@@ -272,8 +272,8 @@ async def restart_api(payload: str = Depends(login_with_token_)):
             for name, value in envs.items():
                 if value is not None:
                     server_sh += f"export {name}={value}\n"
-            server_sh += "nohup python3 -u ${BASE_PATH}/api/main.py >/tmp/api_stdout.log 2>&1 &\nnohup python3 -u ${" \
-                         "BASE_PATH}/hexo_circle_of_friends/run.py > /tmp/crawler_stdout.log 2>&1 & "
+            server_sh += "nohup python3 -u ${BASE_PATH}/api/main.py > /dev/null 2>&1 &\nnohup python3 -u ${" \
+                         "BASE_PATH}/hexo_circle_of_friends/run.py > /dev/null 2>&1 & "
 
             f.write(server_sh.strip())
         os.popen("chmod a+x temp.sh && nohup ./temp.sh >/dev/null 2>&1 &")

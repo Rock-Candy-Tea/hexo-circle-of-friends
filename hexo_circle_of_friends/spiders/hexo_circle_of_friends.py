@@ -82,8 +82,8 @@ class FriendpageLinkSpider(scrapy.Spider):
                 yield Request(url, callback=self.friend_poor_parse, meta={"theme": friendpage_theme[i]})
         elif not self.friend_poor.empty():
             # 开启配置项友链且未配置link url
-            yield Request(self.settings.get("SETTINGS_FRIENDS_LINKS").get("list")[0][1], callback=self.friend_poor_parse)
-
+            yield Request(self.settings.get("SETTINGS_FRIENDS_LINKS").get("list")[0][1],
+                          callback=self.friend_poor_parse)
 
     def init_start_urls(self):
         friendpage_link = []
@@ -229,7 +229,7 @@ class FriendpageLinkSpider(scrapy.Spider):
                 if not updated:
                     continue
                 entryupdated = "{:4d}-{:02d}-{:02d}".format(updated[0], updated[1], updated[2])
-
+                success_num += 1
                 yield self.generate_postinfo(
                     init_post_info,
                     title,
