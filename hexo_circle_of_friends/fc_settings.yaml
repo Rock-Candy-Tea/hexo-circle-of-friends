@@ -1,10 +1,11 @@
 # 友链页地址
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
+link：https://blog.eurkon.com/link/
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
 #   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
 #   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
-#   - butterfly：butterfly主题
+   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
 #   - nexmoe：nexmoe主题
@@ -15,7 +16,7 @@
 #   - stellar：stellar主题
 # 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。
 LINK: [
-     { link: "https://www.yyyzyyyz.cn/link/", theme: "butterfly" },  # 友链页地址1，修改为你的友链页地址
+#     { link: "https://www.yyyzyyyz.cn/link/", theme: "butterfly" },  # 友链页地址1，修改为你的友链页地址
 #     { link: "https://noionion.top/link/", theme: "butterfly" }, # 友链页地址2
 #     { link: "https://immmmm.com/about/", theme: "common1" }, # 友链页地址3
 #     ...
@@ -75,17 +76,17 @@ BLOCK_SITE: [
 
 # 每个友链最多获取几篇文章，此值越大，则抓取的文章上限越多，相应地运行速度也会降低，反之亦然
 # 请设置一个正整数
-MAX_POSTS_NUM: 5
+MAX_POSTS_NUM: 10
 
 # 启用HTTP代理，此项设为true，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
 HTTP_PROXY: false
 
 # 过期文章清除（天）
-OUTDATE_CLEAN: 60
+OUTDATE_CLEAN: 180
 
 # 5.x以后默认为sqlite，同时不建议使用leancloud
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为sqlite
-DATABASE: "sqlite"
+DATABASE: "leancloud"
 
 # 部署方式，可选项：github，server，docker；默认为github
 DEPLOY_TYPE: "github"
