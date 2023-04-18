@@ -1,11 +1,10 @@
 # 友链页地址
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
-link：https://blog.eurkon.com/link/
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
 #   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
 #   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
-   - butterfly：butterfly主题
+#   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
 #   - nexmoe：nexmoe主题
@@ -16,6 +15,7 @@ link：https://blog.eurkon.com/link/
 #   - stellar：stellar主题
 # 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。
 LINK: [
+      { link: "https://blog.eurkon.com/link/", theme: "butterfly" },  # 友链页地址1，修改为你的友链页地址
 #     { link: "https://www.yyyzyyyz.cn/link/", theme: "butterfly" },  # 友链页地址1，修改为你的友链页地址
 #     { link: "https://noionion.top/link/", theme: "butterfly" }, # 友链页地址2
 #     { link: "https://immmmm.com/about/", theme: "common1" }, # 友链页地址3
