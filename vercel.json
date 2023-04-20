@@ -1,7 +1,4 @@
 {
-  "github":{
-    "silent": true
-  }
   "version": 2,
   "public": true,
   "rewrites": [
