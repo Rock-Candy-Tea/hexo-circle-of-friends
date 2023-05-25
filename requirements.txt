@@ -1,10 +1,10 @@
-leancloud==2.9.7
-fastapi==0.68.0
+leancloud==2.9.12
+fastapi==0.95.1
 uvicorn==0.14.0
 requests
 PyMySQL==1.0.2
 SQLAlchemy==1.4.31
-lxml==4.6.4
+lxml==4.9.1
 pymongo==4.0.1
 dnspython==2.2.0
 aiohttp==3.8.1
