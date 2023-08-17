@@ -95,7 +95,7 @@ jobs:
         email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts
-      if: ${{ env.STORAGE_TYPE == 'mangodb' }}
+      if: ${{ startsWith(env.MONGODB_URI, 'mangodb') }}
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
