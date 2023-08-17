@@ -95,12 +95,13 @@ jobs:
         email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts
-      if: ${{ startsWith(env.MONGODB_URI, 'mangodb') }}
+      if: startsWith($MONGODB_URI, 'mangodb')
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
       working-directory: ./hexo_circle_of_friends
       run: |
+        echo "$env.MONGODB_URI"
         python run.py
 
     - name: simple mode transform # 极简模式转换
