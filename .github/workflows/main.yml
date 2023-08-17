@@ -95,9 +95,10 @@ jobs:
         email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts
-      if: ${{ env.MONGODB_URI != '' }}
+      if: ${{ env.STORAGE_TYPE == 'mangodb' }}
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
       working-directory: ./hexo_circle_of_friends
       run: |
         python run.py
