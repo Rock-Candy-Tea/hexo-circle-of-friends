@@ -95,7 +95,7 @@ jobs:
         email: ${{ env.GITHUB_EMAIL }}
 
     - name: mongodb Update posts
-      if: ${{ startsWith( env.MONGODB_URI, 'mangodb' ) }}
+      # if: ${{ startsWith( env.MONGODB_URI, 'mangodb' ) }}
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
       working-directory: ./hexo_circle_of_friends
