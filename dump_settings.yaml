@@ -1,5 +1,5 @@
 BLOCK_SITE: []
-DATABASE: mongodb
+DATABASE: sqlite
 DEPLOY_TYPE: github
 GITEE_FRIENDS_LINKS:
   enable: false
