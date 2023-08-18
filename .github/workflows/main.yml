@@ -52,6 +52,10 @@ jobs:
     - name: set env
       run: |
         echo "BASE_PATH=$(pwd)" >> $GITHUB_ENV && echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+    - name: Echo Env Information SET ENV
+      run: |
+        echo MONGODB_URI = ${MONGODB_URI}
+        echo STORAGE_TYPE = ${STORAGE_TYPE}
 
     - name: leancloud Update posts # leancloud
       if: ${{ env.STORAGE_TYPE == 'leancloud' }}
@@ -93,16 +97,24 @@ jobs:
         rebase: 'true'
         name: ${{ env.GITHUB_NAME }}
         email: ${{ env.GITHUB_EMAIL }}
-
+    - name: Echo Env Information SQLITE AFTER
+      run: |
+        echo MONGODB_URI = ${MONGODB_URI}
+        echo STORAGE_TYPE = ${STORAGE_TYPE}
     - name: mongodb Update posts
-      if: startsWith($MONGODB_URI, 'mangodb')
+      if: ${{ env.STORAGE_TYPE == 'mongodb' }}
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
         STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
       working-directory: ./hexo_circle_of_friends
       run: |
-        echo "$env.MONGODB_URI"
+        echo ${MONGODB_URI}
+        echo ${STORAGE_TYPE}
         python run.py
+    - name: Echo Env Information MONGODB AFTER
+      run: |
+        echo MONGODB_URI = ${MONGODB_URI}
+        echo STORAGE_TYPE = ${STORAGE_TYPE}
 
     - name: simple mode transform # 极简模式转换
       if: ${{ env.SIMPLE_MODE == 'true' }}
