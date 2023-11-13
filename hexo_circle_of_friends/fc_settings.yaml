@@ -34,8 +34,12 @@ SETTINGS_FRIENDS_LINKS: {
     json_api: "",
     list: [
         # 示例1：
-        ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
+        ["安知鱼`Blog", "https://anzhiy.cn/", "https://upload-bbs.miyoushe.com/upload/2023/09/06/125766904/b0e53d669834c1e1f2758d46e8377342_267164146979017418.jpg"],
+        ["张洪Heo", "https://blog.zhheo.com/", "https://img.zhheo.com/i/2022/08/19/62ff32fa28da1.png"],
         ["Akilarの糖果屋", "https://akilar.top/", "https://akilar.top/images/headimage.png"],
+        ["真白的年轮面包", "https://mashiro.best/", "https://mashiro.best/avatar.jpg"],
+        ["wfhtony 的 個人收藏夾", "https://wfhtony.github.io/", "https://avatars.githubusercontent.com/u/7227519?v=4"],
+        ["Lux032 Blog", "https://032.im/", "https://032.im/img/avatar.jpg"]
         # 示例2：使用suffix的配置如下
         # 程序目前自动获取 "atom.xml", "feed/atom", "rss.xml", "rss2.xml", "feed", "index.xml" 这些后缀
         # 如果目标地址的后缀不在其中，就可以在这里添加
