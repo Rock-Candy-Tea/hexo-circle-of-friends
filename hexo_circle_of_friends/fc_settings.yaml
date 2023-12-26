@@ -49,7 +49,7 @@ SETTINGS_FRIENDS_LINKS: {
 GITEE_FRIENDS_LINKS: {
     enable: false, # true 开启gitee issue兼容
     type: "normal",  # volantis/stellar用户请在这里填写volantis
-    owner:  "ccknbc",  # 填写你的gitee用户名
+    owner:  "chaofanx",  # 填写你的gitee用户名
     repo:  "blogroll",  # 填写你的gitee仓库名
     state:  "open",  # 填写抓取的issue状态(open/closed)
 }
@@ -58,9 +58,9 @@ GITEE_FRIENDS_LINKS: {
 # 从github issue中获取友链
 GITHUB_FRIENDS_LINKS: {
     enable: false, # true 开启github issue兼容
-    type: "normal",  # volantis/stellar用户请在这里填写volantis
-    owner: "ccknbc",  # 填写你的github用户名
-    repo: "ccknbc-actions",  # 填写你的github仓库名
+    type: "volantis",  # volantis/stellar用户请在这里填写volantis
+    owner: "chaofanx",  # 填写你的github用户名
+    repo: "hexo-circle-of-friends",  # 填写你的github仓库名
     state: "open",  # 填写抓取的issue状态(open/closed)
     label: "active",  # 填写抓取的issue标签
 }
