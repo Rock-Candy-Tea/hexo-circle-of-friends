@@ -1,0 +1,44 @@
+BLOCK_SITE:
+- ''
+DATABASE: sqlite
+DEPLOY_TYPE: github
+GITEE_FRIENDS_LINKS:
+  enable: false
+  owner: ccknbc
+  repo: blogroll
+  state: open
+  type: normal
+GITHUB_FRIENDS_LINKS:
+  enable: false
+  owner: ccknbc
+  repo: ccknbc-actions
+  state: open
+  type: normal
+HTTP_PROXY: false
+LINK:
+- link: https://blog.stardream.online/link/
+  theme: common2
+MAX_POSTS_NUM: 5
+OUTDATE_CLEAN: 60
+SETTINGS_FRIENDS_LINKS:
+  enable: true
+  json_api: ''
+  list:
+  - - "\u5B89\u77E5\u9C7C`Blog"
+    - https://anzhiy.cn/
+    - https://upload-bbs.miyoushe.com/upload/2023/09/06/125766904/b0e53d669834c1e1f2758d46e8377342_267164146979017418.jpg
+  - - "\u5F20\u6D2AHeo"
+    - https://blog.zhheo.com/
+    - https://img.zhheo.com/i/2022/08/19/62ff32fa28da1.png
+  - - "Akilar\u306E\u7CD6\u679C\u5C4B"
+    - https://akilar.top/
+    - https://akilar.top/images/headimage.png
+  - - "\u771F\u767D\u7684\u5E74\u8F6E\u9762\u5305"
+    - https://mashiro.best/
+    - https://mashiro.best/avatar.jpg
+  - - "wfhtony \u7684 \u500B\u4EBA\u6536\u85CF\u593E"
+    - https://wfhtony.github.io/
+    - https://avatars.githubusercontent.com/u/7227519?v=4
+  - - Lux032 Blog
+    - https://032.im/
+    - https://032.im/img/avatar.jpg
