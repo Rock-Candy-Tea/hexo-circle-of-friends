@@ -16,21 +16,11 @@ GITHUB_FRIENDS_LINKS:
   type: normal
 HTTP_PROXY: false
 LINK:
-- link: ''
+- link: https://agen233.top/link
   theme: butterfly
 MAX_POSTS_NUM: 5
 OUTDATE_CLEAN: 60
 SETTINGS_FRIENDS_LINKS:
-  enable: false
-  json_api: ''
-  list:
-  - - "\u8D30\u7339\u306E\u5C0F\u7A9D"
-    - https://noionion.top/
-    - https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg
-  - - "Akilar\u306E\u7CD6\u679C\u5C4B"
-    - https://akilar.top/
-    - https://akilar.top/images/headimage.png
-  - - elizen
-    - https://elizen.me/
-    - https://akilar.top/images/headimage.png
-    - hello.xml
+  enable: true
+  json_api: https://agen233.top/friend.json/
+  list: []
