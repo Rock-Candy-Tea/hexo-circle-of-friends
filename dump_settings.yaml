@@ -16,13 +16,13 @@ GITHUB_FRIENDS_LINKS:
   type: normal
 HTTP_PROXY: false
 LINK:
-- link: https://agen233.top/link
+- link: ''
   theme: butterfly
 MAX_POSTS_NUM: 5
 OUTDATE_CLEAN: 60
 SETTINGS_FRIENDS_LINKS:
-  enable: true
-  json_api: https://agen233.top/friend.json
+  enable: false
+  json_api: ''
   list:
   - - "\u8D30\u7339\u306E\u5C0F\u7A9D"
     - https://noionion.top/
