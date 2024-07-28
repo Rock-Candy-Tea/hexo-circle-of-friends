@@ -15,10 +15,7 @@
 #   - stellar：stellar主题
 # 支持配置多个友链页面并指定不同主题策略，每个用{}分隔，它们会被同时爬取，数据保存在一起。
 LINK: [
-     { link: "https://www.yyyzyyyz.cn/link/", theme: "butterfly" },  # 友链页地址1，修改为你的友链页地址
-#     { link: "https://noionion.top/link/", theme: "butterfly" }, # 友链页地址2
-#     { link: "https://immmmm.com/about/", theme: "common1" }, # 友链页地址3
-#     ...
+     { link: "https://usj.cc/links/", theme: "Amigo" },  # 友链页地址1，修改为你的友链页地址
 ]
 
 # 配置项友链
@@ -31,7 +28,7 @@ LINK: [
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS: {
     enable: false,
-    json_api: "",
+    json_api: "https://pan.usj.cc/d/%F0%9F%A7%B0%E6%96%87%E4%BB%B6/friends.json",
     list: [
         # 示例1：
         ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],
