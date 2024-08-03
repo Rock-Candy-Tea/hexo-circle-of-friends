@@ -22,5 +22,5 @@ MAX_POSTS_NUM: 5
 OUTDATE_CLEAN: 60
 SETTINGS_FRIENDS_LINKS:
   enable: true
-  json_api: /friends.json
+  json_api: https://www.usj.cc/json/friends.json
   list: []
