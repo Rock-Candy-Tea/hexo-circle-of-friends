@@ -1,0 +1,26 @@
+BLOCK_SITE: []
+DATABASE: sqlite
+DEPLOY_TYPE: github
+GITEE_FRIENDS_LINKS:
+  enable: false
+  owner: ccknbc
+  repo: blogroll
+  state: open
+  type: normal
+GITHUB_FRIENDS_LINKS:
+  enable: false
+  label: active
+  owner: ccknbc
+  repo: ccknbc-actions
+  state: open
+  type: normal
+HTTP_PROXY: false
+LINK:
+- link: https://usj.cc/links/
+  theme: Amigo
+MAX_POSTS_NUM: 5
+OUTDATE_CLEAN: 60
+SETTINGS_FRIENDS_LINKS:
+  enable: true
+  json_api: https://pan.usj.cc/d/%F0%9F%A7%B0%E6%96%87%E4%BB%B6/friends.json
+  list: []
