@@ -46,8 +46,8 @@ def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
 
-    # posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
-    posts = session.query(Post).order_by(desc(rule)).all()
+    posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
+    # posts = session.query(Post).order_by(desc(rule)).all()
 
     
     # 获取所有文章的创建时间，并使用max找到最新的创建时间
