@@ -76,13 +76,13 @@ BLOCK_SITE: [
 
 # 每个友链最多获取几篇文章，此值越大，则抓取的文章上限越多，相应地运行速度也会降低，反之亦然
 # 请设置一个正整数
-MAX_POSTS_NUM: 200000
+MAX_POSTS_NUM: 25
 
 # 启用HTTP代理，此项设为true，并且需要添加一个环境变量，名称为PROXY，值为[IP]:[端口]，比如：192.168.1.106:8080
 HTTP_PROXY: false
 
 # 过期文章清除（天）
-OUTDATE_CLEAN: 1000
+OUTDATE_CLEAN: 10000
 
 # 5.x以后默认为sqlite，同时不建议使用leancloud
 # 存储方式，可选项：leancloud，mysql，sqlite，mongodb；默认为sqlite
