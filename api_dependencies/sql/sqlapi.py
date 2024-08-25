@@ -47,6 +47,7 @@ def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
         return {"message": "rule error, please use 'created'/'updated'"}
 
     posts = session.query(Post).order_by(desc(rule)).offset(start).limit(end - start).all()
+
     last_update_time_results = session.query(Post).limit(1000).with_entities(Post.createAt).all()
     last_update_time = max(x[0].strftime("%Y-%m-%d %H:%M:%S") for x in last_update_time_results)
 
@@ -54,24 +55,27 @@ def query_all(li, start: int = 0, end: int = -1, rule: str = "updated"):
     active_num = session.query(Friend).filter_by(error=False).count()
     error_num = friends_num - active_num
 
-    data = {}
-    data['statistical_data'] = {
-        'friends_num': friends_num,
-        'active_num': active_num,
-        'error_num': error_num,
-        'article_num': article_num,
-        'last_updated_time': last_update_time
+    data = {
+        'statistical_data': {
+            'friends_num': friends_num,
+            'active_num': active_num,
+            'error_num': error_num,
+            'article_num': article_num,
+            'last_updated_time': last_update_time
+        }
     }
 
     post_data = []
-    for k in range(len(posts)):
+    for k, post in enumerate(posts):
         item = {'floor': start + k + 1}
         for elem in li:
-            item[elem] = getattr(posts[k], elem)
+            item[elem] = getattr(post, elem)
         post_data.append(item)
+
     session.close()
     data['article_data'] = post_data
     return data
+
 
 
 def query_friend():
