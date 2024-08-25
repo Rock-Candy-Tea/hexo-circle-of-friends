@@ -56,6 +56,20 @@ class GetUrl:
             name = response.css('.flink-list a .flink-item-name::text').extract()
         if not name:
             name = response.css('.flink .site-card .info .title::text').extract()
+
+        if not avatar:
+            data = response.css('.flink script::text').re_first(r"const linkData\s*=\s*(\[.*\])\s*\s*\n")
+            data = json.loads(data)
+            avatar = []
+            link = []
+            name = []
+            for row in data:
+                col = row["link_list"]
+                for person in col:
+                    avatar.append(person["avatar"])
+                    link.append(person["link"])
+                    name.append(person["name"])
+
         self.handle(avatar, link, name, queue, "butterfly")
 
     def get_fluid_url(self, response, queue):
