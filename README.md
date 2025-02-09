@@ -2,7 +2,7 @@
 
 ## 重要通知
 
-### 2025-02-07：由于个人时间繁忙，此项目暂时停止维护。
+### 由于个人时间繁忙，此项目暂时停止维护。
 
 ### 在此期间，有小伙伴提供了优秀的替代方案，您可以暂时迁移至【轻量级朋友圈】 -> [Friend-Circle-Lite](https://github.com/willow-god/Friend-Circle-Lite) | [文档](https://blog.liushen.fun/posts/4dc716ec/)
 
