@@ -33,7 +33,7 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  build:
+  update-friends-posts:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -119,5 +119,12 @@ jobs:
         name: github-actions[bot]
         email: github-actions@noreply.github.com
 
-    - name: keep alive
-      uses: gautamkrishnar/keepalive-workflow@master # keep workflows from being suspended when no commit for a long time
+  keepalive-workflow:
+    name: Keepalive Workflow
+    if: github.event_name == 'schedule'
+    needs: update-friends-posts
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1
