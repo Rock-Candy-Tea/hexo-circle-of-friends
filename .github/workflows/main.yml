@@ -94,8 +94,8 @@ jobs:
         rebase: 'true'
         name: ${{ env.GITHUB_NAME }}
         email: ${{ env.GITHUB_EMAIL }}
-
-    - name: mongodb Update posts # mongodb
+    
+    - name: mongodb Update posts
       if: ${{ env.STORAGE_TYPE == 'mongodb' }}
       env:
         MONGODB_URI: ${{ secrets.MONGODB_URI }}
