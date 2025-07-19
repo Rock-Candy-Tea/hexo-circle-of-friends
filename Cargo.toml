@@ -1,0 +1,45 @@
+[workspace]
+members = [
+    "downloader",
+    "data_structures",
+    "core",
+    "tools",
+    "db",
+    "api",
+    "api_dependence",
+    "tmptest",
+]
+resolver = "2"
+
+[workspace.dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "rustls-tls-native-roots",
+    "rustls-tls",
+] }
+reqwest-middleware = "0.4.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1.0"
+chrono = { version = "0.4.37", features = ["std", "serde"] }
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "mysql",
+    "sqlite",
+    "chrono",
+] }
+url = "2.4"
+axum = "0.8"
+axum-extra = { version = "0.10.1", features = ["typed-header"] }
+dotenvy = "0.15"
+# logging
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "time",
+    "chrono",
+] }
+logroller = "0.1"

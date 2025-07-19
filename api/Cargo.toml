@@ -1,0 +1,26 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum.workspace = true
+tokio.workspace = true
+api_dependence = { path = "../api_dependence" }
+db = { path = "../db" }
+tools = { path = "../tools" }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tower = "0.5"
+bytes = "1"
+http-body-util = "0.1"
+tracing.workspace = true
+
+[dev-dependencies]
+axum-test = "*"
+
+
+[[bin]]
+name = "fcircle_api"
+path = "src/main.rs"

@@ -1,0 +1,16 @@
+[project]
+name = "spider"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiohttp>=3.12.14",
+    "fastapi>=0.116.1",
+    "lxml>=6.0.0",
+    "pymongo>=4.13.2",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.4",
+    "sqlalchemy>=2.0.41",
+    "uvicorn>=0.35.0",
+]

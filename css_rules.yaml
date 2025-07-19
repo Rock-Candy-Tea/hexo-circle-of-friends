@@ -1,0 +1,291 @@
+# 主页规则
+post_page_rules:
+  {
+    anzhiyu:
+      {
+        title:
+          [
+            {
+              selector: "#recent-posts>.recent-post-item .recent-post-info .article-title",
+              attr: "text",
+            },
+          ],
+        link:
+          [
+            {
+              selector: "#recent-posts>.recent-post-item .recent-post-info .article-title",
+              attr: "href",
+            },
+          ],
+        created:
+          [
+            {
+              selector: "#recent-posts > div.recent-post-item.lastestpost-item > div.recent-post-info > div.article-meta-wrap > span.post-meta-date > time",
+              attr: "time",
+            },
+          ],
+        updated:
+          [
+            {
+              selector: "#recent-posts .recent-post-info .post-meta-date time:nth-of-type(2)",
+              attr: "time",
+            },
+          ],
+      },
+    butterfly:
+      {
+        title:
+          [
+            {
+              selector: "#recent-posts .recent-post-info a:first-child",
+              attr: "text",
+            },
+          ],
+        link:
+          [
+            {
+              selector: "#recent-posts .recent-post-info a:first-child",
+              attr: "href",
+            },
+          ],
+        created:
+          [
+            {
+              selector: "#recent-posts .recent-post-info .post-meta-date time:first-of-type",
+              attr: "text",
+            },
+          ],
+        updated:
+          [
+            {
+              selector: "#recent-posts .recent-post-info .post-meta-date time:nth-of-type(2)",
+              attr: "text",
+            },
+          ],
+      },
+    fluid:
+      {
+        title: [{ selector: "#board .index-header a", attr: "text" }],
+        link: [{ selector: "#board .index-header a", attr: "href" }],
+        created: [{ selector: "#board .post-meta time", attr: "text" }],
+        updated: [{ selector: "#board .post-meta time", attr: "text" }],
+      },
+    matery:
+      {
+        title: [{ selector: "#articles .card .card-title", attr: "text" }],
+        link: [{ selector: "#articles .card a:first-child", attr: "href" }],
+        created:
+          [{ selector: "#articles .card span.publish-date", attr: "text" }],
+        updated:
+          [{ selector: "#articles .card span.publish-date", attr: "text" }],
+      },
+    sakura:
+      {
+        title: [{ selector: "#main a.post-title h3", attr: "text" }],
+        link: [{ selector: "#main a.post-title", attr: "href" }],
+        created: [{ selector: "#main .post-date", attr: "text" }],
+        updated: [{ selector: "#main .post-date", attr: "text" }],
+      },
+    volantis:
+      {
+        title: [{ selector: ".post-list .article-title a", attr: "text" }],
+        link: [{ selector: ".post-list .article-title a", attr: "href" }],
+        created: [{ selector: ".post-list .meta-v3 time", attr: "text" }],
+        updated: [{ selector: ".post-list .meta-v3 time", attr: "text" }],
+      },
+    nexmoe:
+      {
+        title:
+          [{ selector: "section.nexmoe-posts .nexmoe-post h1", attr: "text" }],
+        link:
+          [{ selector: "section.nexmoe-posts .nexmoe-post>a", attr: "href" }],
+        created:
+          [
+            {
+              selector: "section.nexmoe-posts .nexmoe-post-meta a:first-child",
+              attr: "text",
+            },
+          ],
+        updated:
+          [
+            {
+              selector: "section.nexmoe-posts .nexmoe-post-meta a:first-child",
+              attr: "text",
+            },
+          ],
+      },
+    stun:
+      {
+        title: [{ selector: "article .post-title__link", attr: "text" }],
+        link: [{ selector: "article .post-title__link", attr: "href" }],
+        created:
+          [
+            {
+              selector: "article .post-meta .post-meta-item--createtime .post-meta-item__value",
+              attr: "text",
+            },
+          ],
+        updated:
+          [
+            {
+              selector: "article .post-meta .post-meta-item--updatetime .post-meta-item__value",
+              attr: "text",
+            },
+          ],
+      },
+    stellar:
+      {
+        title:
+          [
+            {
+              selector: ".post-list .post-card:not(.photo) .post-title",
+              attr: "text",
+            },
+          ],
+        link: [{ selector: ".post-list .post-card:not(.photo)", attr: "href" }],
+        created:
+          [
+            {
+              selector: ".post-list .post-card:not(.photo) #post-meta time",
+              attr: "text",
+            },
+          ],
+        updated:
+          [
+            {
+              selector: ".post-list .post-card:not(.photo) #post-meta time",
+              attr: "text",
+            },
+          ],
+      },
+    next:
+      {
+        title:
+          [
+            { selector: "article h2 a:first-child", attr: "text" },
+            { selector: "article .post-title", attr: "text" },
+            { selector: "article .post-title-link", attr: "text" },
+          ],
+        link:
+          [
+            { selector: "article h2 a:first-child", attr: "href" },
+            { selector: "article .post-title", attr: "href" },
+            { selector: "article .post-title-link", attr: "href" },
+          ],
+        created:
+          [{ selector: "article time[itemprop*='dateCreated']", attr: "text" }],
+        updated:
+          [{ selector: "article time[itemprop='dateModified']", attr: "text" }],
+      },
+  }
+
+# 友链页规则
+link_page_rules:
+  {
+    butterfly:
+      {
+        author:
+          [
+            { selector: ".flink-list .flink-sitename", attr: "text" },
+            { selector: ".flink-list a .flink-item-name", attr: "text" },
+            { selector: ".flink .site-card .info .title", attr: "text" },
+          ],
+        link:
+          [
+            { selector: ".flink-list a", attr: "href" },
+            { selector: ".flink .site-card", attr: "href" },
+          ],
+        avatar:
+          [
+            { selector: ".flink-list .info img", attr: "src" },
+            { selector: ".flink-list a img", attr: "src" },
+            { selector: "flink .site-card .info img", attr: "src" },
+          ],
+      },
+    fluid:
+      {
+        author: [{ selector: ".card .link-title", attr: "text" }],
+        link: [{ selector: ".card a", attr: "href" }],
+        avatar: [{ selector: ".card img", attr: "src" }],
+      },
+    matery:
+      {
+        author: [{ selector: "#friends-link .frind-ship h1", attr: "text" }],
+        link: [{ selector: "#friends-link .frind-ship a", attr: "href" }],
+        avatar: [{ selector: "#friends-link .frind-ship img", attr: "src" }],
+      },
+    nexmoe:
+      {
+        author: [{ selector: ".nexmoe-py ul a", attr: "title" }],
+        link: [{ selector: "nexmoe-py ul a", attr: "href" }],
+        avatar: [{ selector: ".nexmoe-py ul img", attr: "src" }],
+      },
+    stun:
+      {
+        author:
+          [{ selector: ".friends-plugin__item-info__name", attr: "title" }],
+        link: [{ selector: ".friends-plugin__item", attr: "href" }],
+        avatar: [{ selector: ".friends-plugin__item img", attr: "src" }],
+      },
+    sakura:
+      {
+        author: [{ selector: ".link-item .sitename", attr: "text" }],
+        link: [{ selector: ".link-item a", attr: "href" }],
+        avatar: [{ selector: ".link-item img", attr: "src" }],
+      },
+    volantis:
+      {
+        author:
+          [
+            { selector: "a.simpleuser span", attr: "text" },
+            { selector: "a.site-card span", attr: "text" },
+            { selector: "a.friend-card span", attr: "text" },
+            { selector: "a.friend-card p.friend-name", attr: "text" },
+            { selector: "a.card-link .info span.title", attr: "text" },
+          ],
+        link:
+          [
+            { selector: "a.simpleuser", attr: "href" },
+            { selector: "a.site-card", attr: "href" },
+            { selector: "a.friend-card", attr: "href" },
+            { selector: "a.card-link", attr: "href" },
+          ],
+        avatar:
+          [
+            { selector: "a.simpleuser img", attr: "src" },
+            { selector: "a.site-card img", attr: "src" },
+            { selector: "a.friend-card img", attr: "src" },
+            { selector: "a.card-link .info img", attr: "src" },
+          ],
+      },
+    Yun:
+      {
+        author: [{ selector: "#links a", attr: "text" }],
+        link: [{ selector: "#links a", attr: "href" }],
+        avatar: [{ selector: "#links a img", attr: "src" }],
+      },
+    stellar:
+      {
+        author: [{ selector: ".card-link span", attr: "text" }],
+        link: [{ selector: ".card-link", attr: "href" }],
+        avatar: [{ selector: ".card-link img", attr: "src" }],
+      },
+    anzhiyu:
+      {
+        author: [{ selector: ".cf-friends-name", attr: "text" }],
+        link: [{ selector: "a.cf-friends-link", attr: "cf-href" }],
+        avatar: [{ selector: ".cf-friends-avatar", attr: "cf-src" }],
+      },
+    common1:
+      {
+        author: [{ selector: ".cf-friends a", attr: "text" }],
+        link: [{ selector: ".cf-friends a", attr: "href" }],
+        avatar: [{ selector: ".cf-friends img", attr: "src" }],
+      },
+    common2:
+      {
+        author: [{ selector: ".cf-friends-name", attr: "text" }],
+        link: [{ selector: "a.cf-friends-link", attr: "href" }],
+        avatar: [{ selector: ".cf-friends-avatar", attr: "src" }],
+      },
+  }

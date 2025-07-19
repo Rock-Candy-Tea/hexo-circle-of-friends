@@ -1,0 +1,198 @@
+name: update-friends-posts
+on:
+  push:
+    branches: ["rs_dev", "main"]
+    tags:
+      - "v*.*.*"
+  schedule:
+    - cron: "0 0,6,12,18,21 * * *"
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # 在这里查看需要添加的secert
+  # 通用配置
+  SIMPLE_MODE: false # 极简模式是否开启，默认false
+  DATABASE: sqlite # 默认使用sqlite
+  PROXY: ${{ secrets.PROXY }} # 可选，http代理
+  # mysql、sqlite、mongodb配置三选一即可
+  # mysql配置
+  MYSQL_URI: ${{ secrets.MYSQL_URI }} # MySQL URI
+  # mongodb配置
+  MONGODB_URI: ${{ secrets.MONGODB_URI }} # mongodb URI 支持'mongodb://'和'mongodb+srv://'
+  TZ: Asia/Shanghai
+
+jobs:
+  check:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@beta
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        # with:
+        # save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Check
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: rustfmt
+        run: cargo fmt --all --check
+
+  test-versions:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    needs: check
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql }}
+        env:
+          MYSQL_ROOT_PASSWORD: 123456
+          MYSQL_DATABASE: pyq
+        ports:
+          - 3306:3306
+      mongodb:
+        image: mongodb/mongodb-community-server:${{ matrix.mongodb }}
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: 123456
+        ports:
+          - 27017:27017
+    strategy:
+      matrix:
+        rust: [stable, beta, nightly]
+        mysql: [8, 8.4, 9, 9.3, latest, lts]
+        mongodb: [latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test --workspace --all-features --all-targets -- --test-threads=1
+
+  build-and-release:
+    if: ${{ github.ref_type == 'tag' }}
+    needs: [check, test-versions]
+    runs-on: ${{ matrix.runner }} # 定义作业运行的操作系统
+    strategy:
+      matrix:
+        include:
+          - name: linux-x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - name: linux-x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - name: linux-aarch64-unknown-linux-gnu
+            runner: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - name: linux-aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+          - name: win-x86_64-pc-windows-gnu
+            runner: windows-latest
+            target: x86_64-pc-windows-gnu
+          - name: win-x86_64-pc-windows-msvc
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+          - name: macos-x86_64-apple-darwin
+            runner: macos-latest
+            target: x86_64-apple-darwin
+          - name: macos-aarch64-apple-darwin
+            runner: macos-latest
+            target: aarch64-apple-darwin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v1
+        with:
+          command: build
+          target: ${{ matrix.target }}
+          args: "--locked --release"
+
+      - name: Package binaries (Linux/macOS)
+        if: ${{ runner.os != 'Windows' }}
+        run: |
+          mkdir -p dist
+          zip -j dist/${{ matrix.name }}.zip target/${{ matrix.target }}/release/fcircle_core target/${{ matrix.target }}/release/fcircle_api
+
+      - name: Package binaries (Windows)
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          mkdir dist
+          Compress-Archive -Path "target\${{ matrix.target }}\release\fcircle_core.exe","target\${{ matrix.target }}\release\fcircle_api.exe" -DestinationPath "dist\${{ matrix.name }}.zip"
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}-fcircle
+          path: dist/${{ matrix.name }}.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          files: dist/${{ matrix.name }}.zip
+
+  build-and-run-core:
+    if: ${{ github.ref_type != 'tag' && github.repository != 'Rock-Candy-Tea/hexo-circle-of-friends' && (github.ref == 'refs/heads/main' && always()) || (github.ref != 'refs/heads/main' && success())}}
+    needs: [check, test-versions]
+    name: build and run core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release
+      - name: Read Config Values
+        id: read_config
+        run: |
+          echo "Reading configuration from fc_settings.yaml"
+          DEPLOY_TYPE=$(grep "DEPLOY_TYPE:" fc_settings.yaml | awk '{print $2}' | tr -d '"')
+          DATABASE=$(grep "DATABASE:" fc_settings.yaml | awk '{print $2}' | tr -d '"')
+          SIMPLE_MODE=$(grep "SIMPLE_MODE:" fc_settings.yaml | awk '{print $2}' | tr -d '"')
+          echo "DEPLOY_TYPE=$DEPLOY_TYPE" >> $GITHUB_ENV
+          echo "DATABASE=$DATABASE" >> $GITHUB_ENV
+          echo "SIMPLE_MODE=$SIMPLE_MODE" >> $GITHUB_ENV
+          echo "Configuration values: DEPLOY_TYPE=$DEPLOY_TYPE, DATABASE=$DATABASE, SIMPLE_MODE=$SIMPLE_MODE"
+      - name: Run Core
+        run: cargo run --bin fcircle_core --release
+      - name: Debug Environment
+        run: |
+          echo "DATABASE value: ${{ env.DATABASE }}"
+          echo "Condition check: ${{ env.DATABASE == 'sqlite' }}"
+          echo "DEPLOY_TYPE value: ${{ env.DEPLOY_TYPE }}"
+          echo "Condition check: ${{ env.DEPLOY_TYPE == 'github' }}"
+          echo "SIMPLE_MODE value: ${{ env.SIMPLE_MODE }}"
+          echo "Condition check: ${{ env.SIMPLE_MODE == 'true' }}"
+
+      - name: Push sqlite data # sqlite push
+        if: ${{ env.DATABASE == 'sqlite' }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "data.db --force"
+          message: "Update data.db"
+          default_author: github_actions
+      - name: simple mode push # 推送极简模式
+        if: ${{ env.SIMPLE_MODE == 'true' }}
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: "data.json --force"
+          message: "Update data.json"
+          default_author: github_actions
+
+  keepalive-workflow:
+    name: Keepalive Workflow
+    if: github.event_name == 'schedule'
+    needs: build-and-run-core
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1

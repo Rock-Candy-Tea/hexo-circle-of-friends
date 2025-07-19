@@ -1,0 +1,24 @@
+[package]
+name = "downloader"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+# in download.rs
+serde_yaml.workspace = true
+data_structures = { path = "../data_structures" }
+reqwest.workspace = true
+reqwest-middleware.workspace = true
+chrono.workspace = true
+url.workspace = true
+tools = { path = "../tools" }
+tokio.workspace = true
+regex = "1"
+reqwest-retry = "0.7"
+tracing.workspace = true
+
+# in crawler.rs
+feed-rs = "2"
+nipper = "0.1.9"
+
