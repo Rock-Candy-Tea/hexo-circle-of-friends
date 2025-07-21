@@ -56,8 +56,8 @@ if [ ! -f "./fcircle_core" ] || [ ! -f "./fcircle_api" ]; then
 fi
 
 # 确保二进制文件有执行权限
-chmod +x ./core
-chmod +x ./api
+chmod +x ./fcircle_core
+chmod +x ./fcircle_api
 
 # 4. 设置定时任务并立即运行core
 echo -e "${YELLOW}设置定时任务...${NC}"
