@@ -2,7 +2,6 @@
 # Author：yyyz
 import yaml
 import os
-from tools import baselogger
 
 
 def get_base_path():
@@ -19,21 +18,20 @@ def get_user_settings():
     加载用户配置文件
     :return:
     """
-    logger = baselogger.get_logger(__name__)
     base_path = get_base_path()
     path = os.path.join(base_path, "fc_settings.yaml")
     try:
-        logger.debug("读取配置文件...")
+        print("读取配置文件...")
         f = open(path, "r", encoding="utf-8")
     except FileNotFoundError:
-        logger.critical("读取配置文件失败！请检查用户配置文件是否正确！")
+        print("读取配置文件失败！请检查用户配置文件是否正确！")
         raise IOError
     try:
         user_conf = yaml.safe_load(f)
     except:
-        logger.critical("读取配置文件失败，请检查配置文件内容语法是否正确！")
+        print("读取配置文件失败，请检查配置文件内容语法是否正确！")
         raise IOError
-    logger.debug("成功获取用户配置！")
+    print("成功获取用户配置！")
     f.close()
     return user_conf
 
