@@ -6,7 +6,7 @@ import uvicorn
 # 将项目根目录添加到Python的搜索路径
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tools import baselogger
+# from tools import baselogger
 from tools.utils import get_user_settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
