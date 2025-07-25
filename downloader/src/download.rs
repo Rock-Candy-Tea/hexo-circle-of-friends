@@ -81,15 +81,15 @@ fn check_linkpage_res_length(download_res: &HashMap<&str, Vec<String>>) -> usize
     }
 }
 
-/// 检查屏蔽url，匹配返回true，反之为false
-fn check_block_site(block_sites: &Vec<String>, url: &str) -> bool {
+/// 检查屏蔽url，匹配返回true（屏蔽），反之为false（不屏蔽）
+fn check_block_site(block_sites: &Vec<String>, url: &str, block_site_reverse: bool) -> bool {
     for pattern in block_sites {
         let re = Regex::new(pattern).unwrap();
         if re.is_match(url) {
-            return true;
+            return !block_site_reverse;
         }
     }
-    false
+    block_site_reverse
 }
 
 pub async fn start_crawl_postpages(
@@ -101,7 +101,7 @@ pub async fn start_crawl_postpages(
 ) -> Result<Vec<metadata::BasePosts>, Box<dyn std::error::Error>> {
     // check block url
     let block_sites = &settings.block_site;
-    if check_block_site(block_sites, &base_postpage_url) {
+    if check_block_site(block_sites, &base_postpage_url, settings.block_site_reverse) {
         return Ok(Vec::new());
     };
     let base_url = match Url::parse(&base_postpage_url) {
@@ -161,34 +161,41 @@ pub async fn start_crawl_postpages(
                         return Vec::new();
                     }
                 };
-            let length;
-            // 字段缺失检查
+            // 字段缺失检查 - 必须有title、link、created三个字段，且长度相等
 
-            if download_postpage_res.contains_key("title")
-                && download_postpage_res.contains_key("link")
-            {
-                if download_postpage_res.get("title").unwrap().len()
-                    != download_postpage_res.get("link").unwrap().len()
-                {
-                    error!(
-                        "url: {} 解析结果缺失`title`或`link`长度不等",
-                        base_postpage_url
-                    );
-                    return Vec::new();
-                } else {
-                    // 关键字段长度相等
-                    length = download_postpage_res.get("title").unwrap().len()
-                }
-            } else if download_postpage_res.contains_key("link") {
-                warn!("url: {} 解析结果缺失`title`", base_postpage_url);
-                // 补充对应长度的title
-                length = download_postpage_res.get("link").unwrap().len();
-                let title = vec![String::from("文章标题获取失败"); length];
-                download_postpage_res.insert("title", title);
-            } else {
-                // 缺失link，无力回天
-                error!("url: {} 解析结果缺失`link`", base_postpage_url);
+            // 检查必需字段是否存在
+            if !download_postpage_res.contains_key("title") {
+                error!("url: {} 解析结果缺失必需字段`title`", base_postpage_url);
                 return Vec::new();
+            }
+            if !download_postpage_res.contains_key("link") {
+                error!("url: {} 解析结果缺失必需字段`link`", base_postpage_url);
+                return Vec::new();
+            }
+            if !download_postpage_res.contains_key("created") {
+                error!("url: {} 解析结果缺失必需字段`created`", base_postpage_url);
+                return Vec::new();
+            }
+
+            // 检查三个必需字段的长度是否相等
+            let title_len = download_postpage_res.get("title").unwrap().len();
+            let link_len = download_postpage_res.get("link").unwrap().len();
+            let created_len = download_postpage_res.get("created").unwrap().len();
+
+            if title_len != link_len || title_len != created_len {
+                error!(
+                    "url: {} 解析结果字段长度不一致: title={}, link={}, created={}",
+                    base_postpage_url, title_len, link_len, created_len
+                );
+                return Vec::new();
+            }
+
+            let length = title_len;
+
+            // 如果没有updated字段，使用created字段的时间
+            if !download_postpage_res.contains_key("updated") {
+                let created_vec = download_postpage_res.get("created").unwrap().clone();
+                download_postpage_res.insert("updated", created_vec);
             }
 
             let mut format_base_posts = vec![];
@@ -219,35 +226,26 @@ pub async fn start_crawl_postpages(
                         }
                     },
                 };
-                let created = match download_postpage_res.get("created") {
-                    Some(v) => {
-                        if i < v.len() {
-                            // 如果有值，则使用该值
-                            tools::strftime_to_string_ymd(v[i].trim())
-                        } else {
-                            // 否则使用当前时间
-                            tools::strptime_to_string_ymd(
-                                Utc::now().with_timezone(&crawler::BEIJING_OFFSET.unwrap()),
-                            )
-                        }
+                // created字段已经保证存在且长度正确
+                let created = match tools::strftime_to_string_ymd(
+                    download_postpage_res.get("created").unwrap()[i].trim(),
+                ) {
+                    Ok(date) => date,
+                    Err(_) => {
+                        warn!("无法解析创建时间");
+                        continue;
                     }
-                    // 缺失created字段，否则使用当前时间
-                    None => tools::strptime_to_string_ymd(
-                        Utc::now().with_timezone(&crawler::BEIJING_OFFSET.unwrap()),
-                    ),
                 };
-                let updated = match download_postpage_res.get("updated") {
-                    Some(v) => {
-                        if i < v.len() {
-                            // 如果有值，则使用该值
-                            tools::strftime_to_string_ymd(v[i].trim())
-                        } else {
-                            // 否则使用created
-                            created.clone()
-                        }
+
+                // updated字段已经在前面补充过，保证存在且长度正确
+                let updated = match tools::strftime_to_string_ymd(
+                    download_postpage_res.get("updated").unwrap()[i].trim(),
+                ) {
+                    Ok(date) => date,
+                    Err(_) => {
+                        warn!("无法解析更新时间，使用创建时间");
+                        created.clone()
                     }
-                    // 否则使用created
-                    None => created.clone(),
                 };
                 let rules = download_postpage_res.get("rules").unwrap();
                 let base_post =
@@ -279,7 +277,7 @@ pub async fn start_crawl_linkpages(
     for linkmeta in start_urls {
         // check block url
         let block_sites = &settings.block_site;
-        if check_block_site(block_sites, &linkmeta.link) {
+        if check_block_site(block_sites, &linkmeta.link, settings.block_site_reverse) {
             continue;
         };
         let download_linkpage_res = match crawler::crawl_link_page(

@@ -171,6 +171,9 @@ pub async fn select_all_from_posts_with_linklike(
 }
 
 pub async fn delete_outdated_posts(days: usize, clientdb: &MongoDatabase) -> Result<usize, Error> {
+    if days == 0 {
+        return Ok(0);
+    }
     let now = Local::now() - Duration::days(days as i64);
     let collection = clientdb.collection::<Posts>("Posts");
     let filter = doc! { "updated": doc! { "$lt": now.format("%Y-%m-%d").to_string() } };

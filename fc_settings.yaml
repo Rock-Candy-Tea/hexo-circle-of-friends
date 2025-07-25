@@ -47,14 +47,18 @@ SETTINGS_FRIENDS_LINKS: {
 # block site list
 # 添加屏蔽站点，支持正则表达式
 BLOCK_SITE: [
+#    "https?://example.com/", # http或https
 #    https://example.com/, # 屏蔽 https://example.com/
 #    .*\.com,  # 含有.com的全部屏蔽
 #    ^http://,  # http://开头的全部屏蔽
 ]
 
+# 是否反向屏蔽站点，true表示反向屏蔽，false表示正向屏蔽
+BLOCK_SITE_REVERSE: false
+
 # 从每个主页中最多获取几篇文章，请设置一个正整数
 # 设置为0表示无限制
-MAX_POSTS_NUM:  25
+MAX_POSTS_NUM:  5
 
 # 如果要启用HTTP代理：
 # 对于github部署：添加secret

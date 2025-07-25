@@ -133,6 +133,8 @@ pub mod config {
         pub settings_friends_links: SettingsFriendsLinksMeta,
         #[serde(rename = "BLOCK_SITE")]
         pub block_site: Vec<String>,
+        #[serde(rename = "BLOCK_SITE_REVERSE")]
+        pub block_site_reverse: bool,
         #[serde(rename = "MAX_POSTS_NUM")]
         pub max_posts_num: usize,
         #[serde(rename = "OUTDATE_CLEAN")]

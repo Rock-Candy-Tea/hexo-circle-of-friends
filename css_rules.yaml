@@ -198,6 +198,7 @@ link_page_rules:
         avatar:
           [
             { selector: ".flink-list .info img", attr: "src" },
+            { selector: ".flink-list a img", attr: "data-lazy-src" },
             { selector: ".flink-list a img", attr: "src" },
             { selector: "flink .site-card .info img", attr: "src" },
           ],

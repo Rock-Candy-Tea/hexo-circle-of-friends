@@ -215,6 +215,9 @@ pub async fn truncate_table(pool: &SqlitePool, tb: &str) -> Result<(), Error> {
 }
 
 pub async fn delete_outdated_posts(days: usize, dbpool: &SqlitePool) -> Result<usize, Error> {
+    if days == 0 {
+        return Ok(0);
+    }
     let sql = format!("DELETE FROM posts WHERE date(updated) < date('now', '-{days} days')");
     let affected_rows = query(&sql).execute(dbpool).await?;
 

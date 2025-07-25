@@ -202,6 +202,9 @@ pub async fn select_all_from_friends(pool: &MySqlPool) -> Result<Vec<metadata::F
 }
 
 pub async fn delete_outdated_posts(days: usize, dbpool: &MySqlPool) -> Result<usize, Error> {
+    if days == 0 {
+        return Ok(0);
+    }
     let sql = "DELETE FROM posts WHERE DATE(updated) < DATE_SUB(CURDATE(), INTERVAL ? DAY)";
     let affected_rows = query(sql).bind(days as i64).execute(dbpool).await?;
 
