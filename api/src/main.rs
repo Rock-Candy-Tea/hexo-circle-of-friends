@@ -162,18 +162,18 @@ fn parse_port_from_args() -> Option<u16> {
         match arg.as_str() {
             "--port" | "-p" => {
                 // 下一个参数应该是端口号
-                if i + 1 < args.len() {
-                    if let Ok(port) = args[i + 1].parse::<u16>() {
-                        return Some(port);
-                    }
+                if i + 1 < args.len()
+                    && let Ok(port) = args[i + 1].parse::<u16>()
+                {
+                    return Some(port);
                 }
             }
             _ => {
                 // 如果是第二个参数且是数字，直接当作端口号
-                if i == 1 {
-                    if let Ok(port) = arg.parse::<u16>() {
-                        return Some(port);
-                    }
+                if i == 1
+                    && let Ok(port) = arg.parse::<u16>()
+                {
+                    return Some(port);
                 }
             }
         }
