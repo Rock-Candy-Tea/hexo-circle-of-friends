@@ -190,7 +190,7 @@ jobs:
   keepalive-workflow:
     name: Keepalive Workflow
     if: github.event_name == 'schedule'
-    needs: build-and-run-core
+    # needs: build-and-run-core
     runs-on: ubuntu-latest
     permissions:
       actions: write
