@@ -7,7 +7,6 @@ members = [
     "db",
     "api",
     "api_dependence",
-    "tmptest",
 ]
 resolver = "2"
 
