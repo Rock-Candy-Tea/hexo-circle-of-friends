@@ -8,8 +8,6 @@
 
 ### `v6.0.2` 更新说明：
 
-```
-- 📋 新增JSON配置文件解析功能，支持从JSON文件读取友链配置
-```
+- 📋 新增 JSON 配置文件解析功能，支持从 JSON 文件读取友链配置
 
 [![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)
