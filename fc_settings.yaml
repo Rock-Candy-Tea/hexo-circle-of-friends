@@ -2,8 +2,8 @@
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
-#   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
-#   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/#/developmentdoc?id=友链页适配
+#   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/#/AdvancedGuide
+#   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/#/AdvancedGuide
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
@@ -31,7 +31,7 @@ LINK: [
 #       suffix：选填，自定义订阅后缀，主要针对不规范的网站订阅后缀，见示例2
 SETTINGS_FRIENDS_LINKS: {
     enable: false,
-    json_api: "",
+    json_api_or_path: "",
     list: [
         # 示例1：
         # ["贰猹の小窝", "https://noionion.top/", "https://pub-noionion.oss-cn-hangzhou.aliyuncs.com/head.jpg"],

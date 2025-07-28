@@ -1,7 +1,7 @@
 use super::crawler;
 use chrono::Utc;
 use data_structures::{
-    config::Settings,
+    config::{Settings, SettingsFriendsLinksJsonMeta},
     metadata::{self, BasePosts},
 };
 use regex::Regex;
@@ -32,7 +32,7 @@ async fn get_joinset_result(
 
 /// 构建请求客户端
 pub fn build_client() -> ClientWithMiddleware {
-    let timeout = Duration::new(20, 0);
+    let timeout = Duration::new(5, 0);
     let baseclient = CL::new()
         .timeout(timeout)
         .use_rustls_tls()
@@ -320,4 +320,14 @@ pub async fn start_crawl_linkpages(
         }
     }
     format_base_friends
+}
+
+pub async fn start_get_friends_links_from_json(
+    json_api_or_path: &str,
+    client: &ClientWithMiddleware,
+) -> Result<SettingsFriendsLinksJsonMeta, Box<dyn std::error::Error>> {
+    // 向json_api_or_path发起请求
+    let res = client.get(json_api_or_path).send().await?;
+    let json_friends_links = serde_json::from_str(&res.text().await?)?;
+    Ok(json_friends_links)
 }

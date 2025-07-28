@@ -46,8 +46,10 @@ pub async fn write_data_to_json(pool: &SqlitePool) -> Result<(), Box<dyn std::er
 #[tokio::main]
 async fn main() {
     let _guard = tools::init_tracing(
-        "core",
-        Some("error,core=debug,db=debug,downloader=debug,tools=debug,data_structures=debug"),
+        "fcircle_core",
+        Some(
+            "error,fcircle_core=debug,db=debug,downloader=debug,tools=debug,data_structures=debug",
+        ),
     );
 
     let now = Utc::now().with_timezone(&downloader::BEIJING_OFFSET.unwrap());
@@ -90,10 +92,58 @@ async fn main() {
     // 处理配置项友链
     if fc_settings.settings_friends_links.enable {
         info!("处理配置项友链...");
-        // TODO json_api impl
-        let settings_friend_postpages = fc_settings.settings_friends_links.list.clone();
+        let json_friends_links = if !fc_settings
+            .settings_friends_links
+            .json_api_or_path
+            .is_empty()
+        {
+            if fc_settings
+                .settings_friends_links
+                .json_api_or_path
+                .starts_with("http")
+            {
+                if let Ok(json_friends_links) = download::start_get_friends_links_from_json(
+                    &fc_settings.settings_friends_links.json_api_or_path,
+                    &client,
+                )
+                .await
+                {
+                    info!(
+                        "从api:{}获取配置项友链成功",
+                        fc_settings.settings_friends_links.json_api_or_path
+                    );
+                    json_friends_links.friends
+                } else {
+                    error!(
+                        "从api:{}获取配置项友链失败",
+                        fc_settings.settings_friends_links.json_api_or_path
+                    );
+                    Vec::new()
+                }
+            } else if let Ok(json_friends_links) =
+                tools::get_json_friends_links(&fc_settings.settings_friends_links.json_api_or_path)
+            {
+                info!(
+                    "从文件:{}获取配置项友链成功",
+                    fc_settings.settings_friends_links.json_api_or_path
+                );
+                json_friends_links.friends
+            } else {
+                error!(
+                    "从文件:{}获取配置项友链失败",
+                    fc_settings.settings_friends_links.json_api_or_path
+                );
+                Vec::new()
+            }
+        } else {
+            Vec::new()
+        };
+        // concat json_friends_links and settings_friend_postpages
+        let mut settings_friend_postpages = fc_settings.settings_friends_links.list.clone();
+        settings_friend_postpages.extend(json_friends_links);
+        // info!("settings_friend_postpages: {:?}", settings_friend_postpages);
         for postpage_vec in settings_friend_postpages {
-            let tm = now;
+            let tm: chrono::DateTime<chrono::FixedOffset> = now;
             let created_at = tools::strptime_to_string_ymdhms(tm);
             let base_post = metadata::Friends::new(
                 postpage_vec[0].clone(),

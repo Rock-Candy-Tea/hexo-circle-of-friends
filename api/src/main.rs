@@ -79,7 +79,7 @@ async fn main() {
     }
 
     let fc_settings = tools::get_yaml_settings("./fc_settings.yaml").unwrap();
-    let _guard = init_tracing("api", None);
+    let _guard = init_tracing("fcircle_api", None);
 
     // 解析命令行参数获取端口号，默认为8000
     let port = parse_port_from_args().unwrap_or(8000);

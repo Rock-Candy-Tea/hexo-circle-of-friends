@@ -1,7 +1,7 @@
 name: update-friends-posts
 on:
   push:
-    branches: ["rs_dev", "main"]
+    branches: ["dev", "main"]
     tags:
       - "v*.*.*"
   schedule:

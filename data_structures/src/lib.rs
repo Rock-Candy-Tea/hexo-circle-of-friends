@@ -121,8 +121,13 @@ pub mod config {
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct SettingsFriendsLinksMeta {
         pub enable: bool,
-        pub json_api: String,
+        pub json_api_or_path: String,
         pub list: Vec<Vec<String>>,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub struct SettingsFriendsLinksJsonMeta {
+        pub friends: Vec<Vec<String>>,
     }
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

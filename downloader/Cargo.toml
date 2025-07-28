@@ -6,6 +6,7 @@ edition = "2024"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 # in download.rs
+serde_json.workspace = true
 serde_yaml.workspace = true
 data_structures = { path = "../data_structures" }
 reqwest.workspace = true
@@ -21,4 +22,3 @@ tracing.workspace = true
 # in crawler.rs
 feed-rs = "2"
 nipper = "0.1.9"
-

@@ -7,6 +7,8 @@ edition = "2024"
 
 [dependencies]
 data_structures = { path = "../data_structures" }
+serde.workspace = true
+serde_json.workspace = true
 serde_yaml.workspace = true
 chrono.workspace = true
 dotenvy.workspace = true
