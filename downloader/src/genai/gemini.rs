@@ -1,5 +1,5 @@
 use reqwest_middleware::ClientWithMiddleware;
-use serde_json::{Value, json};
+use serde_json::json;
 use tracing::info;
 
 const MODELS: [&str; 3] = [
@@ -12,7 +12,7 @@ pub async fn generate_content(client: &ClientWithMiddleware, html: &str) {
     // 从asset获取url
 
     let gemini_api_key = tools::get_env_var("GEMINI_API_KEY").unwrap();
-    for model in MODELS {
+    if let Some(model) = MODELS.into_iter().next() {
         let body = json!({
             "system_instruction": {
                 "parts": [
@@ -38,7 +38,7 @@ pub async fn generate_content(client: &ClientWithMiddleware, html: &str) {
             ]
         });
         let body_str = json!(body).to_string();
-        println!("{}", body_str);
+        println!("{body_str}");
         let res = client
             .post(format!(
                 "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_api_key}"
@@ -47,6 +47,5 @@ pub async fn generate_content(client: &ClientWithMiddleware, html: &str) {
             .header("Content-Type", "application/json");
         let res = res.send().await.unwrap();
         info!("{}-{}", model, res.text().await.unwrap());
-        break;
     }
 }

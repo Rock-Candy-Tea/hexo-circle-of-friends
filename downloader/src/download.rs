@@ -334,6 +334,6 @@ pub async fn start_get_friends_links_from_json(
 
 pub async fn start_crawl_detailpages(url: &str, client: &ClientWithMiddleware) -> String {
     let res = client.get(url).send().await.unwrap();
-    let html = res.text().await.unwrap();
-    html
+
+    res.text().await.unwrap()
 }
