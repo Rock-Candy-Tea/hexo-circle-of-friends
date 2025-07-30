@@ -31,8 +31,8 @@ async fn get_joinset_result(
 }
 
 /// 构建请求客户端
-pub fn build_client() -> ClientWithMiddleware {
-    let timeout = Duration::new(5, 0);
+pub fn build_client(timeout: u64) -> ClientWithMiddleware {
+    let timeout = Duration::new(timeout, 0);
     let baseclient = CL::new()
         .timeout(timeout)
         .use_rustls_tls()
@@ -330,4 +330,10 @@ pub async fn start_get_friends_links_from_json(
     let res = client.get(json_api_or_path).send().await?;
     let json_friends_links = serde_json::from_str(&res.text().await?)?;
     Ok(json_friends_links)
+}
+
+pub async fn start_crawl_detailpages(url: &str, client: &ClientWithMiddleware) -> String {
+    let res = client.get(url).send().await.unwrap();
+    let html = res.text().await.unwrap();
+    html
 }

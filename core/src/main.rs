@@ -57,7 +57,7 @@ async fn main() {
     let css_rules: tools::Value = tools::get_yaml("./css_rules.yaml").unwrap();
     let fc_settings = tools::get_yaml_settings("./fc_settings.yaml").unwrap();
 
-    let client = download::build_client();
+    let client = download::build_client(10);
 
     // let _cssrule = css_rules.clone();
     let format_base_friends =
