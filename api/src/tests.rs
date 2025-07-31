@@ -68,7 +68,7 @@ fn validate_statistical_data(stats: &Value) {
         "last_updated_time",
     ];
     for field in required_fields {
-        assert!(stats.get(field).is_some(), "Missing field: {}", field);
+        assert!(stats.get(field).is_some(), "Missing field: {field}");
     }
 }
 
@@ -83,8 +83,7 @@ fn validate_article_data(articles: &Value) {
         for field in required_fields {
             assert!(
                 article.get(field).is_some(),
-                "Missing article field: {}",
-                field
+                "Missing article field: {field}"
             );
         }
 
@@ -109,11 +108,7 @@ fn validate_friend_data(friends: &Value) {
     if let Some(friend) = friends.as_array().and_then(|arr| arr.first()) {
         let required_fields = ["name", "link", "avatar"];
         for field in required_fields {
-            assert!(
-                friend.get(field).is_some(),
-                "Missing friend field: {}",
-                field
-            );
+            assert!(friend.get(field).is_some(), "Missing friend field: {field}");
         }
     }
 }
@@ -127,7 +122,7 @@ mod sqlite_tests {
         let app = create_sqlite_app("data.db").await;
         let (status, json) = send_get_request(app, "/all").await;
 
-        println!("SQLite /all 响应状态: {}", status);
+        println!("SQLite /all 响应状态: {status}");
         println!(
             "SQLite /all 响应内容: {}",
             serde_json::to_string_pretty(&json)
@@ -173,7 +168,7 @@ mod sqlite_tests {
         } else if json.get("message").is_some() {
             println!("✅ SQLite /friend 测试通过 - 数据库为空");
         } else {
-            panic!("Unexpected response format: {:?}", json);
+            panic!("Unexpected response format: {json:?}");
         }
     }
 
@@ -189,7 +184,7 @@ mod sqlite_tests {
             // 单个朋友
             let required_fields = ["name", "link", "avatar"];
             for field in required_fields {
-                assert!(json.get(field).is_some(), "Missing field: {}", field);
+                assert!(json.get(field).is_some(), "Missing field: {field}");
             }
             println!("✅ SQLite /randomfriend 测试通过 - 返回单个朋友");
         } else if json.is_array() {
@@ -199,7 +194,7 @@ mod sqlite_tests {
         } else if json.get("message").is_some() {
             println!("✅ SQLite /randomfriend 测试通过 - 数据库为空");
         } else {
-            println!("✅ SQLite /randomfriend 测试通过 - 其他格式: {:?}", json);
+            println!("✅ SQLite /randomfriend 测试通过 - 其他格式: {json:?}");
         }
     }
 
@@ -215,7 +210,7 @@ mod sqlite_tests {
             // 单个文章
             let required_fields = ["title", "created", "updated", "link", "author", "avatar"];
             for field in required_fields {
-                assert!(json.get(field).is_some(), "Missing field: {}", field);
+                assert!(json.get(field).is_some(), "Missing field: {field}");
             }
         }
 
@@ -257,8 +252,7 @@ mod sqlite_tests {
         // 可能返回200（有摘要）或404（无摘要）
         assert!(
             status == StatusCode::OK || status == StatusCode::NOT_FOUND,
-            "Expected 200 or 404, got: {}",
-            status
+            "Expected 200 or 404, got: {status}"
         );
 
         println!("✅ SQLite /summary 测试通过");
@@ -345,7 +339,7 @@ mod mysql_tests {
                 let friend = &friends[0];
                 let required_fields = ["name", "link", "avatar"];
                 for field in required_fields {
-                    assert!(friend.get(field).is_some(), "Missing field: {}", field);
+                    assert!(friend.get(field).is_some(), "Missing field: {field}");
                 }
             }
         }
@@ -380,14 +374,13 @@ mod mysql_tests {
             && let Some(link) = friend.get("link").and_then(|v| v.as_str())
         {
             let encoded_link = urlencoding::encode(link);
-            let path = format!("/post?link={}&num=5", encoded_link);
+            let path = format!("/post?link={encoded_link}&num=5");
             let (status, json) = send_get_request(app, &path).await;
 
             // 应该返回200或404
             assert!(
                 status == StatusCode::OK || status == StatusCode::NOT_FOUND,
-                "Expected 200 or 404, got: {}",
-                status
+                "Expected 200 or 404, got: {status}"
             );
 
             if status == StatusCode::OK {
@@ -408,8 +401,7 @@ mod mysql_tests {
         // 可能返回200（有摘要）或404（无摘要）
         assert!(
             status == StatusCode::OK || status == StatusCode::NOT_FOUND,
-            "Expected 200 or 404, got: {}",
-            status
+            "Expected 200 or 404, got: {status}"
         );
 
         if status == StatusCode::OK && json.get("link").is_some() {
@@ -422,11 +414,7 @@ mod mysql_tests {
                 "updated_at",
             ];
             for field in required_fields {
-                assert!(
-                    json.get(field).is_some(),
-                    "Missing summary field: {}",
-                    field
-                );
+                assert!(json.get(field).is_some(), "Missing summary field: {field}");
             }
             println!("✅ MySQL /summary 测试通过 - 返回摘要数据");
         } else if status == StatusCode::OK && json.get("message").is_some() {
@@ -499,7 +487,7 @@ mod mongodb_tests {
             // 单个朋友的情况
             let required_fields = ["name", "link", "avatar"];
             for field in required_fields {
-                assert!(json.get(field).is_some(), "Missing field: {}", field);
+                assert!(json.get(field).is_some(), "Missing field: {field}");
             }
         }
 
@@ -545,8 +533,7 @@ mod mongodb_tests {
         // 可能返回200（有摘要）或404（无摘要）
         assert!(
             status == StatusCode::OK || status == StatusCode::NOT_FOUND,
-            "Expected 200 or 404, got: {}",
-            status
+            "Expected 200 or 404, got: {status}"
         );
 
         if status == StatusCode::OK && json.get("link").is_some() {
@@ -559,11 +546,7 @@ mod mongodb_tests {
                 "updated_at",
             ];
             for field in required_fields {
-                assert!(
-                    json.get(field).is_some(),
-                    "Missing summary field: {}",
-                    field
-                );
+                assert!(json.get(field).is_some(), "Missing summary field: {field}");
             }
             println!("✅ MongoDB /summary 测试通过 - 返回摘要数据");
         } else if status == StatusCode::OK && json.get("message").is_some() {
@@ -596,7 +579,7 @@ mod mongodb_tests {
                 "/summary",
             ];
             for path in expected_paths {
-                assert!(paths.contains_key(path), "Missing path: {}", path);
+                assert!(paths.contains_key(path), "Missing path: {path}");
             }
         }
 
@@ -647,7 +630,7 @@ mod integration_tests {
                 {
                     for key in sqlite_obj.keys() {
                         if !mysql_obj.contains_key(key) {
-                            println!("⚠️ MySQL missing SQLite field: {}", key);
+                            println!("⚠️ MySQL missing SQLite field: {key}");
                         }
                     }
                 }
@@ -685,8 +668,7 @@ mod integration_tests {
                 status,
                 StatusCode::OK | StatusCode::BAD_REQUEST | StatusCode::UNPROCESSABLE_ENTITY
             ),
-            "Expected 200, 400 or 422, got: {}",
-            status
+            "Expected 200, 400 or 422, got: {status}"
         );
 
         // 测试不存在的端点
@@ -741,12 +723,10 @@ mod basic_tests {
                             | StatusCode::NOT_FOUND
                             | StatusCode::UNPROCESSABLE_ENTITY
                     ),
-                    "Endpoint {} returned unexpected status: {}",
-                    endpoint,
-                    status
+                    "Endpoint {endpoint} returned unexpected status: {status}"
                 );
 
-                println!("✅ SQLite {} - 状态码: {}", endpoint, status);
+                println!("✅ SQLite {endpoint} - 状态码: {status}");
             }
 
             println!("✅ SQLite 所有端点可访问性测试通过");
@@ -772,7 +752,7 @@ mod basic_tests {
                     "/summary",
                 ];
                 for path in expected_paths {
-                    assert!(paths.contains_key(path), "缺少API路径: {}", path);
+                    assert!(paths.contains_key(path), "缺少API路径: {path}");
                 }
                 println!("✅ SQLite OpenAPI包含所有预期路径: {}", paths.len());
             }
@@ -800,7 +780,7 @@ mod basic_tests {
                     let endpoints = ["/all", "/friend", "/swagger.json"];
                     for endpoint in endpoints {
                         let (status, _json) = send_request(app.clone(), endpoint).await;
-                        println!("✅ MySQL {} - 状态码: {}", endpoint, status);
+                        println!("✅ MySQL {endpoint} - 状态码: {status}");
 
                         // 验证返回合理的状态码
                         assert!(
@@ -811,9 +791,7 @@ mod basic_tests {
                                     | StatusCode::NOT_FOUND
                                     | StatusCode::INTERNAL_SERVER_ERROR
                             ),
-                            "MySQL endpoint {} returned unexpected status: {}",
-                            endpoint,
-                            status
+                            "MySQL endpoint {endpoint} returned unexpected status: {status}"
                         );
                     }
 
@@ -845,7 +823,7 @@ mod basic_tests {
                     let endpoints = ["/all", "/friend", "/swagger.json"];
                     for endpoint in endpoints {
                         let (status, _json) = send_request(app.clone(), endpoint).await;
-                        println!("✅ MongoDB {} - 状态码: {}", endpoint, status);
+                        println!("✅ MongoDB {endpoint} - 状态码: {status}");
 
                         // 验证返回合理的状态码
                         assert!(
@@ -856,9 +834,7 @@ mod basic_tests {
                                     | StatusCode::NOT_FOUND
                                     | StatusCode::INTERNAL_SERVER_ERROR
                             ),
-                            "MongoDB endpoint {} returned unexpected status: {}",
-                            endpoint,
-                            status
+                            "MongoDB endpoint {endpoint} returned unexpected status: {status}"
                         );
                     }
 
@@ -899,7 +875,7 @@ mod basic_tests {
                     "/summary",
                 ];
                 for path in required_paths {
-                    assert!(sqlite_paths.contains_key(path), "SQLite缺少路径: {}", path);
+                    assert!(sqlite_paths.contains_key(path), "SQLite缺少路径: {path}");
                 }
             }
 
@@ -919,8 +895,7 @@ mod basic_tests {
                     status,
                     StatusCode::OK | StatusCode::BAD_REQUEST | StatusCode::UNPROCESSABLE_ENTITY
                 ),
-                "API返回了意外的状态码: {}",
-                status
+                "API返回了意外的状态码: {status}"
             );
 
             // 测试不存在的路径

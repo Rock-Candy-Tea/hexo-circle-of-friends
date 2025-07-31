@@ -220,7 +220,7 @@ impl EnhancedSummaryProvider {
             } else {
                 Ok(SummaryResult {
                     summary: combined_summary,
-                    model: format!("chunks-{}", combined_models),
+                    model: format!("chunks-{combined_models}"),
                 })
             }
         } else {
@@ -262,7 +262,7 @@ impl EnhancedSummaryProvider {
                     info!("Gemini模型 {} 成功生成摘要", model);
                     return Ok(SummaryResult {
                         summary,
-                        model: format!("gemini-{}", model),
+                        model: format!("gemini-{model}"),
                     });
                 }
                 Err(e) => {
@@ -296,7 +296,7 @@ impl EnhancedSummaryProvider {
                     info!("SiliconFlow模型 {} 成功生成摘要", model);
                     return Ok(SummaryResult {
                         summary,
-                        model: format!("siliconflow-{}", model),
+                        model: format!("siliconflow-{model}"),
                     });
                 }
                 Err(e) => {
