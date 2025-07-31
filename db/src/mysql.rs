@@ -218,16 +218,18 @@ pub async fn insert_article_summary(
     pool: &MySqlPool,
 ) -> Result<(), Error> {
     let sql = "INSERT INTO article_summaries 
-                (link, content_hash, summary, createdAt, updatedAt)
-                VALUES (?, ?, ?, ?, ?)
+                (link, content_hash, summary, ai_model, createdAt, updatedAt)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                 content_hash = VALUES(content_hash),
                 summary = VALUES(summary),
+                ai_model = VALUES(ai_model),
                 updatedAt = VALUES(updatedAt)";
     query(sql)
         .bind(&summary.link)
         .bind(&summary.content_hash)
         .bind(&summary.summary)
+        .bind(&summary.ai_model)
         .bind(&summary.created_at)
         .bind(&summary.updated_at)
         .execute(pool)
@@ -239,7 +241,7 @@ pub async fn select_article_summary_by_link(
     link: &str,
     pool: &MySqlPool,
 ) -> Result<Option<ArticleSummary>, Error> {
-    let sql = "SELECT link, content_hash, summary, createdAt, updatedAt 
+    let sql = "SELECT link, content_hash, summary, ai_model, createdAt, updatedAt 
                FROM article_summaries WHERE link = ?";
     let summary = query_as::<_, ArticleSummary>(sql)
         .bind(link)
@@ -252,7 +254,7 @@ pub async fn select_article_summary_by_hash(
     content_hash: &str,
     pool: &MySqlPool,
 ) -> Result<Option<ArticleSummary>, Error> {
-    let sql = "SELECT link, content_hash, summary, createdAt, updatedAt 
+    let sql = "SELECT link, content_hash, summary, ai_model, createdAt, updatedAt 
                FROM article_summaries WHERE content_hash = ?";
     let summary = query_as::<_, ArticleSummary>(sql)
         .bind(content_hash)
@@ -838,6 +840,7 @@ mod tests {
             "https://example.com/test-article".to_string(),
             "abcd1234567890".to_string(),
             "这是一篇测试文章的摘要".to_string(),
+            Some("test-model".to_string()),
             "2023-01-01 00:00:00".to_string(),
             "2023-01-01 00:00:00".to_string(),
         );
@@ -874,6 +877,7 @@ mod tests {
             "https://example.com/article".to_string(),
             "hash1".to_string(),
             "原始摘要".to_string(),
+            Some("original-model".to_string()),
             "2023-01-01 00:00:00".to_string(),
             "2023-01-01 00:00:00".to_string(),
         );
@@ -886,6 +890,7 @@ mod tests {
             "https://example.com/article".to_string(),
             "hash2".to_string(),
             "更新后的摘要".to_string(),
+            Some("updated-model".to_string()),
             "2023-01-01 00:00:00".to_string(),
             "2023-01-02 00:00:00".to_string(),
         );
@@ -914,6 +919,7 @@ mod tests {
             "https://example.com/to-delete".to_string(),
             "delete_hash".to_string(),
             "要删除的摘要".to_string(),
+            Some("delete-model".to_string()),
             "2023-01-01 00:00:00".to_string(),
             "2023-01-01 00:00:00".to_string(),
         );

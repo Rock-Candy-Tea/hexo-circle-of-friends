@@ -8,6 +8,13 @@ use tracing::{info, warn};
 
 use super::{gemini, siliconflow};
 
+/// AI摘要生成结果，包含摘要内容和使用的模型信息
+#[derive(Debug, Clone)]
+pub struct SummaryResult {
+    pub summary: String,
+    pub model: String,
+}
+
 /// 增强的摘要提供商，支持并发、限速和内容分块
 pub struct EnhancedSummaryProvider {
     config: GenerateSummaryConfig,
@@ -32,7 +39,7 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         html_content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         if !self.config.enabled {
             return Err("摘要生成功能已禁用".into());
         }
@@ -59,7 +66,7 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         html_contents: Vec<(String, String)>, // (link, html_content)
-    ) -> Vec<(String, Result<String, Box<dyn std::error::Error>>)> {
+    ) -> Vec<(String, Result<SummaryResult, Box<dyn std::error::Error>>)> {
         let max_concurrent = self.config.get_max_concurrent();
 
         info!(
@@ -106,14 +113,14 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         html_content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         let retry_attempts = self.config.get_retry_attempts();
         let wait_on_rate_limit = self.config.get_wait_on_rate_limit();
         let rate_limit_delay = self.config.get_rate_limit_delay();
 
         for attempt in 0..retry_attempts {
             match self.generate_summary(client, html_content).await {
-                Ok(summary) => return Ok(summary),
+                Ok(summary_result) => return Ok(summary_result),
                 Err(e) => {
                     let error_msg = e.to_string().to_lowercase();
 
@@ -160,18 +167,20 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         let chunks = self.html_extractor.chunk_content(content);
         info!("内容分为 {} 块", chunks.len());
 
         let mut summaries = Vec::new();
+        let mut used_models = Vec::new();
 
         for (idx, chunk) in chunks.iter().enumerate() {
             info!("处理第 {} 块内容 (长度: {} 字符)", idx + 1, chunk.len());
 
             match self.generate_single_summary(client, chunk).await {
-                Ok(summary) => {
-                    summaries.push(summary);
+                Ok(summary_result) => {
+                    summaries.push(summary_result.summary);
+                    used_models.push(summary_result.model);
                 }
                 Err(e) => {
                     warn!("第 {} 块处理失败: {}", idx + 1, e);
@@ -193,6 +202,7 @@ impl EnhancedSummaryProvider {
         if summaries.len() > 1 {
             info!("合并 {} 个分块摘要", summaries.len());
             let combined_summary = summaries.join(" ");
+            let combined_models = used_models.join(", ");
 
             // 如果合并后的摘要过长，再次总结
             if combined_summary.len() > 1000 {
@@ -200,12 +210,24 @@ impl EnhancedSummaryProvider {
                 let prompt = format!(
                     "请将以下分段摘要合并为一个完整的文章摘要（不超过500字符）：\n\n{combined_summary}"
                 );
-                self.generate_single_summary(client, &prompt).await
+                match self.generate_single_summary(client, &prompt).await {
+                    Ok(final_result) => Ok(SummaryResult {
+                        summary: final_result.summary,
+                        model: format!("chunks-{}", final_result.model),
+                    }),
+                    Err(e) => Err(e),
+                }
             } else {
-                Ok(combined_summary)
+                Ok(SummaryResult {
+                    summary: combined_summary,
+                    model: format!("chunks-{}", combined_models),
+                })
             }
         } else {
-            Ok(summaries.into_iter().next().unwrap())
+            Ok(SummaryResult {
+                summary: summaries.into_iter().next().unwrap(),
+                model: used_models.into_iter().next().unwrap(),
+            })
         }
     }
 
@@ -214,7 +236,7 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         match self.config.provider.as_str() {
             "gemini" => self.try_gemini_models(client, content).await,
             "siliconflow" => self.try_siliconflow_models(client, content).await,
@@ -227,7 +249,7 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         let gemini_config = self.config.gemini.as_ref().ok_or("Gemini配置缺失")?;
 
         let mut last_error = None;
@@ -238,7 +260,10 @@ impl EnhancedSummaryProvider {
             match gemini::generate_content(client, content).await {
                 Ok(summary) => {
                     info!("Gemini模型 {} 成功生成摘要", model);
-                    return Ok(summary);
+                    return Ok(SummaryResult {
+                        summary,
+                        model: format!("gemini-{}", model),
+                    });
                 }
                 Err(e) => {
                     warn!("Gemini模型 {} 失败: {}", model, e);
@@ -254,7 +279,7 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         let siliconflow_config = self
             .config
             .siliconflow
@@ -269,7 +294,10 @@ impl EnhancedSummaryProvider {
             match siliconflow::generate_content(client, model, content).await {
                 Ok(summary) => {
                     info!("SiliconFlow模型 {} 成功生成摘要", model);
-                    return Ok(summary);
+                    return Ok(SummaryResult {
+                        summary,
+                        model: format!("siliconflow-{}", model),
+                    });
                 }
                 Err(e) => {
                     warn!("SiliconFlow模型 {} 失败: {}", model, e);
@@ -285,16 +313,16 @@ impl EnhancedSummaryProvider {
         &self,
         client: &ClientWithMiddleware,
         content: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         info!("尝试所有配置的AI提供商");
 
         // 首先尝试SiliconFlow（通常免费且性能好）
         if self.config.siliconflow.is_some() {
             info!("首先尝试SiliconFlow提供商");
             match self.try_siliconflow_models(client, content).await {
-                Ok(summary) => {
+                Ok(summary_result) => {
                     info!("SiliconFlow提供商成功生成摘要");
-                    return Ok(summary);
+                    return Ok(summary_result);
                 }
                 Err(e) => {
                     warn!("SiliconFlow提供商失败: {}", e);
@@ -306,9 +334,9 @@ impl EnhancedSummaryProvider {
         if self.config.gemini.is_some() {
             info!("尝试Gemini提供商作为备选");
             match self.try_gemini_models(client, content).await {
-                Ok(summary) => {
+                Ok(summary_result) => {
                     info!("Gemini提供商成功生成摘要");
-                    return Ok(summary);
+                    return Ok(summary_result);
                 }
                 Err(e) => {
                     warn!("Gemini提供商失败: {}", e);

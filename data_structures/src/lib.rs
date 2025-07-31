@@ -114,6 +114,7 @@ pub mod metadata {
         pub link: String,
         pub content_hash: String,
         pub summary: String,
+        pub ai_model: Option<String>,
         #[serde(rename = "createdAt")]
         #[sqlx(rename = "createdAt")]
         pub created_at: String,
@@ -127,6 +128,7 @@ pub mod metadata {
             link: String,
             content_hash: String,
             summary: String,
+            ai_model: Option<String>,
             created_at: String,
             updated_at: String,
         ) -> ArticleSummary {
@@ -134,6 +136,7 @@ pub mod metadata {
                 link,
                 content_hash,
                 summary,
+                ai_model,
                 created_at,
                 updated_at,
             }

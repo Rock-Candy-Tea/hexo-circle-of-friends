@@ -122,7 +122,7 @@ async fn generate_article_summaries(
                                 .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -130,7 +130,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         existing_summary.created_at,
                                         now,
                                     );
@@ -164,7 +165,7 @@ async fn generate_article_summaries(
                                 .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -172,7 +173,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         now.clone(),
                                         now,
                                     );
@@ -234,7 +236,7 @@ async fn generate_article_summaries(
                                 .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -242,7 +244,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         existing_summary.created_at,
                                         now,
                                     );
@@ -271,10 +274,10 @@ async fn generate_article_summaries(
                             let current_hash = tools::calculate_content_hash(&html_content);
 
                             match summary_provider
-                                .generate_summary(client, &html_content)
+                                .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -282,7 +285,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         now.clone(),
                                         now,
                                     );
@@ -344,7 +348,7 @@ async fn generate_article_summaries(
                                 .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -352,7 +356,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         existing_summary.created_at,
                                         now,
                                     );
@@ -381,10 +386,10 @@ async fn generate_article_summaries(
                             let current_hash = tools::calculate_content_hash(&html_content);
 
                             match summary_provider
-                                .generate_summary(client, &html_content)
+                                .generate_summary(&llm_client, &html_content)
                                 .await
                             {
-                                Ok(summary) => {
+                                Ok(summary_result) => {
                                     let now = tools::strptime_to_string_ymdhms(
                                         Utc::now()
                                             .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
@@ -392,7 +397,8 @@ async fn generate_article_summaries(
                                     let article_summary = ArticleSummary::new(
                                         link.clone(),
                                         current_hash,
-                                        summary,
+                                        summary_result.summary,
+                                        Some(summary_result.model),
                                         now.clone(),
                                         now,
                                     );
@@ -818,6 +824,7 @@ mod tests {
             link: "test".to_string(),
             content_hash: "hash123".to_string(),
             summary: "existing summary".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01".to_string(),
             updated_at: "2023-01-01".to_string(),
         };
@@ -834,6 +841,7 @@ mod tests {
             link: "test".to_string(),
             content_hash: "hash123".to_string(),
             summary: "existing summary".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01".to_string(),
             updated_at: "2023-01-01".to_string(),
         };
@@ -850,6 +858,7 @@ mod tests {
             link: "test".to_string(),
             content_hash: "hash123".to_string(),
             summary: "".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01".to_string(),
             updated_at: "2023-01-01".to_string(),
         };
@@ -866,6 +875,7 @@ mod tests {
             link: "test".to_string(),
             content_hash: "hash123".to_string(),
             summary: "   \n\t  ".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01".to_string(),
             updated_at: "2023-01-01".to_string(),
         };
@@ -882,6 +892,7 @@ mod tests {
             link: "test".to_string(),
             content_hash: "hash123".to_string(),
             summary: "".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01".to_string(),
             updated_at: "2023-01-01".to_string(),
         };

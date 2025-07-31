@@ -26,6 +26,7 @@ CREATE TABLE `article_summaries` (
   `link` varchar(256) NOT NULL,
   `content_hash` varchar(64) NOT NULL,
   `summary` TEXT,
+  `ai_model` varchar(128) DEFAULT NULL,
   `createdAt` VARCHAR(1024) DEFAULT NULL,
   `updatedAt` VARCHAR(1024) DEFAULT NULL,
   PRIMARY KEY (`id`),

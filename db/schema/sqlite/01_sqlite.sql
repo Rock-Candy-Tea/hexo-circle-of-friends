@@ -26,6 +26,7 @@ CREATE TABLE article_summaries (
 	link VARCHAR(256) NOT NULL,
 	content_hash VARCHAR(64) NOT NULL,
 	summary TEXT,
+	ai_model VARCHAR(128),
 	"createdAt" VARCHAR(1024),
 	"updatedAt" VARCHAR(1024),
 	PRIMARY KEY (id),

@@ -194,6 +194,7 @@ pub async fn insert_article_summary(
             "link": &summary.link,
             "content_hash": &summary.content_hash,
             "summary": &summary.summary,
+            "ai_model": &summary.ai_model,
             "createdAt": &summary.created_at,
             "updatedAt": &summary.updated_at,
         }
@@ -936,6 +937,7 @@ mod tests {
             link: "https://example.com/test-article".to_string(),
             content_hash: "abc123".to_string(),
             summary: "这是一个测试摘要".to_string(),
+            ai_model: Some("test-model".to_string()),
             created_at: "2023-01-01T00:00:00Z".to_string(),
             updated_at: "2023-01-01T00:00:00Z".to_string(),
         };
@@ -966,6 +968,7 @@ mod tests {
             link: "https://example.com/article".to_string(),
             content_hash: "hash1".to_string(),
             summary: "原始摘要".to_string(),
+            ai_model: Some("original-model".to_string()),
             created_at: "2023-01-01T00:00:00Z".to_string(),
             updated_at: "2023-01-01T00:00:00Z".to_string(),
         };
@@ -979,6 +982,7 @@ mod tests {
             link: "https://example.com/article".to_string(),
             content_hash: "hash2".to_string(),
             summary: "更新后的摘要".to_string(),
+            ai_model: Some("updated-model".to_string()),
             created_at: "2023-01-01T00:00:00Z".to_string(),
             updated_at: "2023-01-02T00:00:00Z".to_string(),
         };
@@ -1008,6 +1012,7 @@ mod tests {
             link: "https://example.com/to-delete".to_string(),
             content_hash: "delete_hash".to_string(),
             summary: "要删除的摘要".to_string(),
+            ai_model: Some("delete-model".to_string()),
             created_at: "2023-01-01T00:00:00Z".to_string(),
             updated_at: "2023-01-01T00:00:00Z".to_string(),
         };
@@ -1056,6 +1061,7 @@ mod tests {
             link: "https://example.com/hash-test".to_string(),
             content_hash: "unique_hash_123".to_string(),
             summary: "根据哈希查询的摘要".to_string(),
+            ai_model: Some("hash-test-model".to_string()),
             created_at: "2023-01-01T00:00:00Z".to_string(),
             updated_at: "2023-01-01T00:00:00Z".to_string(),
         };
