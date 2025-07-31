@@ -24,7 +24,11 @@ sqlx = { workspace = true, features = ["runtime-tokio-rustls", "sqlite", "mysql"
 mongodb.workspace = true
 rand.workspace = true
 url.workspace = true
+futures.workspace = true
 data_structures = { path = "../data_structures" }
+urlencoding = "2.1"
+tower = { version = "0.5", features = ["util"] }
+
 
 [[bin]]
 name = "fcircle_api"

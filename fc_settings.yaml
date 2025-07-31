@@ -84,7 +84,7 @@ DEPLOY_TYPE: "github"
 # 文章摘要生成配置
 # 模型选择参考: https://cloud.siliconflow.cn/me/models?types=chat
 GENERATE_SUMMARY: {
-  enabled: true,
+  enabled: false,
   provider: "all",  # gemini|siliconflow|all 使用 "all" 获得最佳可靠性
   
   # 📝 可选：高级配置 (大部分情况下使用默认值即可)
