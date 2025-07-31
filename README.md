@@ -10,5 +10,6 @@
 
 - 🤖 **新增文章摘要AI生成功能**：支持Gemini和SiliconFlow多种AI模型，智能生成文章摘要
 - 🚀 **性能优化**：实现内容哈希缓存机制，避免重复生成摘要，节省API调用成本
+- 📦 **版本检测**：新增版本检测功能
 
 [![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)
