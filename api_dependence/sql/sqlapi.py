@@ -1,9 +1,8 @@
 # -*- coding:utf-8 -*-
 
-from datetime import datetime
 from urllib import parse
 from tools.utils import get_user_settings
-from db.models import Friend, Post
+from db.models import Friend, Post, ArticleSummary
 from sqlalchemy.sql.expression import desc, func
 
 from api_dependence.sql.db_interface import db_init
@@ -16,12 +15,18 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
     # 检查rule的合法性
     if rule != "created" and rule != "updated":
         return {"message": "rule error, please use 'created'/'updated'"}
+    # 使用LEFT JOIN查询文章和摘要
     if start == 0 and end == 0:
-        posts = session.query(Post).order_by(desc(rule)).all()
+        posts_with_summary = session.query(
+            Post, ArticleSummary
+        ).outerjoin(
+            ArticleSummary, Post.link == ArticleSummary.link
+        ).order_by(desc(getattr(Post, rule))).all()
     else:
-        posts = (
-            session.query(Post)
-            .order_by(desc(rule))
+        posts_with_summary = (
+            session.query(Post, ArticleSummary)
+            .outerjoin(ArticleSummary, Post.link == ArticleSummary.link)
+            .order_by(desc(getattr(Post, rule)))
             .offset(start)
             .limit(end - start)
             .all()
@@ -47,10 +52,21 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
     }
 
     post_data = []
-    for k, post in enumerate(posts):
+    for k, (post, summary) in enumerate(posts_with_summary):
         item = {"floor": start + k + 1}
         for elem in li:
             item[elem] = getattr(post, elem)
+        # 添加摘要相关字段
+        if summary:
+            item["summary"] = summary.summary
+            item["ai_model"] = summary.ai_model
+            item["summary_created_at"] = summary.createdAt
+            item["summary_updated_at"] = summary.updatedAt
+        else:
+            item["summary"] = None
+            item["ai_model"] = None
+            item["summary_created_at"] = None
+            item["summary_updated_at"] = None
         post_data.append(item)
 
     session.close()
@@ -179,3 +195,22 @@ def query_post(
         return {"message": "not found"}
 
     return api_json
+
+
+def query_summary(link):
+    """查询指定链接的文章摘要"""
+    session = db_init()
+    summary = session.query(ArticleSummary).filter_by(link=link).first()
+    session.close()
+    
+    if summary:
+        return {
+            "link": summary.link,
+            "summary": summary.summary,
+            "ai_model": summary.ai_model,
+            "content_hash": summary.content_hash,
+            "created_at": summary.createdAt,
+            "updated_at": summary.updatedAt,
+        }
+    else:
+        return {"message": "not found"}

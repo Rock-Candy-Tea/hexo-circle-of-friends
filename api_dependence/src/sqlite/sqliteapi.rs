@@ -5,8 +5,8 @@ use axum::{
 };
 use data_structures::query_params::{AllQueryParams, PostParams, RandomQueryParams};
 use data_structures::{
-    metadata::{Friends, Posts},
-    response::{AllPostData, AllPostDataSomeFriend},
+    metadata::{Friends, Posts, SummaryResponse},
+    response::{AllPostDataSomeFriend, AllPostDataWithSummary},
 };
 use db::{SqlitePool, sqlite};
 use rand::prelude::*;
@@ -15,9 +15,9 @@ use url::Url;
 pub async fn get_all(
     State(pool): State<SqlitePool>,
     Query(params): Query<AllQueryParams>,
-) -> Result<Json<AllPostData>, PYQError> {
-    // println!("{:?}",params);
-    let posts = match sqlite::select_all_from_posts(
+) -> Result<Json<AllPostDataWithSummary>, PYQError> {
+    // 使用带摘要的查询
+    let posts = match sqlite::select_all_from_posts_with_summary(
         &pool,
         params.start.unwrap_or(0),
         params.end.unwrap_or(0),
@@ -48,7 +48,7 @@ pub async fn get_all(
             active_num += 1;
         }
     }
-    let data = AllPostData::new(
+    let data = AllPostDataWithSummary::new(
         friends_num,
         active_num,
         lost_num,
@@ -159,4 +159,29 @@ pub async fn get_randompost(
         .cloned()
         .collect();
     Ok(Json(result))
+}
+
+/// 查询参数：摘要查询
+#[derive(serde::Deserialize)]
+pub struct SummaryQueryParams {
+    pub link: Option<String>,
+}
+
+/// 根据链接查询文章摘要
+pub async fn get_summary(
+    State(pool): State<SqlitePool>,
+    Query(params): Query<SummaryQueryParams>,
+) -> Result<Json<SummaryResponse>, PYQError> {
+    let link = params
+        .link
+        .ok_or_else(|| PYQError::ParamError("param 'link' is required".to_string()))?;
+
+    match sqlite::select_article_summary_by_link(&link, &pool).await {
+        Ok(Some(summary)) => {
+            let response = SummaryResponse::from_article_summary(summary);
+            Ok(Json(response))
+        }
+        Ok(None) => Err(PYQError::NotFoundError("not found".to_string())),
+        Err(e) => Err(PYQError::QueryDataBaseError(e.to_string())),
+    }
 }

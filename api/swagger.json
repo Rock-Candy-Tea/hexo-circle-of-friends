@@ -1,0 +1,1065 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hexo Circle of Friends API",
+    "description": "文章和朋友管理API，支持AI生成的文章摘要功能。\n\n支持多种数据库：SQLite、MySQL、MongoDB",
+    "contact": {
+      "name": "Hexo Circle of Friends",
+      "url": "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/all": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回完整统计信息",
+        "description": "获取数据库中的统计信息和文章列表，支持分页和排序",
+        "operationId": "all_all_get",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "起始位置，从0开始",
+              "default": 0,
+              "title": "Start"
+            },
+            "description": "起始位置，从0开始"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "结束位置，-1表示不限制",
+              "default": -1,
+              "title": "End"
+            },
+            "description": "结束位置，-1表示不限制"
+          },
+          {
+            "name": "rule",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(created|updated)$",
+              "description": "排序规则：created(创建时间) 或 updated(更新时间)",
+              "default": "updated",
+              "title": "Rule"
+            },
+            "description": "排序规则：created(创建时间) 或 updated(更新时间)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回统计信息和文章列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/AllResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response All All Get",
+                  "$ref": "#/components/schemas/AllResponse"
+                },
+                "example": {
+                  "statistical_data": {
+                    "friends_num": 34,
+                    "active_num": 19,
+                    "error_num": 15,
+                    "article_num": 31,
+                    "last_updated_time": "2025-01-01 12:00:00"
+                  },
+                  "article_data": [
+                    {
+                      "floor": 1,
+                      "title": "Wave Terminal 多功能开源终端",
+                      "created": "2025-07-31",
+                      "updated": "2025-07-31",
+                      "link": "https://blog.example.com/post",
+                      "author": "张三",
+                      "avatar": "https://example.com/avatar.jpg",
+                      "summary": "这是一篇关于终端工具的文章...",
+                      "ai_model": "qwen3",
+                      "summary_created_at": "2025-01-01 10:00:00",
+                      "summary_updated_at": "2025-01-01 10:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "rule error, please use 'created'/'updated'"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "数据库连接失败"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/friend": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回所有友链",
+        "description": "获取数据库中所有朋友的链接信息",
+        "operationId": "friend_friend_get",
+        "responses": {
+          "200": {
+            "description": "成功返回友链列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "$ref": "#/components/schemas/Friend"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NotFoundResponse"
+                    }
+                  ],
+                  "title": "Response Friend Friend Get"
+                },
+                "example": [
+                  {
+                    "name": "Jerry",
+                    "link": "https://butterfly.js.org/",
+                    "avatar": "https://butterfly.js.org/img/avatar.png"
+                  },
+                  {
+                    "name": "Alice",
+                    "link": "https://alice.blog/",
+                    "avatar": "https://alice.blog/avatar.jpg"
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "未找到友链",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器内部错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/randomfriend": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回随机友链",
+        "description": "随机返回指定数量的朋友链接",
+        "operationId": "random_friend_randomfriend_get",
+        "parameters": [
+          {
+            "name": "num",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "返回的友链数量",
+              "default": 1,
+              "title": "Num"
+            },
+            "description": "返回的友链数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回随机友链",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Friend"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Friend"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Random Friend Randomfriend Get"
+                },
+                "examples": {
+                  "single_friend": {
+                    "summary": "返回单个朋友",
+                    "value": {
+                      "name": "Jerry",
+                      "link": "https://butterfly.js.org/",
+                      "avatar": "https://butterfly.js.org/img/avatar.png"
+                    }
+                  },
+                  "multiple_friends": {
+                    "summary": "返回多个朋友",
+                    "value": [
+                      {
+                        "name": "Jerry",
+                        "link": "https://butterfly.js.org/",
+                        "avatar": "https://butterfly.js.org/img/avatar.png"
+                      },
+                      {
+                        "name": "Alice",
+                        "link": "https://alice.blog/",
+                        "avatar": "https://alice.blog/avatar.jpg"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "param 'num' error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到友链",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/randompost": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回随机文章",
+        "description": "随机返回指定数量的文章信息",
+        "operationId": "random_post_randompost_get",
+        "parameters": [
+          {
+            "name": "num",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "返回的文章数量",
+              "default": 1,
+              "title": "Num"
+            },
+            "description": "返回的文章数量"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回随机文章",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ArticleData"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ArticleData"
+                      }
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Random Post Randompost Get"
+                },
+                "examples": {
+                  "single_post": {
+                    "summary": "返回单篇文章",
+                    "value": {
+                      "floor": 1,
+                      "title": "Wave Terminal 多功能开源终端",
+                      "created": "2025-07-31",
+                      "updated": "2025-07-31",
+                      "link": "https://blog.example.com/post",
+                      "author": "张三",
+                      "avatar": "https://example.com/avatar.jpg"
+                    }
+                  },
+                  "multiple_posts": {
+                    "summary": "返回多篇文章",
+                    "value": [
+                      {
+                        "floor": 1,
+                        "title": "Wave Terminal 多功能开源终端",
+                        "created": "2025-07-31",
+                        "updated": "2025-07-31",
+                        "link": "https://blog.example.com/post1",
+                        "author": "张三",
+                        "avatar": "https://example.com/avatar1.jpg"
+                      },
+                      {
+                        "floor": 2,
+                        "title": "另一篇技术文章",
+                        "created": "2025-07-30",
+                        "updated": "2025-07-30",
+                        "link": "https://blog.example.com/post2",
+                        "author": "李四",
+                        "avatar": "https://example.com/avatar2.jpg"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到文章",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回指定链接的所有文章",
+        "description": "根据朋友链接获取该朋友的所有文章，支持随机朋友和指定朋友",
+        "operationId": "post_post_get",
+        "parameters": [
+          {
+            "name": "link",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "朋友链接地址，为空时随机选择",
+              "title": "Link"
+            },
+            "description": "朋友链接地址，为空时随机选择"
+          },
+          {
+            "name": "num",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "返回文章数量，-1表示返回所有",
+              "default": -1,
+              "title": "Num"
+            },
+            "description": "返回文章数量，-1表示返回所有"
+          },
+          {
+            "name": "rule",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^(created|updated)$",
+              "description": "排序规则：created(创建时间) 或 updated(更新时间)",
+              "default": "created",
+              "title": "Rule"
+            },
+            "description": "排序规则：created(创建时间) 或 updated(更新时间)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回文章列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PostResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Post Post Get"
+                },
+                "example": {
+                  "statistical_data": {
+                    "name": "葱苓sama",
+                    "link": "https://blog.ciraos.top",
+                    "avatar": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp",
+                    "article_num": 5
+                  },
+                  "article_data": [
+                    {
+                      "floor": 1,
+                      "title": "ubuntu桌面版安装字体",
+                      "created": "2025-07-12",
+                      "updated": "2025-07-12",
+                      "link": "https://blog.ciraos.top/posts/ubuntu/install-fonts",
+                      "author": "葱苓sama",
+                      "avatar": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "rule error, please use 'created'/'updated'"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到朋友或文章",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/summary": {
+      "get": {
+        "tags": [
+          "PUBLIC_API"
+        ],
+        "summary": "返回指定链接的文章摘要",
+        "description": "根据文章链接获取AI生成的文章摘要信息",
+        "operationId": "summary_summary_get",
+        "parameters": [
+          {
+            "name": "link",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "文章链接地址（必填）",
+              "title": "Link"
+            },
+            "description": "文章链接地址（必填）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功返回文章摘要",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SummaryResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NotFoundResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Summary Summary Get"
+                },
+                "example": {
+                  "link": "https://example.com/post",
+                  "summary": "这是一篇关于技术的文章，详细介绍了某个开发工具的使用方法和最佳实践...",
+                  "ai_model": "qwen3",
+                  "content_hash": "abc123def456789",
+                  "created_at": "2025-01-01 10:00:00",
+                  "updated_at": "2025-01-01 12:00:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数错误",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "链接参数不能为空"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "未找到摘要",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "not found"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "请求参数验证失败",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": [
+                    {
+                      "loc": [
+                        "query",
+                        "link"
+                      ],
+                      "msg": "field required",
+                      "type": "value_error.missing"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AllResponse": {
+        "properties": {
+          "statistical_data": {
+            "$ref": "#/components/schemas/StatisticalData"
+          },
+          "article_data": {
+            "items": {
+              "$ref": "#/components/schemas/ArticleData"
+            },
+            "type": "array",
+            "title": "Article Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "statistical_data",
+          "article_data"
+        ],
+        "title": "AllResponse",
+        "description": "全部文章响应模型"
+      },
+      "ArticleData": {
+        "properties": {
+          "floor": {
+            "type": "integer",
+            "title": "Floor",
+            "description": "文章楼层",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "文章标题",
+            "example": "Wave Terminal 多功能开源终端"
+          },
+          "created": {
+            "type": "string",
+            "title": "Created",
+            "description": "创建时间",
+            "example": "2025-07-31"
+          },
+          "updated": {
+            "type": "string",
+            "title": "Updated",
+            "description": "更新时间",
+            "example": "2025-07-31"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "文章链接",
+            "example": "https://blog.example.com/post"
+          },
+          "author": {
+            "type": "string",
+            "title": "Author",
+            "description": "作者",
+            "example": "张三"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar",
+            "description": "头像链接",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary",
+            "description": "AI生成摘要",
+            "example": "这是一篇关于终端工具的文章..."
+          },
+          "ai_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ai Model",
+            "description": "AI模型",
+            "example": "qwen3"
+          },
+          "summary_created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary Created At",
+            "description": "摘要创建时间",
+            "example": "2025-01-01 10:00:00"
+          },
+          "summary_updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary Updated At",
+            "description": "摘要更新时间",
+            "example": "2025-01-01 10:00:00"
+          }
+        },
+        "type": "object",
+        "required": [
+          "floor",
+          "title",
+          "created",
+          "updated",
+          "link",
+          "author",
+          "avatar"
+        ],
+        "title": "ArticleData",
+        "description": "文章数据模型"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "错误信息",
+            "example": "rule error, please use 'created'/'updated'"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "ErrorResponse",
+        "description": "错误响应模型"
+      },
+      "Friend": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "朋友名称",
+            "example": "Jerry"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "朋友链接",
+            "example": "https://butterfly.js.org/"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar",
+            "description": "朋友头像",
+            "example": "https://butterfly.js.org/img/avatar.png"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "link",
+          "avatar"
+        ],
+        "title": "Friend",
+        "description": "朋友模型"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "NotFoundResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "未找到信息",
+            "example": "not found"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "NotFoundResponse",
+        "description": "未找到响应模型"
+      },
+      "PostResponse": {
+        "properties": {
+          "statistical_data": {
+            "$ref": "#/components/schemas/PostStatisticalData"
+          },
+          "article_data": {
+            "items": {
+              "$ref": "#/components/schemas/ArticleData"
+            },
+            "type": "array",
+            "title": "Article Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "statistical_data",
+          "article_data"
+        ],
+        "title": "PostResponse",
+        "description": "文章响应模型"
+      },
+      "PostStatisticalData": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "朋友名称",
+            "example": "葱苓sama"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "朋友链接",
+            "example": "https://blog.ciraos.top"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar",
+            "description": "朋友头像",
+            "example": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp"
+          },
+          "article_num": {
+            "type": "integer",
+            "title": "Article Num",
+            "description": "文章数量",
+            "example": 5
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "link",
+          "avatar",
+          "article_num"
+        ],
+        "title": "PostStatisticalData",
+        "description": "文章统计数据模型"
+      },
+      "StatisticalData": {
+        "properties": {
+          "friends_num": {
+            "type": "integer",
+            "title": "Friends Num",
+            "description": "朋友总数",
+            "example": 34
+          },
+          "active_num": {
+            "type": "integer",
+            "title": "Active Num",
+            "description": "活跃朋友数",
+            "example": 19
+          },
+          "error_num": {
+            "type": "integer",
+            "title": "Error Num",
+            "description": "错误朋友数",
+            "example": 15
+          },
+          "article_num": {
+            "type": "integer",
+            "title": "Article Num",
+            "description": "文章总数",
+            "example": 31
+          },
+          "last_updated_time": {
+            "type": "string",
+            "title": "Last Updated Time",
+            "description": "最后更新时间",
+            "example": "2025-01-01 12:00:00"
+          }
+        },
+        "type": "object",
+        "required": [
+          "friends_num",
+          "active_num",
+          "error_num",
+          "article_num",
+          "last_updated_time"
+        ],
+        "title": "StatisticalData",
+        "description": "统计数据模型"
+      },
+      "SummaryResponse": {
+        "properties": {
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "文章链接",
+            "example": "https://example.com/post"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary",
+            "description": "AI生成摘要",
+            "example": "这是一篇关于技术的文章..."
+          },
+          "ai_model": {
+            "type": "string",
+            "title": "Ai Model",
+            "description": "AI模型",
+            "example": "qwen3"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash",
+            "description": "内容哈希",
+            "example": "abc123def456"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "创建时间",
+            "example": "2025-01-01 10:00:00"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "更新时间",
+            "example": "2025-01-01 10:00:00"
+          }
+        },
+        "type": "object",
+        "required": [
+          "link",
+          "summary",
+          "ai_model",
+          "content_hash",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SummaryResponse",
+        "description": "摘要响应模型"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

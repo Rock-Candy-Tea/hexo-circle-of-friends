@@ -16,10 +16,15 @@ tower = "0.5"
 bytes = "1"
 http-body-util = "0.1"
 tracing.workspace = true
+serde_json.workspace = true
 
+# 测试依赖
 [dev-dependencies]
-axum-test = "*"
-
+sqlx = { workspace = true, features = ["runtime-tokio-rustls", "sqlite", "mysql", "postgres"] }
+mongodb.workspace = true
+rand.workspace = true
+url.workspace = true
+data_structures = { path = "../data_structures" }
 
 [[bin]]
 name = "fcircle_api"

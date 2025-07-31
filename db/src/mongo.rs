@@ -98,6 +98,100 @@ pub async fn select_all_from_posts(
     Ok(posts)
 }
 
+/// 查询`posts`表的所有数据，并通过aggregation pipeline JOIN `ArticleSummaries`集合获取摘要信息
+///
+/// 当start==0并且end==0时，返回所有数据，
+/// 否则只查询`start-end`条数据，如果`start>end`，会报错
+pub async fn select_all_from_posts_with_summary(
+    pool: &MongoDatabase,
+    start: usize,
+    end: usize,
+    sort_rule: &str,
+) -> Result<Vec<metadata::PostsWithSummary>, Box<dyn std::error::Error>> {
+    let collection = pool.collection::<mongodb::bson::Document>("Posts");
+
+    // 构建聚合管道
+    let mut pipeline = vec![
+        // 1. 左连接 ArticleSummaries 集合
+        doc! {
+            "$lookup": {
+                "from": "ArticleSummaries",
+                "localField": "link",
+                "foreignField": "link",
+                "as": "summary_info"
+            }
+        },
+        // 2. 展开 summary_info 数组（如果存在）
+        doc! {
+            "$addFields": {
+                "summary_data": {
+                    "$arrayElemAt": ["$summary_info", 0]
+                }
+            }
+        },
+        // 3. 投影字段
+        doc! {
+            "$project": {
+                "title": 1,
+                "created": 1,
+                "updated": 1,
+                "link": 1,
+                "author": 1,
+                "avatar": 1,
+                "rule": 1,
+                "createdAt": 1,
+                "summary": { "$ifNull": ["$summary_data.summary", null] },
+                "ai_model": { "$ifNull": ["$summary_data.ai_model", null] },
+                "summary_created_at": { "$ifNull": ["$summary_data.createdAt", null] },
+                "summary_updated_at": { "$ifNull": ["$summary_data.updatedAt", null] }
+            }
+        },
+        // 4. 排序
+        doc! {
+            "$sort": { sort_rule: -1 }
+        },
+    ];
+
+    // 5. 如果需要分页，添加skip和limit
+    if start != 0 || end != 0 {
+        pipeline.push(doc! { "$skip": start as i64 });
+        pipeline.push(doc! { "$limit": (end - start) as i64 });
+    }
+
+    let mut cursor = collection.aggregate(pipeline).await?;
+    let mut posts_with_summary = Vec::new();
+
+    while let Some(doc) = cursor.try_next().await? {
+        // 手动构建 PostsWithSummary
+        let base_post = metadata::BasePosts::new(
+            doc.get_str("title").unwrap_or("").to_string(),
+            doc.get_str("created").unwrap_or("").to_string(),
+            doc.get_str("updated").unwrap_or("").to_string(),
+            doc.get_str("link").unwrap_or("").to_string(),
+            doc.get_str("rule").unwrap_or("").to_string(),
+        );
+
+        let post_with_summary = metadata::PostsWithSummary::new(
+            base_post,
+            doc.get_str("author").unwrap_or("").to_string(),
+            doc.get_str("avatar").unwrap_or("").to_string(),
+            doc.get_str("createdAt").unwrap_or("").to_string(),
+            doc.get_str("summary").ok().map(|s| s.to_string()),
+            doc.get_str("ai_model").ok().map(|s| s.to_string()),
+            doc.get_str("summary_created_at")
+                .ok()
+                .map(|s| s.to_string()),
+            doc.get_str("summary_updated_at")
+                .ok()
+                .map(|s| s.to_string()),
+        );
+
+        posts_with_summary.push(post_with_summary);
+    }
+
+    Ok(posts_with_summary)
+}
+
 /// 获取`posts`表中最近一次更新（`createdAt`最新）的时间
 pub async fn select_latest_time_from_posts(pool: &MongoDatabase) -> Result<String, Error> {
     let collection = pool.collection::<Posts>("Posts");

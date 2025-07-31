@@ -7,6 +7,8 @@ pub enum PYQError {
     QueryDataBaseError(String),
     InsertDataBaseError(String),
     QueryParamsError(String),
+    ParamError(String),
+    NotFoundError(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -40,6 +42,18 @@ impl IntoResponse for PYQError {
             PYQError::InsertDataBaseError(e)=>{
                 serde_json::to_string(&ErrorResponse::new(&format!(
                     "插入数据库错误. Error: {e}"
+                )))
+                .unwrap()
+            },
+            PYQError::ParamError(e) => {
+                serde_json::to_string(&ErrorResponse::new(&format!(
+                    "参数错误. Error: {e}"
+                )))
+                .unwrap()
+            },
+            PYQError::NotFoundError(e) => {
+                serde_json::to_string(&ErrorResponse::new(&format!(
+                    "未找到数据. Error: {e}"
                 )))
                 .unwrap()
             }

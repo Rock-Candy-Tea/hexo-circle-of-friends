@@ -6,7 +6,7 @@ use axum::{
 use data_structures::query_params::{AllQueryParams, PostParams, RandomQueryParams};
 use data_structures::{
     metadata::{Friends, Posts},
-    response::{AllPostData, AllPostDataSomeFriend},
+    response::{AllPostDataSomeFriend, AllPostDataWithSummary},
 };
 use db::{MySqlPool, mysql};
 use rand::prelude::*;
@@ -15,9 +15,9 @@ use url::Url;
 pub async fn get_all(
     State(pool): State<MySqlPool>,
     Query(params): Query<AllQueryParams>,
-) -> Result<Json<AllPostData>, PYQError> {
+) -> Result<Json<AllPostDataWithSummary>, PYQError> {
     // println!("{:?}",params);
-    let posts = match mysql::select_all_from_posts(
+    let posts = match mysql::select_all_from_posts_with_summary(
         &pool,
         params.start.unwrap_or(0),
         params.end.unwrap_or(0),
@@ -48,7 +48,7 @@ pub async fn get_all(
             active_num += 1;
         }
     }
-    let data = AllPostData::new(
+    let data = AllPostDataWithSummary::new(
         friends_num,
         active_num,
         lost_num,
@@ -159,4 +159,34 @@ pub async fn get_randompost(
         .cloned()
         .collect();
     Ok(Json(result))
+}
+
+/// 查询参数：摘要查询
+#[derive(serde::Deserialize)]
+pub struct SummaryQueryParams {
+    pub link: Option<String>,
+}
+
+/// 根据链接查询文章摘要
+pub async fn get_summary(
+    State(pool): State<MySqlPool>,
+    Query(params): Query<SummaryQueryParams>,
+) -> Result<Json<data_structures::metadata::SummaryResponse>, crate::format_response::PYQError> {
+    let link = params.link.ok_or_else(|| {
+        crate::format_response::PYQError::ParamError("param 'link' is required".to_string())
+    })?;
+
+    match mysql::select_article_summary_by_link(&link, &pool).await {
+        Ok(Some(summary)) => {
+            let response =
+                data_structures::metadata::SummaryResponse::from_article_summary(summary);
+            Ok(Json(response))
+        }
+        Ok(None) => Err(crate::format_response::PYQError::NotFoundError(
+            "not found".to_string(),
+        )),
+        Err(e) => Err(crate::format_response::PYQError::QueryDataBaseError(
+            e.to_string(),
+        )),
+    }
 }

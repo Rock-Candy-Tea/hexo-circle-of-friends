@@ -149,6 +149,66 @@ pub async fn select_all_from_posts(
     let posts = query_as::<_, metadata::Posts>(&sql).fetch_all(pool).await?;
     Ok(posts)
 }
+
+/// 查询`posts`表的所有数据，并LEFT JOIN `article_summaries`表获取摘要信息
+///
+/// 当start==0并且end==0时，返回所有数据，
+/// 否则只查询`start-end`条数据，如果`start>end`，会报错
+pub async fn select_all_from_posts_with_summary(
+    pool: &MySqlPool,
+    start: usize,
+    end: usize,
+    sort_rule: &str,
+) -> Result<Vec<metadata::PostsWithSummary>, Error> {
+    let sql = if start == 0 && end == 0 {
+        format!(
+            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt,
+                    s.summary, s.ai_model, s.createdAt as summary_created_at, s.updatedAt as summary_updated_at
+             FROM posts p
+             LEFT JOIN article_summaries s ON p.link = s.link
+             ORDER BY p.{sort_rule} DESC"
+        )
+    } else {
+        format!(
+            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt,
+                    s.summary, s.ai_model, s.createdAt as summary_created_at, s.updatedAt as summary_updated_at
+             FROM posts p
+             LEFT JOIN article_summaries s ON p.link = s.link
+             ORDER BY p.{sort_rule} DESC
+             LIMIT {limit} OFFSET {start}",
+            limit = end - start
+        )
+    };
+
+    // 由于JOIN查询的结果结构不同，我们需要手动构建PostsWithSummary
+    let rows = query(&sql).fetch_all(pool).await?;
+    let mut posts_with_summary = Vec::new();
+
+    for row in rows {
+        let base_post = metadata::BasePosts::new(
+            row.get("title"),
+            row.get("created"),
+            row.get("updated"),
+            row.get("link"),
+            row.get("rule"),
+        );
+
+        let post_with_summary = metadata::PostsWithSummary::new(
+            base_post,
+            row.get("author"),
+            row.get("avatar"),
+            row.get("createdAt"),
+            row.try_get("summary").ok(),
+            row.try_get("ai_model").ok(),
+            row.try_get("summary_created_at").ok(),
+            row.try_get("summary_updated_at").ok(),
+        );
+
+        posts_with_summary.push(post_with_summary);
+    }
+
+    Ok(posts_with_summary)
+}
 /// 查询`posts`表中`link`包含`domain_str`的数据
 ///
 /// 当num<0时，返回所有数据

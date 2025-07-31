@@ -1,8 +1,7 @@
 # -*- coding:utf-8 -*-
 # Author：yyyz
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, BOOLEAN, DateTime, TEXT
-from datetime import datetime, timedelta
+from sqlalchemy import Column, Integer, String, BOOLEAN, TEXT
 
 Model = declarative_base()
 
@@ -37,3 +36,14 @@ class Post(AbstractBase):
     avatar = Column(String(1024))
     rule = Column(String(256))
     createdAt = Column(String(1024))
+
+
+class ArticleSummary(AbstractBase):
+    __tablename__ = 'article_summaries'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    link = Column(String(256))
+    content_hash = Column(String(64))
+    summary = Column(TEXT)
+    ai_model = Column(String(128))
+    createdAt = Column(String(1024))
+    updatedAt = Column(String(1024))
