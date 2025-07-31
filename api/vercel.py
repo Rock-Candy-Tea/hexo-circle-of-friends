@@ -52,7 +52,7 @@ class StatisticalData(BaseModel):
 
 
 class ArticleData(BaseModel):
-    """文章数据模型"""
+    """文章数据模型（用于/all接口，包含summary字段）"""
 
     floor: int = Field(..., description="文章楼层", example=1)
     title: str = Field(
@@ -79,6 +79,49 @@ class ArticleData(BaseModel):
     )
 
 
+class PostArticleData(BaseModel):
+    """Post接口文章数据模型"""
+
+    floor: int = Field(..., description="文章楼层", example=1)
+    title: str = Field(..., description="文章标题", example="ubuntu桌面版安装字体")
+    created: str = Field(..., description="创建时间", example="2025-07-12")
+    updated: str = Field(..., description="更新时间", example="2025-07-12")
+    link: str = Field(
+        ...,
+        description="文章链接",
+        example="https://blog.ciraos.top/posts/ubuntu/install-fonts",
+    )
+    author: str = Field(..., description="作者", example="葱苓sama")
+    avatar: str = Field(
+        ...,
+        description="头像链接",
+        example="https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp",
+    )
+
+
+class RandomPostData(BaseModel):
+    """RandomPost接口专用文章数据模型"""
+
+    title: str = Field(
+        ...,
+        description="文章标题",
+        example="利用 Webhook 实现博客自动部署到服务器并通过飞书通知",
+    )
+    created: str = Field(..., description="创建时间", example="2025-07-05")
+    updated: str = Field(..., description="更新时间", example="2025-07-05")
+    link: str = Field(
+        ..., description="文章链接", example="https://xaoxuu.com/blog/20250705/"
+    )
+    rule: str = Field(..., description="文章规则", example="feed")
+    author: str = Field(..., description="作者", example="xaoxuu")
+    avatar: str = Field(
+        ...,
+        description="头像链接",
+        example="https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png",
+    )
+    createdAt: str = Field(..., description="创建时间", example="2025-07-31 20:09:28")
+
+
 class AllResponse(BaseModel):
     """全部文章响应模型"""
 
@@ -89,11 +132,15 @@ class AllResponse(BaseModel):
 class Friend(BaseModel):
     """朋友模型"""
 
-    name: str = Field(..., description="朋友名称", example="Jerry")
-    link: str = Field(..., description="朋友链接", example="https://butterfly.js.org/")
+    name: str = Field(..., description="朋友名称", example="白雾茫茫丶")
+    link: str = Field(..., description="朋友链接", example="https://blog.xmwpro.com/")
     avatar: str = Field(
-        ..., description="朋友头像", example="https://butterfly.js.org/img/avatar.png"
+        ...,
+        description="朋友头像",
+        example="https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg",
     )
+    error: bool = Field(..., description="是否存在错误", example=True)
+    createdAt: str = Field(..., description="创建时间", example="2025-07-31 20:09:31")
 
 
 class PostStatisticalData(BaseModel):
@@ -113,7 +160,7 @@ class PostResponse(BaseModel):
     """文章响应模型"""
 
     statistical_data: PostStatisticalData
-    article_data: List[ArticleData]
+    article_data: List[PostArticleData]
 
 
 class SummaryResponse(BaseModel):
@@ -320,7 +367,7 @@ def friend():
     tags=["PUBLIC_API"],
     summary="返回随机友链",
     description="随机返回指定数量的朋友链接",
-    response_model=Union[Friend, List[Friend], ErrorResponse],
+    response_model=Union[List[Friend], ErrorResponse],
     responses={
         200: {
             "description": "成功返回随机友链",
@@ -329,24 +376,32 @@ def friend():
                     "examples": {
                         "single_friend": {
                             "summary": "返回单个朋友",
-                            "value": {
-                                "name": "Jerry",
-                                "link": "https://butterfly.js.org/",
-                                "avatar": "https://butterfly.js.org/img/avatar.png",
-                            },
+                            "value": [
+                                {
+                                    "name": "白雾茫茫丶",
+                                    "link": "https://blog.xmwpro.com/",
+                                    "avatar": "https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg",
+                                    "error": True,
+                                    "createdAt": "2025-07-31 20:09:31",
+                                }
+                            ],
                         },
                         "multiple_friends": {
                             "summary": "返回多个朋友",
                             "value": [
                                 {
-                                    "name": "Jerry",
-                                    "link": "https://butterfly.js.org/",
-                                    "avatar": "https://butterfly.js.org/img/avatar.png",
+                                    "name": "白雾茫茫丶",
+                                    "link": "https://blog.xmwpro.com/",
+                                    "avatar": "https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg",
+                                    "error": True,
+                                    "createdAt": "2025-07-31 20:09:31",
                                 },
                                 {
-                                    "name": "Alice",
-                                    "link": "https://alice.blog/",
-                                    "avatar": "https://alice.blog/avatar.jpg",
+                                    "name": "CC康纳百川",
+                                    "link": "https://blog.ccknbc.cc",
+                                    "avatar": "https://cdn.jsdelivr.net/gh/ccknbc-backup/cdn/logo/ccknbc.png",
+                                    "error": False,
+                                    "createdAt": "2025-07-30 15:30:00",
                                 },
                             ],
                         },
@@ -372,8 +427,8 @@ def random_friend(num: int = Query(1, ge=1, le=100, description="返回的友链
     - **num**: 返回的友链数量，1-100之间的整数
 
     ### 返回规则
-    - num=1：返回单个友链信息的字典
-    - num>1：返回包含num个友链信息字典的列表
+    - num=1：返回包含1个友链信息的列表
+    - num>1：返回包含num个友链信息的列表
     """
     try:
         result = query_random_friend(num)
@@ -394,7 +449,7 @@ def random_friend(num: int = Query(1, ge=1, le=100, description="返回的友链
     tags=["PUBLIC_API"],
     summary="返回随机文章",
     description="随机返回指定数量的文章信息",
-    response_model=Union[ArticleData, List[ArticleData], ErrorResponse],
+    response_model=Union[List[RandomPostData], ErrorResponse],
     responses={
         200: {
             "description": "成功返回随机文章",
@@ -403,36 +458,41 @@ def random_friend(num: int = Query(1, ge=1, le=100, description="返回的友链
                     "examples": {
                         "single_post": {
                             "summary": "返回单篇文章",
-                            "value": {
-                                "floor": 1,
-                                "title": "Wave Terminal 多功能开源终端",
-                                "created": "2025-07-31",
-                                "updated": "2025-07-31",
-                                "link": "https://blog.example.com/post",
-                                "author": "张三",
-                                "avatar": "https://example.com/avatar.jpg",
-                            },
+                            "value": [
+                                {
+                                    "title": "利用 Webhook 实现博客自动部署到服务器并通过飞书通知",
+                                    "created": "2025-07-05",
+                                    "updated": "2025-07-05",
+                                    "link": "https://xaoxuu.com/blog/20250705/",
+                                    "rule": "feed",
+                                    "author": "xaoxuu",
+                                    "avatar": "https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png",
+                                    "createdAt": "2025-07-31 20:09:28",
+                                }
+                            ],
                         },
                         "multiple_posts": {
                             "summary": "返回多篇文章",
                             "value": [
                                 {
-                                    "floor": 1,
-                                    "title": "Wave Terminal 多功能开源终端",
-                                    "created": "2025-07-31",
-                                    "updated": "2025-07-31",
-                                    "link": "https://blog.example.com/post1",
-                                    "author": "张三",
-                                    "avatar": "https://example.com/avatar1.jpg",
+                                    "title": "利用 Webhook 实现博客自动部署到服务器并通过飞书通知",
+                                    "created": "2025-07-05",
+                                    "updated": "2025-07-05",
+                                    "link": "https://xaoxuu.com/blog/20250705/",
+                                    "rule": "feed",
+                                    "author": "xaoxuu",
+                                    "avatar": "https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png",
+                                    "createdAt": "2025-07-31 20:09:28",
                                 },
                                 {
-                                    "floor": 2,
-                                    "title": "另一篇技术文章",
-                                    "created": "2025-07-30",
-                                    "updated": "2025-07-30",
-                                    "link": "https://blog.example.com/post2",
-                                    "author": "李四",
-                                    "avatar": "https://example.com/avatar2.jpg",
+                                    "title": "ubuntu桌面版安装字体",
+                                    "created": "2025-07-12",
+                                    "updated": "2025-07-12",
+                                    "link": "https://blog.ciraos.top/posts/ubuntu/install-fonts",
+                                    "rule": "feed",
+                                    "author": "葱苓sama",
+                                    "avatar": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp",
+                                    "createdAt": "2025-07-31 20:09:25",
                                 },
                             ],
                         },
@@ -452,8 +512,8 @@ def random_post(num: int = Query(1, ge=1, le=100, description="返回的文章�
     - **num**: 返回的文章数量，1-100之间的整数
 
     ### 返回规则
-    - num=1：返回单篇文章信息的字典
-    - num>1：返回包含num个文章信息字典的列表
+    - num=1：返回包含1篇文章信息的列表
+    - num>1：返回包含num篇文章信息的列表
     """
     try:
         result = query_random_post(num)

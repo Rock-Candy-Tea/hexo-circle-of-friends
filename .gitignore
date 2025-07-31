@@ -19,5 +19,6 @@ __pycache__/
 *.pyz
 .venv/
 .vercel
+.pytest_cache
 tmptest
 

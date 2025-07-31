@@ -32,11 +32,10 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
         },
         # 2. 展开 summary_info 数组（如果存在）
         {"$addFields": {"summary_data": {"$arrayElemAt": ["$summary_info", 0]}}},
-        # 3. 投影字段，排除不需要的字段
+        # 3. 投影字段，选择需要的字段
         {
             "$project": {
                 "_id": 0,
-                "rule": 0,
                 "title": 1,
                 "created": 1,
                 "updated": 1,
@@ -114,7 +113,7 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
 def query_friend():
     session = db_interface.db_init()
     friend_db_collection = session.Friend
-    friends = friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0})
+    friends = friend_db_collection.find({}, {"_id": 0})
     friend_list_json = []
     if friends:
         for friend in friends:
@@ -128,14 +127,12 @@ def query_friend():
 def query_random_friend(num):
     session = db_interface.db_init()
     friend_db_collection = session.Friend
-    friends = list(
-        friend_db_collection.find({}, {"_id": 0, "createdAt": 0, "error": 0})
-    )
+    friends = list(friend_db_collection.find({}, {"_id": 0}))
     try:
         if num < 1:
             return {"message": "param 'num' error"}
         elif num == 1:
-            return random.choice(friends)
+            return [random.choice(friends)]
         elif num <= len(friends):
             return random.sample(friends, k=num)
         else:
@@ -147,12 +144,12 @@ def query_random_friend(num):
 def query_random_post(num):
     session = db_interface.db_init()
     post_collection = session.Post
-    posts = list(post_collection.find({}, {"_id": 0, "rule": 0, "createdAt": 0}))
+    posts = list(post_collection.find({}, {"_id": 0, "floor": 0}))
     try:
         if num < 1:
             return {"message": "param 'num' error"}
         elif num == 1:
-            return random.choice(posts)
+            return [random.choice(posts)]
         elif num <= len(posts):
             return random.sample(posts, k=num)
         else:
@@ -179,7 +176,7 @@ def query_post(link, num, rule):
     posts = (
         post_collection.find(
             {"link": {"$regex": domain}},
-            {"_id": 0, "rule": 0, "createdAt": 0, "avatar": 0, "author": 0},
+            {"_id": 0, "rule": 0, "createdAt": 0},
         )
         .sort([(rule, -1)])
         .limit(num if num > 0 else 0)

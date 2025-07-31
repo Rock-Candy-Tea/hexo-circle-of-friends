@@ -23,7 +23,11 @@ class SQLEngine(object):
     def __get_sql_engine():
         settings = utils.get_user_settings()
         base_path = utils.get_base_path()
-        db_path = os.path.join(base_path, "data.db")
+        # 允许通过环境变量指定测试数据库路径
+        if os.environ.get("TEST_DB_PATH"):
+            db_path = os.environ["TEST_DB_PATH"]
+        else:
+            db_path = os.path.join(base_path, "data.db")
         if os.environ.get("DEBUG"):
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":

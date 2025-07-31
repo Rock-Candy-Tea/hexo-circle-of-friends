@@ -242,9 +242,6 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/Friend"
-                    },
-                    {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/Friend"
@@ -259,24 +256,32 @@
                 "examples": {
                   "single_friend": {
                     "summary": "返回单个朋友",
-                    "value": {
-                      "name": "Jerry",
-                      "link": "https://butterfly.js.org/",
-                      "avatar": "https://butterfly.js.org/img/avatar.png"
-                    }
+                    "value": [
+                      {
+                        "name": "白雾茫茫丶",
+                        "link": "https://blog.xmwpro.com/",
+                        "avatar": "https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg",
+                        "error": true,
+                        "createdAt": "2025-07-31 20:09:31"
+                      }
+                    ]
                   },
                   "multiple_friends": {
                     "summary": "返回多个朋友",
                     "value": [
                       {
-                        "name": "Jerry",
-                        "link": "https://butterfly.js.org/",
-                        "avatar": "https://butterfly.js.org/img/avatar.png"
+                        "name": "白雾茫茫丶",
+                        "link": "https://blog.xmwpro.com/",
+                        "avatar": "https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg",
+                        "error": true,
+                        "createdAt": "2025-07-31 20:09:31"
                       },
                       {
-                        "name": "Alice",
-                        "link": "https://alice.blog/",
-                        "avatar": "https://alice.blog/avatar.jpg"
+                        "name": "CC康纳百川",
+                        "link": "https://blog.ccknbc.cc",
+                        "avatar": "https://cdn.jsdelivr.net/gh/ccknbc-backup/cdn/logo/ccknbc.png",
+                        "error": false,
+                        "createdAt": "2025-07-30 15:30:00"
                       }
                     ]
                   }
@@ -352,12 +357,9 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/ArticleData"
-                    },
-                    {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/ArticleData"
+                        "$ref": "#/components/schemas/RandomPostData"
                       }
                     },
                     {
@@ -369,36 +371,41 @@
                 "examples": {
                   "single_post": {
                     "summary": "返回单篇文章",
-                    "value": {
-                      "floor": 1,
-                      "title": "Wave Terminal 多功能开源终端",
-                      "created": "2025-07-31",
-                      "updated": "2025-07-31",
-                      "link": "https://blog.example.com/post",
-                      "author": "张三",
-                      "avatar": "https://example.com/avatar.jpg"
-                    }
+                    "value": [
+                      {
+                        "title": "利用 Webhook 实现博客自动部署到服务器并通过飞书通知",
+                        "created": "2025-07-05",
+                        "updated": "2025-07-05",
+                        "link": "https://xaoxuu.com/blog/20250705/",
+                        "rule": "feed",
+                        "author": "xaoxuu",
+                        "avatar": "https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png",
+                        "createdAt": "2025-07-31 20:09:28"
+                      }
+                    ]
                   },
                   "multiple_posts": {
                     "summary": "返回多篇文章",
                     "value": [
                       {
-                        "floor": 1,
-                        "title": "Wave Terminal 多功能开源终端",
-                        "created": "2025-07-31",
-                        "updated": "2025-07-31",
-                        "link": "https://blog.example.com/post1",
-                        "author": "张三",
-                        "avatar": "https://example.com/avatar1.jpg"
+                        "title": "利用 Webhook 实现博客自动部署到服务器并通过飞书通知",
+                        "created": "2025-07-05",
+                        "updated": "2025-07-05",
+                        "link": "https://xaoxuu.com/blog/20250705/",
+                        "rule": "feed",
+                        "author": "xaoxuu",
+                        "avatar": "https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png",
+                        "createdAt": "2025-07-31 20:09:28"
                       },
                       {
-                        "floor": 2,
-                        "title": "另一篇技术文章",
-                        "created": "2025-07-30",
-                        "updated": "2025-07-30",
-                        "link": "https://blog.example.com/post2",
-                        "author": "李四",
-                        "avatar": "https://example.com/avatar2.jpg"
+                        "title": "ubuntu桌面版安装字体",
+                        "created": "2025-07-12",
+                        "updated": "2025-07-12",
+                        "link": "https://blog.ciraos.top/posts/ubuntu/install-fonts",
+                        "rule": "feed",
+                        "author": "葱苓sama",
+                        "avatar": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp",
+                        "createdAt": "2025-07-31 20:09:25"
                       }
                     ]
                   }
@@ -822,7 +829,7 @@
           "avatar"
         ],
         "title": "ArticleData",
-        "description": "文章数据模型"
+        "description": "文章数据模型（用于/all接口，包含summary字段）"
       },
       "ErrorResponse": {
         "properties": {
@@ -846,26 +853,40 @@
             "type": "string",
             "title": "Name",
             "description": "朋友名称",
-            "example": "Jerry"
+            "example": "白雾茫茫丶"
           },
           "link": {
             "type": "string",
             "title": "Link",
             "description": "朋友链接",
-            "example": "https://butterfly.js.org/"
+            "example": "https://blog.xmwpro.com/"
           },
           "avatar": {
             "type": "string",
             "title": "Avatar",
             "description": "朋友头像",
-            "example": "https://butterfly.js.org/img/avatar.png"
+            "example": "https://cyan-blog.oss-cn-shenzhen.aliyuncs.com/global/avatar.jpg"
+          },
+          "error": {
+            "type": "boolean",
+            "title": "Error",
+            "description": "是否存在错误",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat",
+            "description": "创建时间",
+            "example": "2025-07-31 20:09:31"
           }
         },
         "type": "object",
         "required": [
           "name",
           "link",
-          "avatar"
+          "avatar",
+          "error",
+          "createdAt"
         ],
         "title": "Friend",
         "description": "朋友模型"
@@ -899,6 +920,64 @@
         "title": "NotFoundResponse",
         "description": "未找到响应模型"
       },
+      "PostArticleData": {
+        "properties": {
+          "floor": {
+            "type": "integer",
+            "title": "Floor",
+            "description": "文章楼层",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "文章标题",
+            "example": "ubuntu桌面版安装字体"
+          },
+          "created": {
+            "type": "string",
+            "title": "Created",
+            "description": "创建时间",
+            "example": "2025-07-12"
+          },
+          "updated": {
+            "type": "string",
+            "title": "Updated",
+            "description": "更新时间",
+            "example": "2025-07-12"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "文章链接",
+            "example": "https://blog.ciraos.top/posts/ubuntu/install-fonts"
+          },
+          "author": {
+            "type": "string",
+            "title": "Author",
+            "description": "作者",
+            "example": "葱苓sama"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar",
+            "description": "头像链接",
+            "example": "https://cdn.jsdelivr.net/gh/ciraos/ciraos-static@main/img/avatar1.webp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "floor",
+          "title",
+          "created",
+          "updated",
+          "link",
+          "author",
+          "avatar"
+        ],
+        "title": "PostArticleData",
+        "description": "Post接口文章数据模型"
+      },
       "PostResponse": {
         "properties": {
           "statistical_data": {
@@ -906,7 +985,7 @@
           },
           "article_data": {
             "items": {
-              "$ref": "#/components/schemas/ArticleData"
+              "$ref": "#/components/schemas/PostArticleData"
             },
             "type": "array",
             "title": "Article Data"
@@ -956,6 +1035,71 @@
         ],
         "title": "PostStatisticalData",
         "description": "文章统计数据模型"
+      },
+      "RandomPostData": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "文章标题",
+            "example": "利用 Webhook 实现博客自动部署到服务器并通过飞书通知"
+          },
+          "created": {
+            "type": "string",
+            "title": "Created",
+            "description": "创建时间",
+            "example": "2025-07-05"
+          },
+          "updated": {
+            "type": "string",
+            "title": "Updated",
+            "description": "更新时间",
+            "example": "2025-07-05"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "description": "文章链接",
+            "example": "https://xaoxuu.com/blog/20250705/"
+          },
+          "rule": {
+            "type": "string",
+            "title": "Rule",
+            "description": "文章规则",
+            "example": "feed"
+          },
+          "author": {
+            "type": "string",
+            "title": "Author",
+            "description": "作者",
+            "example": "xaoxuu"
+          },
+          "avatar": {
+            "type": "string",
+            "title": "Avatar",
+            "description": "头像链接",
+            "example": "https://bu.dusays.com/2021/09/24/2f74810ceb3d3.png"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat",
+            "description": "创建时间",
+            "example": "2025-07-31 20:09:28"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "created",
+          "updated",
+          "link",
+          "rule",
+          "author",
+          "avatar",
+          "createdAt"
+        ],
+        "title": "RandomPostData",
+        "description": "RandomPost接口专用文章数据模型"
       },
       "StatisticalData": {
         "properties": {

@@ -83,7 +83,13 @@ def query_friend():
     friend_list_json = []
     if friends:
         for friend in friends:
-            item = {"name": friend.name, "link": friend.link, "avatar": friend.avatar}
+            item = {
+                "name": friend.name,
+                "link": friend.link,
+                "avatar": friend.avatar,
+                "error": friend.error,
+                "createdAt": friend.createdAt if friend.createdAt else None,
+            }
             friend_list_json.append(item)
     else:
         # friends为空直接返回
@@ -106,12 +112,18 @@ def query_random_friend(num):
     friend_list_json = []
     if data:
         for d in data:
-            itemlist = {"name": d.name, "link": d.link, "avatar": d.avatar}
+            itemlist = {
+                "name": d.name,
+                "link": d.link,
+                "avatar": d.avatar,
+                "error": d.error,
+                "createdAt": d.createdAt if d.createdAt else None,
+            }
             friend_list_json.append(itemlist)
     else:
         # data为空直接返回
         return {"message": "not found"}
-    return friend_list_json[0] if len(friend_list_json) == 1 else friend_list_json
+    return friend_list_json
 
 
 def query_random_post(num):
@@ -132,14 +144,18 @@ def query_random_post(num):
                 "created": d.created,
                 "updated": d.updated,
                 "link": d.link,
+                "rule": getattr(
+                    d, "rule", "feed"
+                ),  # 使用文章的rule字段，如果没有则默认为'feed'
                 "author": d.author,
                 "avatar": d.avatar,
+                "createdAt": d.createdAt if d.createdAt else None,
             }
             post_list_json.append(itemlist)
     else:
         # data为空直接返回
         return {"message": "not found"}
-    return post_list_json[0] if len(post_list_json) == 1 else post_list_json
+    return post_list_json
 
 
 def query_post(
@@ -178,6 +194,8 @@ def query_post(
             "created": post.created,
             "updated": post.updated,
             "floor": floor + 1,
+            "author": post.author,
+            "avatar": post.avatar,
         }
         data.append(itemlist)
 
