@@ -81,8 +81,8 @@ DATABASE: "sqlite"
 # 部署方式，可选项：github，server；默认为github
 DEPLOY_TYPE: "github"
 
-# 文章摘要生成配置
-# 模型选择参考: https://cloud.siliconflow.cn/me/models?types=chat
+# 文章摘要
+# 参考: https://fcircle-doc.yyyzyyyz.cn/#/settings
 GENERATE_SUMMARY: {
   enabled: false,
   provider: "all",  # AI供应商，目前可选：gemini|siliconflow|all （使用 "all" 获得最佳可靠性）
