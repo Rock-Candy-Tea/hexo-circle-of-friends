@@ -13,6 +13,7 @@ use std::time::Duration;
 use tokio::{self, task::JoinSet};
 use tools;
 use tracing::{error, info, trace, warn};
+
 use url::{ParseError, Url};
 
 async fn get_joinset_result(
@@ -31,7 +32,7 @@ async fn get_joinset_result(
 }
 
 /// 构建请求客户端
-pub fn build_client(timeout: u64) -> ClientWithMiddleware {
+pub fn build_client(timeout: u64, retry_attempts: u32) -> ClientWithMiddleware {
     let timeout = Duration::new(timeout, 0);
     let baseclient = CL::new()
         .timeout(timeout)
@@ -46,10 +47,20 @@ pub fn build_client(timeout: u64) -> ClientWithMiddleware {
         Err(_) => baseclient,
     };
     let baseclient = baseclient.build().unwrap();
-    let retry_policy = ExponentialBackoff::builder().build_with_max_retries(3);
-    ClientBuilder::new(baseclient)
-        .with(RetryTransientMiddleware::new_with_policy(retry_policy))
-        .build()
+
+    let mut client_builder = ClientBuilder::new(baseclient);
+
+    // 根据retry_attempts参数动态配置重试中间件
+    if retry_attempts > 0 {
+        let retry_policy = ExponentialBackoff::builder().build_with_max_retries(retry_attempts);
+        client_builder =
+            client_builder.with(RetryTransientMiddleware::new_with_policy(retry_policy));
+        info!("启用重试中间件，最大重试次数: {}", retry_attempts);
+    } else {
+        info!("禁用重试中间件");
+    }
+
+    client_builder.build()
 }
 
 /// 检查link页面解析结果的长度
@@ -332,8 +343,45 @@ pub async fn start_get_friends_links_from_json(
     Ok(json_friends_links)
 }
 
-pub async fn start_crawl_detailpages(url: &str, client: &ClientWithMiddleware) -> String {
-    let res = client.get(url).send().await.unwrap();
+pub async fn start_crawl_detailpages(
+    url: &str,
+    client: &ClientWithMiddleware,
+) -> Result<String, Box<dyn std::error::Error>> {
+    let res = client.get(url).send().await?;
 
-    res.text().await.unwrap()
+    Ok(res.text().await?)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_build_client_with_retry() {
+        // 测试启用重试的客户端构建
+        let _client = build_client(10, 3);
+        // 这里主要测试函数不会panic，实际的重试逻辑需要集成测试
+        // ClientWithMiddleware没有公开的inner方法，只测试构建不报错
+    }
+
+    #[test]
+    fn test_build_client_without_retry() {
+        // 测试禁用重试的客户端构建
+        let _client = build_client(10, 0);
+        // 主要测试函数调用成功
+    }
+
+    #[test]
+    fn test_retry_attempts_zero() {
+        // 测试retry_attempts为0时的行为
+        let _client = build_client(5, 0);
+        // 确保不会panic
+    }
+
+    #[test]
+    fn test_retry_attempts_large() {
+        // 测试较大的retry_attempts值
+        let _client = build_client(5, 10);
+        // 确保不会panic
+    }
 }

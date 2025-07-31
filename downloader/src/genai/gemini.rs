@@ -8,7 +8,10 @@ const MODELS: [&str; 3] = [
     "gemini-2.5-flash-lite",
 ];
 
-pub async fn generate_content(client: &ClientWithMiddleware, html: &str) {
+pub async fn generate_content(
+    client: &ClientWithMiddleware,
+    html: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
     // 从asset获取url
 
     let gemini_api_key = tools::get_env_var("GEMINI_API_KEY").unwrap();
@@ -38,14 +41,32 @@ pub async fn generate_content(client: &ClientWithMiddleware, html: &str) {
             ]
         });
         let body_str = json!(body).to_string();
-        println!("{body_str}");
         let res = client
             .post(format!(
                 "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_api_key}"
             ))
             .body(body_str)
-            .header("Content-Type", "application/json");
-        let res = res.send().await.unwrap();
-        info!("{}-{}", model, res.text().await.unwrap());
+            .header("Content-Type", "application/json")
+            .send()
+            .await?;
+
+        let response_text = res.text().await?;
+        info!("{} API response: {}", model, response_text);
+
+        // Parse the response to extract the summary
+        let response_json: serde_json::Value = serde_json::from_str(&response_text)?;
+
+        if let Some(candidates) = response_json["candidates"].as_array()
+            && let Some(first_candidate) = candidates.first()
+            && let Some(content) = first_candidate["content"]["parts"].as_array()
+            && let Some(first_part) = content.first()
+            && let Some(text) = first_part["text"].as_str()
+        {
+            return Ok(text.to_string());
+        }
+
+        Err("Failed to extract summary from Gemini response".into())
+    } else {
+        Err("No available Gemini model".into())
     }
 }

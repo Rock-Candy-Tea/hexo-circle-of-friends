@@ -2,6 +2,7 @@ use chrono::{DateTime, Datelike, NaiveDate, NaiveDateTime, TimeZone};
 use data_structures::config;
 use logroller::{Compression, LogRollerBuilder, Rotation, RotationAge};
 pub use serde_yaml::Value;
+use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::{self, BufReader};
 use tracing::info;
@@ -248,6 +249,13 @@ pub fn get_json_friends_links(
     let reader = BufReader::new(file);
     let data: config::SettingsFriendsLinksJsonMeta = serde_json::from_reader(reader)?;
     Ok(data)
+}
+
+/// 计算HTML内容的SHA256哈希值
+pub fn calculate_content_hash(html_content: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(html_content.as_bytes());
+    format!("{:x}", hasher.finalize())
 }
 
 #[cfg(test)]
@@ -795,4 +803,94 @@ mod tests {
         // 清理临时文件
         fs::remove_file(temp_file).unwrap();
     }
+
+    #[test]
+    fn test_calculate_content_hash() {
+        // 测试基本哈希计算
+        let content1 = "Hello, World!";
+        let hash1 = calculate_content_hash(content1);
+        assert_eq!(hash1.len(), 64); // SHA256哈希长度为64个十六进制字符
+
+        // 测试相同内容产生相同哈希
+        let content2 = "Hello, World!";
+        let hash2 = calculate_content_hash(content2);
+        assert_eq!(hash1, hash2);
+
+        // 测试不同内容产生不同哈希
+        let content3 = "Hello, Rust!";
+        let hash3 = calculate_content_hash(content3);
+        assert_ne!(hash1, hash3);
+
+        // 测试空字符串
+        let empty_content = "";
+        let empty_hash = calculate_content_hash(empty_content);
+        assert_eq!(empty_hash.len(), 64);
+        assert_eq!(
+            empty_hash,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        );
+
+        // 测试HTML内容
+        let html_content = r#"
+        <html>
+            <head><title>Test</title></head>
+            <body>
+                <h1>Hello World</h1>
+                <p>This is a test article.</p>
+            </body>
+        </html>
+        "#;
+        let html_hash = calculate_content_hash(html_content);
+        assert_eq!(html_hash.len(), 64);
+
+        // 测试中文内容
+        let chinese_content = "你好，世界！这是一个测试文章。";
+        let chinese_hash = calculate_content_hash(chinese_content);
+        assert_eq!(chinese_hash.len(), 64);
+
+        // 验证哈希格式（只包含十六进制字符）
+        assert!(hash1.chars().all(|c| c.is_ascii_hexdigit()));
+        assert!(html_hash.chars().all(|c| c.is_ascii_hexdigit()));
+        assert!(chinese_hash.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    #[test]
+    fn test_calculate_content_hash_stability() {
+        // 测试哈希计算的稳定性（多次计算同一内容应该得到相同结果）
+        let content = "Stable hash test content with special chars: !@#$%^&*()";
+        let hashes: Vec<String> = (0..10).map(|_| calculate_content_hash(content)).collect();
+
+        // 所有哈希都应该相同
+        let first_hash = &hashes[0];
+        for hash in &hashes {
+            assert_eq!(hash, first_hash);
+        }
+    }
+
+    #[test]
+    fn test_calculate_content_hash_sensitivity() {
+        // 测试哈希计算对微小变化的敏感性
+        let base_content = "This is a test content for hash sensitivity.";
+        let base_hash = calculate_content_hash(base_content);
+
+        // 添加一个空格
+        let space_content = "This is a test content for hash sensitivity. ";
+        let space_hash = calculate_content_hash(space_content);
+        assert_ne!(base_hash, space_hash);
+
+        // 改变大小写
+        let case_content = "This is a test content for hash Sensitivity.";
+        let case_hash = calculate_content_hash(case_content);
+        assert_ne!(base_hash, case_hash);
+
+        // 添加换行符
+        let newline_content = "This is a test content for hash sensitivity.\n";
+        let newline_hash = calculate_content_hash(newline_content);
+        assert_ne!(base_hash, newline_hash);
+    }
 }
+
+pub mod html_extractor;
+
+#[cfg(test)]
+mod config_test;

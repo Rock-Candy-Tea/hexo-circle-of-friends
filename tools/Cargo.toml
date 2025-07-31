@@ -12,6 +12,8 @@ serde_json.workspace = true
 serde_yaml.workspace = true
 chrono.workspace = true
 dotenvy.workspace = true
+sha2.workspace = true
+regex.workspace = true
 
 tracing.workspace = true
 tracing-appender.workspace = true

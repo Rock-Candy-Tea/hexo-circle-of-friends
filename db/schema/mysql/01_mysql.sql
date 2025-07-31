@@ -20,3 +20,14 @@ CREATE TABLE `friends` (
   `createdAt` VARCHAR(1024) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `article_summaries` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `link` varchar(256) NOT NULL,
+  `content_hash` varchar(64) NOT NULL,
+  `summary` TEXT,
+  `createdAt` VARCHAR(1024) DEFAULT NULL,
+  `updatedAt` VARCHAR(1024) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `link` (`link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

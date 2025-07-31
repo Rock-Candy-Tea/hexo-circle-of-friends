@@ -8,3 +8,6 @@ edition = "2024"
 [dependencies]
 serde.workspace = true
 sqlx.workspace = true
+
+[dev-dependencies]
+serde_yaml.workspace = true

@@ -8,7 +8,7 @@ edition = "2024"
 [dependencies]
 sqlx.workspace = true
 data_structures = { path = "../data_structures" }
-mongodb = "3"
+mongodb.workspace = true
 tokio.workspace = true
-futures = "0.3"
+futures.workspace = true
 chrono.workspace=true

@@ -20,3 +20,14 @@ CREATE TABLE posts (
 	"createdAt" VARCHAR(1024), 
 	PRIMARY KEY (id)
 );
+
+CREATE TABLE article_summaries (
+	id INTEGER NOT NULL,
+	link VARCHAR(256) NOT NULL,
+	content_hash VARCHAR(64) NOT NULL,
+	summary TEXT,
+	"createdAt" VARCHAR(1024),
+	"updatedAt" VARCHAR(1024),
+	PRIMARY KEY (id),
+	UNIQUE (link)
+);

@@ -636,6 +636,7 @@ name = "data_structures"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_yaml",
  "sqlx",
 ]
 
@@ -749,6 +750,7 @@ dependencies = [
  "chrono",
  "data_structures",
  "feed-rs",
+ "futures",
  "nipper",
  "regex",
  "reqwest",
@@ -757,6 +759,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tokio",
+ "tokio-stream",
  "tools",
  "tracing",
  "url",
@@ -3536,15 +3539,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
-name = "tmptest"
-version = "0.1.0"
-dependencies = [
- "downloader",
- "tokio",
- "tools",
-]
-
-[[package]]
 name = "tokio"
 version = "1.47.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3627,9 +3621,11 @@ dependencies = [
  "data_structures",
  "dotenvy",
  "logroller",
+ "regex",
  "serde",
  "serde_json",
  "serde_yaml",
+ "sha2",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",

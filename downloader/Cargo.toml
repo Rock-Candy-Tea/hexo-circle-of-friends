@@ -15,10 +15,12 @@ chrono.workspace = true
 url.workspace = true
 tools = { path = "../tools" }
 tokio.workspace = true
-regex = "1"
-reqwest-retry = "0.7"
+regex.workspace = true
+reqwest-retry.workspace = true
 tracing.workspace = true
+futures.workspace = true
+tokio-stream.workspace = true
 
 # in crawler.rs
-feed-rs = "2"
-nipper = "0.1.9"
+feed-rs.workspace = true
+nipper.workspace = true

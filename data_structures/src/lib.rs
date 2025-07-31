@@ -108,6 +108,37 @@ pub mod metadata {
             }
         }
     }
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
+    pub struct ArticleSummary {
+        pub link: String,
+        pub content_hash: String,
+        pub summary: String,
+        #[serde(rename = "createdAt")]
+        #[sqlx(rename = "createdAt")]
+        pub created_at: String,
+        #[serde(rename = "updatedAt")]
+        #[sqlx(rename = "updatedAt")]
+        pub updated_at: String,
+    }
+
+    impl ArticleSummary {
+        pub fn new(
+            link: String,
+            content_hash: String,
+            summary: String,
+            created_at: String,
+            updated_at: String,
+        ) -> ArticleSummary {
+            ArticleSummary {
+                link,
+                content_hash,
+                summary,
+                created_at,
+                updated_at,
+            }
+        }
+    }
 }
 
 /// 配置
@@ -128,6 +159,62 @@ pub mod config {
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct SettingsFriendsLinksJsonMeta {
         pub friends: Vec<Vec<String>>,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub struct GenerateSummaryConfig {
+        pub enabled: bool,
+        pub provider: String, // "gemini", "siliconflow", or "all"
+
+        // 🚀 简化配置：可选高级选项，大部分情况使用默认值
+        pub max_concurrent: Option<usize>,    // 默认: 3
+        pub wait_on_rate_limit: Option<bool>, // 默认: true
+        pub max_chars: Option<usize>,         // 默认: 8000
+
+        pub gemini: Option<GeminiConfig>,
+        pub siliconflow: Option<SiliconFlowConfig>,
+    }
+
+    impl GenerateSummaryConfig {
+        /// 获取最大并发数，如果未配置则返回默认值
+        pub fn get_max_concurrent(&self) -> usize {
+            self.max_concurrent.unwrap_or(3)
+        }
+
+        /// 获取是否等待限速，如果未配置则返回默认值
+        pub fn get_wait_on_rate_limit(&self) -> bool {
+            self.wait_on_rate_limit.unwrap_or(true)
+        }
+
+        /// 获取最大字符数，如果未配置则返回默认值
+        pub fn get_max_chars(&self) -> usize {
+            self.max_chars.unwrap_or(8000)
+        }
+
+        /// 获取分块大小 (自动计算为 max_chars 的一半)
+        pub fn get_chunk_size(&self) -> usize {
+            self.get_max_chars() / 2
+        }
+
+        /// 获取重试次数 (智能默认值)
+        pub fn get_retry_attempts(&self) -> usize {
+            3
+        }
+
+        /// 获取限速等待时间 (智能默认值)
+        pub fn get_rate_limit_delay(&self) -> u64 {
+            60
+        }
+    }
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub struct GeminiConfig {
+        pub models: Vec<String>,
+    }
+
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub struct SiliconFlowConfig {
+        pub models: Vec<String>,
     }
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -152,6 +239,8 @@ pub mod config {
         pub simple_mode: bool,
         #[serde(rename = "CRON")]
         pub cron: String,
+        #[serde(rename = "GENERATE_SUMMARY")]
+        pub generate_summary: GenerateSummaryConfig,
     }
 }
 
@@ -324,3 +413,6 @@ pub mod response {
         }
     }
 }
+
+#[cfg(test)]
+mod config_tests;

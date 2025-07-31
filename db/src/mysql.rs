@@ -1,4 +1,4 @@
-use data_structures::metadata;
+use data_structures::metadata::{self, ArticleSummary};
 use sqlx::{
     Error, MySql, QueryBuilder, Row, mysql::MySqlPool, mysql::MySqlPoolOptions, query, query_as,
 };
@@ -211,6 +211,62 @@ pub async fn delete_outdated_posts(days: usize, dbpool: &MySqlPool) -> Result<us
     Ok(affected_rows.rows_affected() as usize)
 }
 
+// Article Summary Operations
+
+pub async fn insert_article_summary(
+    summary: &ArticleSummary,
+    pool: &MySqlPool,
+) -> Result<(), Error> {
+    let sql = "INSERT INTO article_summaries 
+                (link, content_hash, summary, createdAt, updatedAt)
+                VALUES (?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                content_hash = VALUES(content_hash),
+                summary = VALUES(summary),
+                updatedAt = VALUES(updatedAt)";
+    query(sql)
+        .bind(&summary.link)
+        .bind(&summary.content_hash)
+        .bind(&summary.summary)
+        .bind(&summary.created_at)
+        .bind(&summary.updated_at)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+pub async fn select_article_summary_by_link(
+    link: &str,
+    pool: &MySqlPool,
+) -> Result<Option<ArticleSummary>, Error> {
+    let sql = "SELECT link, content_hash, summary, createdAt, updatedAt 
+               FROM article_summaries WHERE link = ?";
+    let summary = query_as::<_, ArticleSummary>(sql)
+        .bind(link)
+        .fetch_optional(pool)
+        .await?;
+    Ok(summary)
+}
+
+pub async fn select_article_summary_by_hash(
+    content_hash: &str,
+    pool: &MySqlPool,
+) -> Result<Option<ArticleSummary>, Error> {
+    let sql = "SELECT link, content_hash, summary, createdAt, updatedAt 
+               FROM article_summaries WHERE content_hash = ?";
+    let summary = query_as::<_, ArticleSummary>(sql)
+        .bind(content_hash)
+        .fetch_optional(pool)
+        .await?;
+    Ok(summary)
+}
+
+pub async fn delete_article_summary_by_link(link: &str, pool: &MySqlPool) -> Result<(), Error> {
+    let sql = "DELETE FROM article_summaries WHERE link = ?";
+    query(sql).bind(link).execute(pool).await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -236,6 +292,7 @@ mod tests {
         // 清空表以确保测试环境干净
         truncate_table(&dbpool, "friends").await.unwrap();
         truncate_table(&dbpool, "posts").await.unwrap();
+        truncate_table(&dbpool, "article_summaries").await.unwrap();
 
         dbpool
     }
@@ -769,5 +826,132 @@ mod tests {
         // 剩下0条
         let posts = select_all_from_posts(&pool, 0, 0, "updated").await.unwrap();
         assert_eq!(posts.len(), 0);
+    }
+
+    // 测试插入和查询文章摘要
+    #[tokio::test]
+    async fn test_insert_and_select_article_summary() {
+        let pool = setup_test_db().await;
+
+        // 创建测试数据
+        let summary = ArticleSummary::new(
+            "https://example.com/test-article".to_string(),
+            "abcd1234567890".to_string(),
+            "这是一篇测试文章的摘要".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+        );
+
+        // 插入数据
+        insert_article_summary(&summary, &pool).await.unwrap();
+
+        // 通过链接查询
+        let result = select_article_summary_by_link("https://example.com/test-article", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_some());
+        let retrieved = result.unwrap();
+        assert_eq!(retrieved.link, "https://example.com/test-article");
+        assert_eq!(retrieved.content_hash, "abcd1234567890");
+        assert_eq!(retrieved.summary, "这是一篇测试文章的摘要");
+
+        // 通过哈希查询
+        let result = select_article_summary_by_hash("abcd1234567890", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_some());
+        let retrieved = result.unwrap();
+        assert_eq!(retrieved.link, "https://example.com/test-article");
+    }
+
+    // 测试更新文章摘要（ON DUPLICATE KEY UPDATE）
+    #[tokio::test]
+    async fn test_update_article_summary() {
+        let pool = setup_test_db().await;
+
+        // 插入原始摘要
+        let original_summary = ArticleSummary::new(
+            "https://example.com/article".to_string(),
+            "hash1".to_string(),
+            "原始摘要".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+        );
+        insert_article_summary(&original_summary, &pool)
+            .await
+            .unwrap();
+
+        // 更新摘要
+        let updated_summary = ArticleSummary::new(
+            "https://example.com/article".to_string(),
+            "hash2".to_string(),
+            "更新后的摘要".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+            "2023-01-02 00:00:00".to_string(),
+        );
+        insert_article_summary(&updated_summary, &pool)
+            .await
+            .unwrap();
+
+        // 验证更新
+        let result = select_article_summary_by_link("https://example.com/article", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_some());
+        let retrieved = result.unwrap();
+        assert_eq!(retrieved.content_hash, "hash2");
+        assert_eq!(retrieved.summary, "更新后的摘要");
+        assert_eq!(retrieved.updated_at, "2023-01-02 00:00:00");
+    }
+
+    // 测试删除文章摘要
+    #[tokio::test]
+    async fn test_delete_article_summary() {
+        let pool = setup_test_db().await;
+
+        // 插入摘要
+        let summary = ArticleSummary::new(
+            "https://example.com/to-delete".to_string(),
+            "delete_hash".to_string(),
+            "要删除的摘要".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+            "2023-01-01 00:00:00".to_string(),
+        );
+        insert_article_summary(&summary, &pool).await.unwrap();
+
+        // 确认存在
+        let result = select_article_summary_by_link("https://example.com/to-delete", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_some());
+
+        // 删除
+        delete_article_summary_by_link("https://example.com/to-delete", &pool)
+            .await
+            .unwrap();
+
+        // 确认已删除
+        let result = select_article_summary_by_link("https://example.com/to-delete", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_none());
+    }
+
+    // 测试查询不存在的摘要
+    #[tokio::test]
+    async fn test_select_nonexistent_article_summary() {
+        let pool = setup_test_db().await;
+
+        // 查询不存在的链接
+        let result = select_article_summary_by_link("https://nonexistent.com", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_none());
+
+        // 查询不存在的哈希
+        let result = select_article_summary_by_hash("nonexistent_hash", &pool)
+            .await
+            .unwrap();
+        assert!(result.is_none());
     }
 }
