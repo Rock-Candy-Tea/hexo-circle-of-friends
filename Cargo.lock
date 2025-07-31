@@ -68,7 +68,7 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "api"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "api_dependence",
  "axum",
@@ -92,7 +92,7 @@ dependencies = [
 
 [[package]]
 name = "api_dependence"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "axum",
  "axum-extra",
@@ -404,7 +404,7 @@ checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 
 [[package]]
 name = "core"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "chrono",
  "data_structures",
@@ -579,7 +579,7 @@ checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
 
 [[package]]
 name = "data_structures"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "serde",
  "serde_yaml",
@@ -588,7 +588,7 @@ dependencies = [
 
 [[package]]
 name = "db"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "chrono",
  "data_structures",
@@ -3521,7 +3521,7 @@ dependencies = [
 
 [[package]]
 name = "tools"
-version = "6.0.2"
+version = "6.0.3"
 dependencies = [
  "chrono",
  "data_structures",
