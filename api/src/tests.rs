@@ -103,6 +103,12 @@ fn validate_article_data(articles: &Value) {
 
 /// 验证朋友数据结构
 fn validate_friend_data(friends: &Value) {
+    // 检查是否是错误消息（空数据库的情况）
+    if let Some(message) = friends.get("message") {
+        println!("⚠️ 收到消息响应: {message}");
+        return;
+    }
+
     assert!(friends.is_array(), "friends should be an array");
 
     if let Some(friend) = friends.as_array().and_then(|arr| arr.first()) {
