@@ -99,17 +99,7 @@ else
     echo -e "${BLUE}定时任务已存在，跳过添加${NC}"
 fi
 
-# 立即运行core
-echo -e "${YELLOW}首次运行core...${NC}"
-mkdir -p logs
-./fcircle_core
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}fcircle_core运行成功${NC}"
-else
-    echo -e "${RED}fcircle_core运行失败，请检查日志${NC}"
-fi
-
-# 6. 运行api并后台运行，使用用户指定的端口
+# 6. 先启动API服务，使用用户指定的端口
 echo -e "${YELLOW}启动API服务在端口 ${api_port}...${NC}"
 nohup ./fcircle_api -p "$api_port" >/dev/null 2>&1 &
 api_pid=$!
@@ -123,6 +113,13 @@ else
     exit 1
 fi
 
+# 首次运行fcircle_core（后台执行）
+echo -e "${YELLOW}后台运行首次fcircle_core任务...${NC}"
+mkdir -p logs
+nohup ./fcircle_core >/dev/null 2>&1 &
+core_pid=$!
+echo -e "${GREEN}fcircle_core已启动后台运行，PID: ${core_pid}${NC}"
+
 # 7. 输出提示信息
 echo -e "${BLUE}=====================================${NC}"
 echo -e "${GREEN}安装完成!${NC}"
@@ -130,8 +127,10 @@ echo -e "${YELLOW}提示:${NC}"
 echo -e "- 运行日志位于 ./logs/ 目录"
 echo -e "- API服务地址: http://localhost:${api_port}"
 echo -e "- API服务进程ID: ${api_pid}"
-echo -e "- 检查API服务状态: ps -p ${api_pid}"
+echo -e "- 首次fcircle_core任务进程ID: ${core_pid}"
+echo -e "- 检查服务状态: ps -p ${api_pid} ${core_pid}"
 echo -e "- 停止API服务: kill ${api_pid}"
+echo -e "- 停止fcircle_core任务: kill ${core_pid}"
 echo -e "- 定时任务已设置为: ${cron_expr}"
 echo -e "- 查看定时任务: crontab -l"
 echo -e "${BLUE}=====================================${NC}"
