@@ -11,12 +11,12 @@ class AbstractBase(Model):
 
     def to_dict(self):
         model_dict = dict(self.__dict__)
-        del model_dict['_sa_instance_state']
+        del model_dict["_sa_instance_state"]
         return model_dict
 
 
 class Friend(AbstractBase):
-    __tablename__ = 'friends'
+    __tablename__ = "friends"
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256))
     link = Column(String(1024))
@@ -26,7 +26,7 @@ class Friend(AbstractBase):
 
 
 class Post(AbstractBase):
-    __tablename__ = 'posts'
+    __tablename__ = "posts"
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String(256))
     created = Column(String(256))
@@ -39,7 +39,7 @@ class Post(AbstractBase):
 
 
 class ArticleSummary(AbstractBase):
-    __tablename__ = 'article_summaries'
+    __tablename__ = "article_summaries"
     id = Column(Integer, primary_key=True, autoincrement=True)
     link = Column(String(256))
     content_hash = Column(String(64))

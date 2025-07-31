@@ -17,11 +17,12 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
         return {"message": "rule error, please use 'created'/'updated'"}
     # 使用LEFT JOIN查询文章和摘要
     if start == 0 and end == 0:
-        posts_with_summary = session.query(
-            Post, ArticleSummary
-        ).outerjoin(
-            ArticleSummary, Post.link == ArticleSummary.link
-        ).order_by(desc(getattr(Post, rule))).all()
+        posts_with_summary = (
+            session.query(Post, ArticleSummary)
+            .outerjoin(ArticleSummary, Post.link == ArticleSummary.link)
+            .order_by(desc(getattr(Post, rule)))
+            .all()
+        )
     else:
         posts_with_summary = (
             session.query(Post, ArticleSummary)
@@ -151,7 +152,7 @@ def query_post(
         user = (
             session.query(Friend).filter_by(error=False).order_by(func.random()).first()
         )
-        domain = parse.urlsplit(user.link).netloc # type: ignore
+        domain = parse.urlsplit(user.link).netloc  # type: ignore
     else:
         domain = parse.urlsplit(link).netloc
         user = (
@@ -202,7 +203,7 @@ def query_summary(link):
     session = db_init()
     summary = session.query(ArticleSummary).filter_by(link=link).first()
     session.close()
-    
+
     if summary:
         return {
             "link": summary.link,

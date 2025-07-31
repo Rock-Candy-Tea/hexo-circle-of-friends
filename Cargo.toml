@@ -10,6 +10,13 @@ members = [
 ]
 resolver = "2"
 
+[workspace.package]
+version = "6.0.2"
+edition = "2024"
+authors = ["Hexo Circle of Friends Team"]
+license = "Apache-2.0"
+repository = "https://github.com/Rock-Candy-Tea/hexo-circle-of-friends"
+
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 reqwest = { version = "0.12", default-features = false, features = [

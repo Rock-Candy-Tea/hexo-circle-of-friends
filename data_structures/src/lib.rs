@@ -617,5 +617,23 @@ pub mod response {
     }
 }
 
+/// 版本检查相关数据结构
+pub mod version {
+    use serde::{Deserialize, Serialize};
+
+    /// 简化的版本信息响应
+    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub struct VersionResponse {
+        /// 当前版本号
+        pub version: String,
+    }
+
+    impl VersionResponse {
+        pub fn new(version: String) -> Self {
+            Self { version }
+        }
+    }
+}
+
 #[cfg(test)]
 mod config_tests;

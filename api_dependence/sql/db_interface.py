@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from tools import utils
 
+
 class SQLEngine(object):
     engine = None
 
@@ -14,7 +15,7 @@ class SQLEngine(object):
             # 创建表
             try:
                 models.Model.metadata.create_all(cls.engine)
-            except:
+            except Exception as _e:
                 pass
         return cls.engine
 
@@ -22,7 +23,7 @@ class SQLEngine(object):
     def __get_sql_engine():
         settings = utils.get_user_settings()
         base_path = utils.get_base_path()
-        db_path = os.path.join(base_path, 'data.db')
+        db_path = os.path.join(base_path, "data.db")
         if os.environ.get("DEBUG"):
             if settings["DATABASE"] == "sqlite":
                 if sys.platform == "win32":
@@ -31,8 +32,12 @@ class SQLEngine(object):
                     conn = f"sqlite:////{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
-                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" \
-                       % ("root", "123456", "localhost", "test")
+                conn = "mysql+pymysql://%s:%s@%s:3306/%s?charset=utf8mb4" % (
+                    "root",
+                    "123456",
+                    "localhost",
+                    "test",
+                )
             else:
                 raise
         else:
@@ -62,7 +67,7 @@ class SQLEngine(object):
                     conn = f"sqlite:///{db_path}?check_same_thread=False"
                 # conn = "sqlite:///" + BASE_DIR + "/data.db" + "?check_same_thread=False"
             elif settings["DATABASE"] == "mysql":
-                mysql_uri = os.environ['MYSQL_URI']
+                mysql_uri = os.environ["MYSQL_URI"]
                 mysql_uri = mysql_uri.replace("mysql://", "mysql+pymysql://")
                 mysql_uri += "?charset=utf8mb4"
                 conn = mysql_uri
@@ -70,7 +75,8 @@ class SQLEngine(object):
                 raise
         try:
             engine = create_engine(conn, pool_recycle=-1)
-        except:
+        except Exception as e:
+            print(e)
             raise Exception("MySQL连接失败")
         return engine
 

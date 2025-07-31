@@ -11,7 +11,7 @@
       "name": "Apache 2.0",
       "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "1.0.0"
+    "version": "6.0.2"
   },
   "paths": {
     "/all": {
@@ -664,6 +664,31 @@
           }
         }
       }
+    },
+    "/version": {
+      "get": {
+        "tags": [
+          "SYSTEM"
+        ],
+        "summary": "获取版本信息",
+        "description": "返回当前API服务的版本号",
+        "operationId": "get_version_info_version_get",
+        "responses": {
+          "200": {
+            "description": "成功返回版本信息",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                },
+                "example": {
+                  "version": "1.0.0"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1059,6 +1084,22 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VersionResponse": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "当前版本号",
+            "example": "1.0.0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "title": "VersionResponse",
+        "description": "版本信息响应模型"
       }
     }
   }

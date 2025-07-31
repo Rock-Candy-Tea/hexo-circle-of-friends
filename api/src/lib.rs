@@ -2,7 +2,7 @@
 //!
 //! 提供SQLite、MySQL、MongoDB三种数据库的API服务
 
-use api_dependence::{mongodb::mongodbapi, mysql::mysqlapi, sqlite::sqliteapi};
+use api_dependence::{get_version_info, mongodb::mongodbapi, mysql::mysqlapi, sqlite::sqliteapi};
 use axum::{Json, Router, response::Html, routing::get};
 use db::{mongo, mysql, sqlite};
 use serde_json::Value;
@@ -85,6 +85,7 @@ pub async fn create_sqlite_app(db_path: &str) -> Router {
         .route("/randomfriend", get(sqliteapi::get_randomfriend))
         .route("/randompost", get(sqliteapi::get_randompost))
         .route("/summary", get(sqliteapi::get_summary))
+        .route("/version", get(get_version_info))
         .route("/docs", get(get_swagger_ui))
         .route("/swagger.json", get(get_openapi_json))
         .with_state(dbpool)
@@ -109,6 +110,7 @@ pub async fn create_mysql_app(conn_str: &str) -> Router {
         .route("/randomfriend", get(mysqlapi::get_randomfriend))
         .route("/randompost", get(mysqlapi::get_randompost))
         .route("/summary", get(mysqlapi::get_summary))
+        .route("/version", get(get_version_info))
         .route("/docs", get(get_swagger_ui))
         .route("/swagger.json", get(get_openapi_json))
         .with_state(dbpool)
@@ -133,6 +135,7 @@ pub async fn create_mongodb_app(mongodburi: &str) -> Router {
         .route("/randomfriend", get(mongodbapi::get_randomfriend))
         .route("/randompost", get(mongodbapi::get_randompost))
         .route("/summary", get(mongodbapi::get_summary))
+        .route("/version", get(get_version_info))
         .route("/docs", get(get_swagger_ui))
         .route("/swagger.json", get(get_openapi_json))
         .with_state(clientdb)

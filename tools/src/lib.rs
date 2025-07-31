@@ -892,5 +892,22 @@ mod tests {
 
 pub mod html_extractor;
 
+// 版本管理模块 - 整合自 version_manager.rs
+use data_structures::version::VersionResponse;
+use std::env;
+
+/// 获取当前版本信息
+///
+/// 从 workspace 的统一版本配置中获取版本号，
+/// 所有二进制文件（core、api）都使用相同的版本
+pub fn get_version() -> VersionResponse {
+    // 优先从编译时的包版本获取（来自 workspace 配置）
+    let version = env::var("CARGO_PKG_VERSION")
+        .or_else(|_| env::var("VERSION")) // 支持环境变量覆盖
+        .unwrap_or_else(|_| "1.0.0".to_string()); // 默认版本
+
+    VersionResponse::new(version)
+}
+
 #[cfg(test)]
 mod config_test;

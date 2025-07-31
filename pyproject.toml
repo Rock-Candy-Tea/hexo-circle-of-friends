@@ -1,7 +1,7 @@
 [project]
-name = "spider"
-version = "0.1.0"
-description = "Add your description here"
+name = "hexo-circle-of-friends"
+version = "6.0.2"
+description = "Hexo Circle of Friends"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

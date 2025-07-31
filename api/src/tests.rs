@@ -283,6 +283,42 @@ mod sqlite_tests {
 
         println!("✅ SQLite Swagger端点测试通过");
     }
+
+    #[tokio::test]
+    async fn test_sqlite_version_endpoint() {
+        let app = create_sqlite_app("data.db").await;
+        let (status, json) = send_get_request(app, "/version").await;
+
+        assert_eq!(status, StatusCode::OK);
+
+        // 验证版本响应结构
+        assert!(
+            json.get("version").is_some(),
+            "版本响应应包含 'version' 字段"
+        );
+
+        let version = json["version"].as_str().unwrap();
+        assert!(!version.is_empty(), "版本号不能为空");
+
+        // 确保版本号不包含 'v' 前缀
+        assert!(
+            !version.starts_with('v'),
+            "API版本号不应包含'v'前缀，实际版本: {version}"
+        );
+
+        // 验证版本号格式（简单的语义版本检查）
+        let version_parts: Vec<&str> = version.split('.').collect();
+        assert!(
+            version_parts.len() >= 2,
+            "版本号应该至少包含主版本号和次版本号"
+        );
+
+        for part in version_parts {
+            assert!(part.parse::<u32>().is_ok(), "版本号的每个部分都应该是数字");
+        }
+
+        println!("✅ SQLite 版本接口测试通过，版本: {version}");
+    }
 }
 
 #[cfg(test)]
@@ -428,6 +464,29 @@ mod mysql_tests {
         } else if status == StatusCode::NOT_FOUND {
             println!("✅ MySQL /summary 测试通过 - 404响应");
         }
+    }
+
+    #[tokio::test]
+    async fn test_mysql_version_endpoint() {
+        let app = create_mysql_app(MYSQL_URI).await;
+        let (status, json) = send_get_request(app, "/version").await;
+
+        assert_eq!(status, StatusCode::OK);
+
+        // 验证版本响应结构
+        assert!(
+            json.get("version").is_some(),
+            "版本响应应包含 'version' 字段"
+        );
+
+        let version = json["version"].as_str().unwrap();
+        assert!(!version.is_empty(), "版本号不能为空");
+        assert!(
+            !version.starts_with('v'),
+            "API版本号不应包含'v'前缀，实际版本: {version}"
+        );
+
+        println!("✅ MySQL 版本接口测试通过，版本: {version}");
     }
 }
 
@@ -590,6 +649,29 @@ mod mongodb_tests {
         }
 
         println!("✅ MongoDB Swagger端点测试通过");
+    }
+
+    #[tokio::test]
+    async fn test_mongodb_version_endpoint() {
+        let app = create_mongodb_app(MONGODB_URI).await;
+        let (status, json) = send_get_request(app, "/version").await;
+
+        assert_eq!(status, StatusCode::OK);
+
+        // 验证版本响应结构
+        assert!(
+            json.get("version").is_some(),
+            "版本响应应包含 'version' 字段"
+        );
+
+        let version = json["version"].as_str().unwrap();
+        assert!(!version.is_empty(), "版本号不能为空");
+        assert!(
+            !version.starts_with('v'),
+            "API版本号不应包含'v'前缀，实际版本: {version}"
+        );
+
+        println!("✅ MongoDB 版本接口测试通过，版本: {version}");
     }
 }
 
