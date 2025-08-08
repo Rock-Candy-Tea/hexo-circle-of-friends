@@ -15,7 +15,7 @@ data_structures = { path = "../data_structures" }
 tools = { path = "../tools" }
 serde.workspace = true
 serde_json.workspace = true
-rand = "0.9"
+rand.workspace = true
 url.workspace = true
 axum-extra.workspace = true
 chrono.workspace = true
