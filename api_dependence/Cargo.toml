@@ -9,13 +9,13 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum.workspace = true
+axum = { workspace = true }
 db = { path = "../db" }
 data_structures = { path = "../data_structures" }
 tools = { path = "../tools" }
-serde.workspace = true
-serde_json.workspace = true
-rand.workspace = true
-url.workspace = true
-axum-extra.workspace = true
-chrono.workspace = true
+serde = { workspace = true }
+serde_json = { workspace = true }
+rand = { workspace = true }
+url = { workspace = true }
+axum-extra = { workspace = true }
+chrono = { workspace = true }

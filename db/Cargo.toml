@@ -9,9 +9,9 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqlx.workspace = true
+sqlx = { workspace = true }
 data_structures = { path = "../data_structures" }
-mongodb.workspace = true
-tokio.workspace = true
-futures.workspace = true
-chrono.workspace=true
+mongodb = { workspace = true }
+tokio = { workspace = true }
+futures = { workspace = true }
+chrono = { workspace = true }

@@ -9,8 +9,8 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum.workspace = true
-tokio.workspace = true
+axum = { workspace = true }
+tokio = { workspace = true }
 api_dependence = { path = "../api_dependence" }
 db = { path = "../db" }
 tools = { path = "../tools" }
@@ -18,16 +18,21 @@ tower-http = { version = "0.6", features = ["cors", "trace"] }
 tower = "0.5"
 bytes = "1"
 http-body-util = "0.1"
-tracing.workspace = true
-serde_json.workspace = true
+tracing = { workspace = true }
+serde_json = { workspace = true }
 
 # 测试依赖
 [dev-dependencies]
-sqlx = { workspace = true, features = ["runtime-tokio-rustls", "sqlite", "mysql", "postgres"] }
-mongodb.workspace = true
-rand.workspace = true
-url.workspace = true
-futures.workspace = true
+sqlx = { workspace = true, features = [
+    "runtime-tokio-rustls",
+    "sqlite",
+    "mysql",
+    "postgres",
+] }
+mongodb = { workspace = true }
+rand = { workspace = true }
+url = { workspace = true }
+futures = { workspace = true }
 data_structures = { path = "../data_structures" }
 urlencoding = "2.1"
 tower = { version = "0.5", features = ["util"] }
