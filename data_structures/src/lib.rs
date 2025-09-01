@@ -264,13 +264,14 @@ pub mod config {
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct GenerateSummaryConfig {
         pub enabled: bool,
-        pub provider: String,         // "gemini", "siliconflow", or "all"
+        pub provider: String,         // "gemini", "siliconflow", "bigmodel", or "all"
         pub max_concurrent: usize,    // 默认: 3
         pub wait_on_rate_limit: bool, // 默认: true
         pub max_chars: usize,         // 默认: 8000
 
-        pub gemini: Option<GeminiConfig>,
-        pub siliconflow: Option<SiliconFlowConfig>,
+        pub gemini: Option<ModelConfig>,
+        pub siliconflow: Option<ModelConfig>,
+        pub bigmodel: Option<ModelConfig>,
     }
 
     impl GenerateSummaryConfig {
@@ -306,12 +307,7 @@ pub mod config {
     }
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    pub struct GeminiConfig {
-        pub models: Vec<String>,
-    }
-
-    #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    pub struct SiliconFlowConfig {
+    pub struct ModelConfig {
         pub models: Vec<String>,
     }
 

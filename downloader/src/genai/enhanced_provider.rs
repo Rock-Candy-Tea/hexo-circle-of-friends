@@ -6,7 +6,7 @@ use tokio::time::sleep;
 use tools::html_extractor::HtmlExtractor;
 use tracing::{info, warn};
 
-use super::{gemini, siliconflow};
+use super::{bigmodel, gemini, siliconflow};
 
 /// AI摘要生成结果，包含摘要内容和使用的模型信息
 #[derive(Debug, Clone)]
@@ -240,6 +240,7 @@ impl EnhancedSummaryProvider {
         match self.config.provider.as_str() {
             "gemini" => self.try_gemini_models(client, content).await,
             "siliconflow" => self.try_siliconflow_models(client, content).await,
+            "bigmodel" => self.try_bigmodel_models(client, content).await,
             "all" => self.try_all_providers(client, content).await,
             _ => Err(format!("不支持的提供商: {}", self.config.provider).into()),
         }
@@ -309,6 +310,36 @@ impl EnhancedSummaryProvider {
         Err(last_error.unwrap_or_else(|| "所有SiliconFlow模型都失败了".into()))
     }
 
+    async fn try_bigmodel_models(
+        &self,
+        client: &ClientWithMiddleware,
+        content: &str,
+    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
+        let bigmodel_config = self.config.bigmodel.as_ref().ok_or("BigModel配置缺失")?;
+
+        let mut last_error = None;
+
+        for model in &bigmodel_config.models {
+            info!("尝试使用BigModel模型: {}", model);
+
+            match bigmodel::generate_content(client, model, content).await {
+                Ok(summary) => {
+                    info!("BigModel模型 {} 成功生成摘要", model);
+                    return Ok(SummaryResult {
+                        summary,
+                        model: format!("bigmodel-{model}"),
+                    });
+                }
+                Err(e) => {
+                    warn!("BigModel模型 {} 失败: {}", model, e);
+                    last_error = Some(e);
+                }
+            }
+        }
+
+        Err(last_error.unwrap_or_else(|| "所有BigModel模型都失败了".into()))
+    }
+
     async fn try_all_providers(
         &self,
         client: &ClientWithMiddleware,
@@ -316,7 +347,21 @@ impl EnhancedSummaryProvider {
     ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
         info!("尝试所有配置的AI提供商");
 
-        // 首先尝试SiliconFlow（通常免费且性能好）
+        // 首先尝试BigModel
+        if self.config.bigmodel.is_some() {
+            info!("首先尝试BigModel提供商");
+            match self.try_bigmodel_models(client, content).await {
+                Ok(summary_result) => {
+                    info!("BigModel提供商成功生成摘要");
+                    return Ok(summary_result);
+                }
+                Err(e) => {
+                    warn!("BigModel提供商失败: {}", e);
+                }
+            }
+        }
+
+        // 其次尝试SiliconFlow
         if self.config.siliconflow.is_some() {
             info!("首先尝试SiliconFlow提供商");
             match self.try_siliconflow_models(client, content).await {
@@ -373,6 +418,15 @@ impl EnhancedSummaryProvider {
                     return Err("选择了SiliconFlow提供商但缺少SiliconFlow配置".to_string());
                 }
             }
+            "bigmodel" => {
+                if let Some(bigmodel_config) = &self.config.bigmodel {
+                    if bigmodel_config.models.is_empty() {
+                        return Err("BigModel模型列表不能为空".to_string());
+                    }
+                } else {
+                    return Err("选择了BigModel提供商但缺少BigModel配置".to_string());
+                }
+            }
             "all" => {
                 let has_gemini = self
                     .config
@@ -407,7 +461,7 @@ impl EnhancedSummaryProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use data_structures::config::SiliconFlowConfig;
+    use data_structures::config::ModelConfig;
 
     fn create_test_config() -> GenerateSummaryConfig {
         GenerateSummaryConfig {
@@ -417,9 +471,10 @@ mod tests {
             wait_on_rate_limit: true, // 使用默认值
             max_chars: 8000,          // 使用默认值
             gemini: None,
-            siliconflow: Some(SiliconFlowConfig {
+            siliconflow: Some(ModelConfig {
                 models: vec!["THUDM/GLM-4.1V-9B-Thinking".to_string()],
             }),
+            bigmodel: None,
         }
     }
 

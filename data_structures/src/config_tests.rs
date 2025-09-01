@@ -119,11 +119,14 @@ siliconflow:
             max_concurrent: 3,
             wait_on_rate_limit: true,
             max_chars: 8000,
-            gemini: Some(GeminiConfig {
+            gemini: Some(ModelConfig {
                 models: vec!["gemini-2.5-flash".to_string()],
             }),
-            siliconflow: Some(SiliconFlowConfig {
+            siliconflow: Some(ModelConfig {
                 models: vec!["Qwen/QwQ-32B".to_string()],
+            }),
+            bigmodel: Some(ModelConfig {
+                models: vec!["glm-4-flashx-250414".to_string()],
             }),
         };
 
@@ -187,10 +190,11 @@ siliconflow:
             max_concurrent: 3,
             wait_on_rate_limit: true,
             max_chars: 8000,
-            gemini: Some(GeminiConfig {
+            gemini: Some(ModelConfig {
                 models: vec!["gemini-2.5-flash".to_string()],
             }),
             siliconflow: None,
+            bigmodel: None,
         };
 
         let cloned = original.clone();
@@ -291,6 +295,7 @@ siliconflow: {
             max_chars: 8000,
             gemini: None,
             siliconflow: None,
+            bigmodel: None,
         };
 
         // 验证默认值
@@ -312,6 +317,7 @@ siliconflow: {
             max_chars: 12000,
             gemini: None,
             siliconflow: None,
+            bigmodel: None,
         };
 
         // 验证自定义值
