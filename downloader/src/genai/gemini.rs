@@ -24,7 +24,7 @@ pub async fn generate_content(
   summarize the article.
 
   You must adhere to the following strict rules for your response:
-   1. The summary must be written in Chinese.
+   1. The summary must be written in Simplified Chinese, if not, translate it to Simplified Chinese.
    2. The total length of the summary must not exceed 500 characters but close to 500 (this count includes all characters, punctuation, and spaces).
    3. The output must consist only of the summary text itself. Do not include any prefixes, titles, or introductory phrases (e.g., "Here is the summary:")."#
                     }
