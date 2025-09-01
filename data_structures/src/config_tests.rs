@@ -62,6 +62,9 @@ siliconflow:
         let yaml_content = r#"
 enabled: false
 provider: "gemini"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 "#;
 
         let config: GenerateSummaryConfig = serde_yaml::from_str(yaml_content).unwrap();
@@ -75,6 +78,9 @@ provider: "gemini"
         let yaml_content = r#"
 enabled: true
 provider: "siliconflow"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 siliconflow:
   models: ["THUDM/GLM-4.1V-9B-Thinking", "Qwen/Qwen3-8B", "THUDM/glm-4-9b-chat"]
 "#;
@@ -110,9 +116,9 @@ siliconflow:
         let config = GenerateSummaryConfig {
             enabled: true,
             provider: "gemini".to_string(),
-            max_concurrent: None,
-            wait_on_rate_limit: None,
-            max_chars: None,
+            max_concurrent: 3,
+            wait_on_rate_limit: true,
+            max_chars: 8000,
             gemini: Some(GeminiConfig {
                 models: vec!["gemini-2.5-flash".to_string()],
             }),
@@ -134,6 +140,9 @@ siliconflow:
         let yaml_content = r#"
 enabled: true
 provider: "gemini"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 gemini:
   models: []
 "#;
@@ -153,6 +162,9 @@ gemini:
         let yaml_content = r#"
 enabled: true
 provider: "siliconflow"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 siliconflow:
   models: []
 "#;
@@ -172,9 +184,9 @@ siliconflow:
         let original = GenerateSummaryConfig {
             enabled: true,
             provider: "gemini".to_string(),
-            max_concurrent: None,
-            wait_on_rate_limit: None,
-            max_chars: None,
+            max_concurrent: 3,
+            wait_on_rate_limit: true,
+            max_chars: 8000,
             gemini: Some(GeminiConfig {
                 models: vec!["gemini-2.5-flash".to_string()],
             }),
@@ -196,6 +208,9 @@ siliconflow:
         let yaml_content = r#"
 enabled: true
 provider: "all"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 gemini:
   models: ["gemini-2.5-flash"]
 siliconflow:
@@ -237,6 +252,9 @@ siliconflow:
         let yaml_content = r#"
 enabled: true
 provider: "siliconflow"
+max_concurrent: 3
+wait_on_rate_limit: true
+max_chars: 8000
 siliconflow: {
   models: ["THUDM/GLM-4.1V-9B-Thinking", "Qwen/Qwen3-8B"]
 }
@@ -268,9 +286,9 @@ siliconflow: {
         let config = GenerateSummaryConfig {
             enabled: true,
             provider: "all".to_string(),
-            max_concurrent: None,
-            wait_on_rate_limit: None,
-            max_chars: None,
+            max_concurrent: 3,
+            wait_on_rate_limit: true,
+            max_chars: 8000,
             gemini: None,
             siliconflow: None,
         };
@@ -289,9 +307,9 @@ siliconflow: {
         let config = GenerateSummaryConfig {
             enabled: true,
             provider: "all".to_string(),
-            max_concurrent: Some(5),
-            wait_on_rate_limit: Some(false),
-            max_chars: Some(12000),
+            max_concurrent: 5,
+            wait_on_rate_limit: false,
+            max_chars: 12000,
             gemini: None,
             siliconflow: None,
         };

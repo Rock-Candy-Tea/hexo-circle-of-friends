@@ -413,9 +413,9 @@ mod tests {
         GenerateSummaryConfig {
             enabled: true,
             provider: "siliconflow".to_string(),
-            max_concurrent: None,     // 使用默认值
-            wait_on_rate_limit: None, // 使用默认值
-            max_chars: None,          // 使用默认值
+            max_concurrent: 3,        // 使用默认值
+            wait_on_rate_limit: true, // 使用默认值
+            max_chars: 8000,          // 使用默认值
             gemini: None,
             siliconflow: Some(SiliconFlowConfig {
                 models: vec!["THUDM/GLM-4.1V-9B-Thinking".to_string()],
@@ -432,7 +432,7 @@ mod tests {
     #[test]
     fn test_validate_config_invalid_concurrent() {
         let mut config = create_test_config();
-        config.max_concurrent = Some(0);
+        config.max_concurrent = 0;
 
         let provider = EnhancedSummaryProvider::new(config);
         assert!(provider.validate_config().is_err());
@@ -441,7 +441,7 @@ mod tests {
     #[test]
     fn test_validate_config_invalid_content() {
         let mut config = create_test_config();
-        config.max_chars = Some(0);
+        config.max_chars = 0;
 
         let provider = EnhancedSummaryProvider::new(config);
         assert!(provider.validate_config().is_err());

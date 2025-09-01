@@ -59,6 +59,9 @@ CRON: "0 0 */6 * *"
 GENERATE_SUMMARY: {
   enabled: true,
   provider: "all",
+  max_concurrent: 3,
+  wait_on_rate_limit: true,
+  max_chars: 8000,
   gemini: {
     models: ["gemini-2.5-flash", "gemini-2.5-pro"]
   },
