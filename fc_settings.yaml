@@ -2,8 +2,8 @@
 # 参数说明：
 # link：必填，在这里填写你的友链页面地址
 # theme：必填，友链页的获取策略。需要指定该页面的主题，可选参数如下（这些是目前支持的主题）：
-#   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/#/AdvancedGuide
-#   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/#/AdvancedGuide
+#   - common1: 通用主题1，请参考：https://fcircle-doc.yyyzyyyz.cn/docs/advanced.html
+#   - common2: 通用主题2，请参考：https://fcircle-doc.yyyzyyyz.cn/docs/advanced.html
 #   - butterfly：butterfly主题
 #   - fluid：fluid主题
 #   - matery：matery主题
@@ -82,10 +82,10 @@ DATABASE: "sqlite"
 DEPLOY_TYPE: "github"
 
 # 文章摘要
-# 参考: https://fcircle-doc.yyyzyyyz.cn/#/settings
+# 参考: https://fcircle-doc.yyyzyyyz.cn/docs/configuration.html
 GENERATE_SUMMARY: {
-  enabled: false,
-  provider: "all",  # AI供应商，目前可选：gemini|siliconflow|bigmodel|all （使用 "all" 依次全部尝试）
+  enabled: false,   # 需要设置为true开启
+  provider: "all",  # AI供应商，目前可选：gemini|siliconflow|bigmodel|all （使用 "all" 依次全部尝试），需要配置对应提供商的api key
   max_concurrent: 3,       # 最大并发数，默认3 (平衡速度与稳定性)
   wait_on_rate_limit: true, # 遇限速是否等待，默认true (提高成功率)
   max_chars: 8000,         # 最大字符数，默认8000 (适合大部分模型)
