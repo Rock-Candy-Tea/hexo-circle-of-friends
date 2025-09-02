@@ -23,7 +23,7 @@ LINK: [
 
 # 配置项友链
 # enable：# 是否启用配置项友链 true/false（针对还未适配主题或者有定制需求的用户）
-# json_api_or_path：支持通过提供 json 格式的友链配置，可以是本地文件路径，或者是一个 url 地址。详见：https://fcircle-doc.yyyzyyyz.cn/#/settings
+# json_api_or_path：支持通过提供 json 格式的友链配置，可以是本地文件路径，或者是一个 url 地址。详见：https://fcircle-doc.yyyzyyyz.cn/docs/configuration.html
 # list字段填写格式：["name", "link", "avatar","suffix"]，其中：
 #       name：必填，友链的名字
 #       link：必填，友链主页地址
