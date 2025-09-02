@@ -4,7 +4,7 @@
 
 即日起，项目恢复更新和维护，发布`v6.x.x`版本。
 
-部署教程：[文档](https://fcircle-doc.yyyzyyyz.cn/) | [备用地址](https://fcircle-doc.is-a.dev/)
+部署教程：[文档](https://fcircle-doc.yyyzyyyz.cn/)
 
 ### `v6.0.4` 更新说明：
 
