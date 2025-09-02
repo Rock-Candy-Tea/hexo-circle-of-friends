@@ -20,7 +20,7 @@ pub fn init_tracing(logger_name: &str, filter_str: Option<&str>) -> WorkerGuard 
     let formmater_string = "%Y-%m-%d %H:%M:%S (%Z)".to_string();
     let timer = tracing_subscriber::fmt::time::ChronoLocal::new(formmater_string);
     // about timezone,see:https://github.com/tokio-rs/tracing/issues/3102
-    let appender = LogRollerBuilder::new("./logs", &format!("{logger_name}.log"))
+    let appender = LogRollerBuilder::new(&format!("./logs/{logger_name}"), &format!("{logger_name}.log"))
         .rotation(Rotation::AgeBased(RotationAge::Daily)) // Rotate daily
         .max_keep_files(7) // Keep a week's worth of logs
         .time_zone(logroller::TimeZone::Local) // Use local timezone
