@@ -85,7 +85,7 @@ DEPLOY_TYPE: "github"
 # 参考: https://fcircle-doc.yyyzyyyz.cn/#/settings
 GENERATE_SUMMARY: {
   enabled: false,
-  provider: "all",  # AI供应商，目前可选：gemini|siliconflow|all （使用 "all" 表示“全部”）
+  provider: "all",  # AI供应商，目前可选：gemini|siliconflow|bigmodel|all （使用 "all" 依次全部尝试）
   max_concurrent: 3,       # 最大并发数，默认3 (平衡速度与稳定性)
   wait_on_rate_limit: true, # 遇限速是否等待，默认true (提高成功率)
   max_chars: 8000,         # 最大字符数，默认8000 (适合大部分模型)
@@ -95,7 +95,7 @@ GENERATE_SUMMARY: {
     models: ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"]
   },
   # 硅基流动（siliconflow）
-  # 以下列出的是其中的免费模型，你也可以去模型广场寻找并添加付费模型：https://cloud.siliconflow.cn/me/models
+  # 以下列出的是其中的免费模型，你也可以去官方文档寻找并添加付费模型：https://cloud.siliconflow.cn/me/models
   siliconflow: {
     models: [
       "THUDM/GLM-4.1V-9B-Thinking",
@@ -111,7 +111,12 @@ GENERATE_SUMMARY: {
       "THUDM/glm-4-9b-chat"
     ]
   },
+  # 智谱（bigmodel）
+  # 以下列出的是其中的免费模型，你也可以去官方文档寻找并添加付费模型：https://docs.bigmodel.cn/cn/guide/models/text/glm-4.5
   bigmodel: {
-    models: []
+    models: [
+      "glm-4.5-flash",
+      "glm-4-flash-250414"
+    ]
   }
 }

@@ -349,7 +349,7 @@ impl EnhancedSummaryProvider {
 
         // 首先尝试BigModel
         if self.config.bigmodel.is_some() {
-            info!("首先尝试BigModel提供商");
+            info!("尝试BigModel提供商");
             match self.try_bigmodel_models(client, content).await {
                 Ok(summary_result) => {
                     info!("BigModel提供商成功生成摘要");
@@ -363,7 +363,7 @@ impl EnhancedSummaryProvider {
 
         // 其次尝试SiliconFlow
         if self.config.siliconflow.is_some() {
-            info!("首先尝试SiliconFlow提供商");
+            info!("尝试SiliconFlow提供商");
             match self.try_siliconflow_models(client, content).await {
                 Ok(summary_result) => {
                     info!("SiliconFlow提供商成功生成摘要");
@@ -377,7 +377,7 @@ impl EnhancedSummaryProvider {
 
         // 然后尝试Gemini作为备选
         if self.config.gemini.is_some() {
-            info!("尝试Gemini提供商作为备选");
+            info!("尝试Gemini提供商");
             match self.try_gemini_models(client, content).await {
                 Ok(summary_result) => {
                     info!("Gemini提供商成功生成摘要");
