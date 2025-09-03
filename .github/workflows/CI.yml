@@ -25,7 +25,7 @@ env:
   # siliconflow：https://cloud.siliconflow.cn/me/account/ak
   SILICONFLOW_API_KEY: ${{ secrets.SILICONFLOW_API_KEY }}
   # bigmodel：https://bigmodel.cn/usercenter/proj-mgmt/apikeys
-  BGIMODEL_API_KEY: ${{ secrets.BGIMODEL_API_KEY }}
+  BIGMODEL_API_KEY: ${{ secrets.BIGMODEL_API_KEY }}
   # 时区配置
   TZ: Asia/Shanghai
 
