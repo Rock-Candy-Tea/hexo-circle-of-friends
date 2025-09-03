@@ -9,7 +9,7 @@ pub async fn generate_content(
     model: &str,
     html: &str,
 ) -> Result<String, Box<dyn std::error::Error>> {
-    let api_key = tools::get_env_var("BGIMODEL_API_KEY")?;
+    let api_key = tools::get_env_var("BIGMODEL_API_KEY")?;
 
     let body = json!({
         "model": model,
