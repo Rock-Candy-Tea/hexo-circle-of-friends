@@ -1,0 +1,51 @@
+name: Bug 报告
+description: 提交一个 Bug 报告。
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: checkboxes
+    attributes:
+      label: 检查清单
+      description: 请确认您已完成以下检查项：
+      options:
+        - label: 我已经阅读了[部署文档](https://fcircle-doc.yyyzyyyz.cn/)
+          required: true
+        - label: 我已经搜索过现有的 issue，确认没有重复的问题
+          required: true
+        - label: 我已经尝试升级到最新版本，问题依然存在
+          required: true
+        - label: 我已经尝试过清除旧数据并重新运行，问题依然存在
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间填写此 Bug 报告！请描述遇到的问题。
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么？
+      description: 也请告诉我们，期望发生什么？
+      placeholder: 请描述遇到的问题。
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 复现步骤
+      description: 请详细描述如何复现此问题。
+      placeholder: 例如：运行xxx，编辑xxx，结果出现xxx错误...
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: 版本和运行环境
+      description: 请提供您使用的程序版本和运行环境信息。
+      value: "程序版本：\n操作系统：\n部署方式：\n数据库："
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 相关日志输出
+      description: 请复制并粘贴任何相关的日志输出。内容会自动格式化为代码，无需使用反引号。
+      render: shell
+

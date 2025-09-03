@@ -1,0 +1,35 @@
+name: 新功能建议
+description: 提交一个新功能建议。
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: checkboxes
+    attributes:
+      label: 检查清单
+      description: 请确认您已完成以下检查项：
+      options:
+        - label: 我已经阅读了[文档](https://fcircle-doc.yyyzyyyz.cn/)
+          required: true
+        - label: 我已经搜索过现有的 issue，确认没有重复的问题
+          required: true
+        - label: 我确认该功能在最新版本中不可用
+          required: true
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间填写此新功能建议！请描述您期望的功能。
+  - type: textarea
+    attributes:
+      label: 期望的功能
+      description: 请简要描述期望的功能。
+      placeholder: 例如：希望能够增加xxx功能，原因是xxx
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 描述你想要的解决方案
+      description: 对你想要实现的功能进行清晰简洁的描述，确保具有一定的可行性。
+      placeholder: 例如：可以通过xxx实现该功能...
+    validations:
+      required: true
+
