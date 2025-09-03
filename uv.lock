@@ -299,7 +299,7 @@ wheels = [
 
 [[package]]
 name = "hexo-circle-of-friends"
-version = "6.0.3"
+version = "6.0.4"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },
