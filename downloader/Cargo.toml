@@ -27,3 +27,4 @@ tokio-stream = { workspace = true }
 # in crawler.rs
 feed-rs = { workspace = true }
 nipper = { workspace = true }
+html-escape = "0.2"

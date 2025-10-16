@@ -1,6 +1,7 @@
 use chrono::{FixedOffset, Utc};
 use data_structures::metadata;
 use feed_rs::parser;
+use html_escape::decode_html_entities;
 use reqwest_middleware::ClientWithMiddleware;
 use std::{collections::HashMap, vec};
 use tracing::warn;
@@ -53,7 +54,9 @@ pub async fn crawl_link_page<'a>(
                             None => continue,
                         },
                     };
-                    res.push(parsed_field);
+                    // 解码 HTML 实体（如 &quot; &amp; 等）
+                    let decoded_field = decode_html_entities(&parsed_field).to_string();
+                    res.push(decoded_field);
                 }
                 // 当前规则获取到结果，则认为规则是有效的，短路后续规则
                 if !res.is_empty() {
@@ -136,7 +139,9 @@ pub async fn crawl_post_page<'a>(
                             None => continue,
                         },
                     };
-                    res.push(parsed_field);
+                    // 解码 HTML 实体（如 &quot; &amp; 等）
+                    let decoded_field = decode_html_entities(&parsed_field).to_string();
+                    res.push(decoded_field);
                 }
                 if !res.is_empty() {
                     // DEBUG:
@@ -191,7 +196,8 @@ pub async fn crawl_post_page_feed(
         for entry in entries {
             // 标题
             let title = entry.title.map_or(String::from("文章标题获取失败"), |t| {
-                t.content.to_string()
+                // 解码 HTML 实体
+                decode_html_entities(&t.content).to_string()
             });
             // url链接
             let link = if !entry.links.is_empty() {
