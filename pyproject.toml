@@ -1,6 +1,6 @@
 [project]
 name = "hexo-circle-of-friends"
-version = "6.0.4"
+version = "6.0.5"
 description = "Hexo Circle of Friends"
 readme = "README.md"
 requires-python = ">=3.12"

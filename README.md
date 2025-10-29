@@ -6,8 +6,9 @@
 
 部署教程：[文档](https://fcircle-doc.yyyzyyyz.cn/)
 
-### `v6.0.4` 更新说明：
+### `v6.0.5` 更新说明：
 
-- 🤖 **文章摘要新增供应商**：新增bigmodel供应商，提供glm系列模型
+- 📦 **更新依赖库**：更新相关依赖库
+- 🔧 **修复昵称转义字符问题**：修复文字昵称可能存在转义字符的问题
 
 [![Stargazers over time](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends.svg)](https://starchart.cc/Rock-Candy-Tea/hexo-circle-of-friends)
