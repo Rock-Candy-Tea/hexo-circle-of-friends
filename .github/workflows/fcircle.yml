@@ -1,0 +1,19 @@
+name: Github
+on:
+  fork:
+  watch:
+    types: [started]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_SERVER || 'smtp.qq.com' }}
+          server_port: ${{ secrets.EMAIL_PORT || '587' }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "GitHub Fcircle"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          body: ${{ github.repository }} ${{ github.event.sender.login }}
