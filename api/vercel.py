@@ -198,6 +198,15 @@ class VersionResponse(BaseModel):
     version: str = Field(..., description="当前版本号", example="1.0.0")
 
 
+class IndexResponse(BaseModel):
+    """首页响应模型"""
+
+    message: str = Field(..., description="服务状态消息", example="服务运行正常")
+    version: str = Field(..., description="当前版本号", example="6.0.5")
+    docs: str = Field(..., description="API 文档链接", example="/docs")
+    database: str = Field(..., description="数据库类型", example="sqlite")
+
+
 app = FastAPI(
     title="Hexo Circle of Friends API",
     description="文章和朋友管理API，支持AI生成的文章摘要功能。\n\n支持多种数据库：SQLite、MySQL、MongoDB",
@@ -685,6 +694,48 @@ def summary(link: str = Query(..., description="文章链接地址（必填）")
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@app.get(
+    "/",
+    tags=["SYSTEM"],
+    summary="服务状态",
+    description="返回服务运行状态信息",
+    response_model=IndexResponse,
+    responses={
+        200: {
+            "description": "服务运行正常",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "服务运行正常",
+                        "version": "6.0.5",
+                        "docs": "/docs",
+                        "database": "sqlite",
+                    }
+                }
+            },
+        }
+    },
+)
+def index():
+    """
+    ## 服务状态检查
+
+    返回服务的基本信息，用于确认后台服务是否正常运行。
+
+    ### 返回信息包括：
+    - **message**: 服务状态消息
+    - **version**: 当前版本号
+    - **docs**: API文档链接
+    - **database**: 使用的数据库类型
+    """
+    return {
+        "message": "服务运行正常",
+        "version": get_version()["version"],
+        "docs": "/docs",
+        "database": settings["DATABASE"],
+    }
 
 
 @app.get(
