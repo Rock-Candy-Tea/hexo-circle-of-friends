@@ -1,0 +1,13 @@
+/Cargo.toml
+/Cargo.lock
+**/*.rs
+target/
+.clippy.toml
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.log
+logs/
