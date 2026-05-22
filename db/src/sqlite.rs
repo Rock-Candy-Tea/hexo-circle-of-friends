@@ -5,6 +5,29 @@ use sqlx::{
 };
 use std::path::Path;
 
+/// 检查 posts 表是否存在 description 列
+async fn has_description_column(pool: &SqlitePool) -> bool {
+    let result = query("SELECT COUNT(*) as cnt FROM pragma_table_info('posts') WHERE name='description'")
+        .fetch_one(pool)
+        .await;
+    match result {
+        Ok(row) => {
+            let cnt: i32 = row.get("cnt");
+            cnt > 0
+        }
+        Err(_) => false,
+    }
+}
+
+/// 确保 posts 表包含 description 列，如果不存在则自动添加
+pub async fn ensure_description_column(pool: &SqlitePool) {
+    if !has_description_column(pool).await {
+        let _ = query("ALTER TABLE posts ADD COLUMN description TEXT")
+            .execute(pool)
+            .await;
+    }
+}
+
 pub async fn connect_sqlite_dbpool(filename: impl AsRef<Path>) -> Result<SqlitePool, Error> {
     let options = SqliteConnectOptions::new()
         .filename(filename)
@@ -16,20 +39,36 @@ pub async fn connect_sqlite_dbpool(filename: impl AsRef<Path>) -> Result<SqliteP
 }
 
 pub async fn insert_post_table(post: &metadata::Posts, pool: &SqlitePool) -> Result<(), Error> {
-    let sql = "INSERT INTO posts
-    (title, author, link, avatar ,rule,created,updated,createdAt)
-     VALUES (?, ?, ?,?, ?,?, ?, ?)";
-    let q = query(sql)
-        .bind(&post.meta.title)
-        .bind(&post.author)
-        .bind(&post.meta.link)
-        .bind(&post.avatar)
-        .bind(&post.meta.rule)
-        .bind(&post.meta.created)
-        .bind(&post.meta.updated)
-        .bind(&post.created_at);
-    // println!("sql: {},{:?}",q.sql(),q.take_arguments());
-    q.execute(pool).await?;
+    if has_description_column(pool).await {
+        let sql = "INSERT INTO posts
+        (title, author, link, avatar ,rule,created,updated,createdAt,description)
+         VALUES (?, ?, ?,?, ?,?, ?, ?, ?)";
+        let q = query(sql)
+            .bind(&post.meta.title)
+            .bind(&post.author)
+            .bind(&post.meta.link)
+            .bind(&post.avatar)
+            .bind(&post.meta.rule)
+            .bind(&post.meta.created)
+            .bind(&post.meta.updated)
+            .bind(&post.created_at)
+            .bind(&post.meta.description);
+        q.execute(pool).await?;
+    } else {
+        let sql = "INSERT INTO posts
+        (title, author, link, avatar ,rule,created,updated,createdAt)
+         VALUES (?, ?, ?,?, ?,?, ?, ?)";
+        let q = query(sql)
+            .bind(&post.meta.title)
+            .bind(&post.author)
+            .bind(&post.meta.link)
+            .bind(&post.avatar)
+            .bind(&post.meta.rule)
+            .bind(&post.meta.created)
+            .bind(&post.meta.updated)
+            .bind(&post.created_at);
+        q.execute(pool).await?;
+    }
     Ok(())
 }
 
@@ -53,28 +92,42 @@ pub async fn bulk_insert_post_table(
     tuples: impl Iterator<Item = metadata::Posts>,
     pool: &SqlitePool,
 ) -> Result<(), Error> {
-    let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
-        // Note the trailing space; most calls to `QueryBuilder` don't automatically insert
-        // spaces as that might interfere with identifiers or quoted strings where exact
-        // values may matter.
-        "INSERT INTO posts (title, author, link, avatar ,rule,created,updated,createdAt) ",
-    );
+    if has_description_column(pool).await {
+        let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO posts (title, author, link, avatar ,rule,created,updated,createdAt,description) ",
+        );
 
-    query_builder.push_values(tuples, |mut b, post| {
-        // If you wanted to bind these by-reference instead of by-value,
-        // you'd need an iterator that yields references that live as long as `query_builder`,
-        // e.g. collect it to a `Vec` first.
-        b.push_bind(post.meta.title)
-            .push_bind(post.author)
-            .push_bind(post.meta.link)
-            .push_bind(post.avatar)
-            .push_bind(post.meta.rule)
-            .push_bind(post.meta.created)
-            .push_bind(post.meta.updated)
-            .push_bind(post.created_at);
-    });
-    let query = query_builder.build();
-    query.execute(pool).await?;
+        query_builder.push_values(tuples, |mut b, post| {
+            b.push_bind(post.meta.title)
+                .push_bind(post.author)
+                .push_bind(post.meta.link)
+                .push_bind(post.avatar)
+                .push_bind(post.meta.rule)
+                .push_bind(post.meta.created)
+                .push_bind(post.meta.updated)
+                .push_bind(post.created_at)
+                .push_bind(post.meta.description);
+        });
+        let query = query_builder.build();
+        query.execute(pool).await?;
+    } else {
+        let mut query_builder: QueryBuilder<Sqlite> = QueryBuilder::new(
+            "INSERT INTO posts (title, author, link, avatar ,rule,created,updated,createdAt) ",
+        );
+
+        query_builder.push_values(tuples, |mut b, post| {
+            b.push_bind(post.meta.title)
+                .push_bind(post.author)
+                .push_bind(post.meta.link)
+                .push_bind(post.avatar)
+                .push_bind(post.meta.rule)
+                .push_bind(post.meta.created)
+                .push_bind(post.meta.updated)
+                .push_bind(post.created_at);
+        });
+        let query = query_builder.build();
+        query.execute(pool).await?;
+    }
     Ok(())
 }
 
@@ -165,9 +218,12 @@ pub async fn select_all_from_posts_with_summary(
     end: usize,
     sort_rule: &str,
 ) -> Result<Vec<metadata::PostsWithSummary>, Error> {
+    let has_desc = has_description_column(pool).await;
+    let desc_col = if has_desc { ", p.description" } else { "" };
+
     let sql = if start == 0 && end == 0 {
         format!(
-            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt,
+            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt{desc_col},
                     s.summary, s.ai_model, s.createdAt as summary_created_at, s.updatedAt as summary_updated_at
              FROM posts p
              LEFT JOIN article_summaries s ON p.link = s.link
@@ -175,7 +231,7 @@ pub async fn select_all_from_posts_with_summary(
         )
     } else {
         format!(
-            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt,
+            "SELECT p.title, p.created, p.updated, p.link, p.author, p.avatar, p.rule, p.createdAt{desc_col},
                     s.summary, s.ai_model, s.createdAt as summary_created_at, s.updatedAt as summary_updated_at
              FROM posts p
              LEFT JOIN article_summaries s ON p.link = s.link
@@ -190,12 +246,19 @@ pub async fn select_all_from_posts_with_summary(
     let mut posts_with_summary = Vec::new();
 
     for row in rows {
-        let base_post = metadata::BasePosts::new(
+        let description = if has_desc {
+            row.try_get("description").ok()
+        } else {
+            None
+        };
+
+        let base_post = metadata::BasePosts::new_with_description(
             row.get("title"),
             row.get("created"),
             row.get("updated"),
             row.get("link"),
             row.get("rule"),
+            description,
         );
 
         let post_with_summary = metadata::PostsWithSummary::new(
@@ -278,7 +341,9 @@ pub async fn delete_outdated_posts(days: usize, dbpool: &SqlitePool) -> Result<u
     if days == 0 {
         return Ok(0);
     }
-    let sql = format!("DELETE FROM posts WHERE date(updated) < date('now', '-{days} days')");
+    let sql = format!(
+        "DELETE FROM posts WHERE updated != '' AND date(updated) < date('now', '-{days} days')"
+    );
     let affected_rows = query(&sql).execute(dbpool).await?;
 
     Ok(affected_rows.rows_affected() as usize)
@@ -407,6 +472,7 @@ mod tests {
             updated: "2023-01-01".to_string(),
             link: "https://example.com/post".to_string(),
             rule: "test".to_string(),
+            description: None,
         };
 
         let post = Posts {
@@ -480,6 +546,7 @@ mod tests {
                     updated: "2023-01-01".to_string(),
                     link: "https://example.com/post1".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者1".to_string(),
                 avatar: "https://example.com/avatar1.jpg".to_string(),
@@ -492,6 +559,7 @@ mod tests {
                     updated: "2023-01-02".to_string(),
                     link: "https://example.com/post2".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者2".to_string(),
                 avatar: "https://example.com/avatar2.jpg".to_string(),
@@ -527,6 +595,7 @@ mod tests {
                     updated: "2023-01-01".to_string(),
                     link: "https://example.com/post1".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者1".to_string(),
                 avatar: "https://example.com/avatar1.jpg".to_string(),
@@ -539,6 +608,7 @@ mod tests {
                     updated: "2023-01-02".to_string(),
                     link: "https://example.org/post2".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者2".to_string(),
                 avatar: "https://example.org/avatar2.jpg".to_string(),
@@ -616,6 +686,7 @@ mod tests {
                     updated: "2023-01-01".to_string(),
                     link: "https://example.com/post1".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者1".to_string(),
                 avatar: "https://example.com/avatar1.jpg".to_string(),
@@ -628,6 +699,7 @@ mod tests {
                     updated: "2023-01-02".to_string(),
                     link: "https://example.com/post2".to_string(),
                     rule: "test".to_string(),
+                    description: None,
                 },
                 author: "作者2".to_string(),
                 avatar: "https://example.com/avatar2.jpg".to_string(),

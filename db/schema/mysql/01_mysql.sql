@@ -8,6 +8,7 @@ CREATE TABLE `posts` (
   `avatar` varchar(1024) DEFAULT NULL,
   `rule` varchar(256) DEFAULT NULL,
   `createdAt` VARCHAR(1024) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
