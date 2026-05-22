@@ -37,6 +37,10 @@ pub mod metadata {
         // #[serde(skip_serializing)]
         // #[serde(default)]
         pub rule: String,
+        /// RSS/Atom feed 中的文章描述
+        #[serde(default)]
+        #[sqlx(default)]
+        pub description: Option<String>,
     }
 
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, FromRow)]
@@ -65,6 +69,25 @@ pub mod metadata {
                 updated,
                 link,
                 rule,
+                description: None,
+            }
+        }
+
+        pub fn new_with_description(
+            title: String,
+            created: String,
+            updated: String,
+            link: String,
+            rule: String,
+            description: Option<String>,
+        ) -> BasePosts {
+            BasePosts {
+                title,
+                created,
+                updated,
+                link,
+                rule,
+                description,
             }
         }
     }
@@ -381,6 +404,7 @@ pub mod response {
         link: String,
         author: String,
         avatar: String,
+        description: Option<String>,
     }
 
     impl ArticleData {
@@ -392,6 +416,7 @@ pub mod response {
             link: String,
             author: String,
             avatar: String,
+            description: Option<String>,
         ) -> Self {
             ArticleData {
                 floor,
@@ -401,6 +426,7 @@ pub mod response {
                 link,
                 author,
                 avatar,
+                description,
             }
         }
     }
@@ -416,6 +442,7 @@ pub mod response {
         pub link: String,
         pub author: String,
         pub avatar: String,
+        pub description: Option<String>,
         // 摘要相关字段
         pub summary: Option<String>,
         pub ai_model: Option<String>,
@@ -433,6 +460,7 @@ pub mod response {
             link: String,
             author: String,
             avatar: String,
+            description: Option<String>,
             summary: Option<String>,
             ai_model: Option<String>,
             summary_created_at: Option<String>,
@@ -446,6 +474,7 @@ pub mod response {
                 link,
                 author,
                 avatar,
+                description,
                 summary,
                 ai_model,
                 summary_created_at,
@@ -463,6 +492,7 @@ pub mod response {
                 link: posts.meta.link,
                 author: posts.author,
                 avatar: posts.avatar,
+                description: posts.meta.description,
                 summary: posts.summary,
                 ai_model: posts.ai_model,
                 summary_created_at: posts.summary_created_at,
@@ -507,6 +537,7 @@ pub mod response {
                         posts.meta.link,
                         posts.author,
                         posts.avatar,
+                        posts.meta.description,
                     )
                 })
                 .collect();
@@ -600,6 +631,7 @@ pub mod response {
                         posts.meta.link,
                         posts.author,
                         posts.avatar,
+                        posts.meta.description,
                     )
                 })
                 .collect();

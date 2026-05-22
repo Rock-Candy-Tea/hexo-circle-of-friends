@@ -67,6 +67,9 @@ class ArticleData(BaseModel):
     avatar: str = Field(
         ..., description="头像链接", example="https://example.com/avatar.jpg"
     )
+    description: Optional[str] = Field(
+        None, description="RSS/Atom feed中的文章描述"
+    )
     summary: Optional[str] = Field(
         None, description="AI生成摘要", example="这是一篇关于终端工具的文章..."
     )

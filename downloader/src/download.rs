@@ -20,15 +20,47 @@ async fn get_joinset_result(
     joinset: &mut JoinSet<Vec<BasePosts>>,
     base_url: &Url,
 ) -> Result<Vec<BasePosts>, Box<dyn std::error::Error>> {
+    let mut all_results: Vec<Vec<BasePosts>> = Vec::new();
+
     while let Some(res) = joinset.join_next().await {
         if let Ok(success) = res
             && !success.is_empty()
         {
-            info!("{} 解析成功! 共{}条", base_url, success.len());
-            return Ok(success);
+            all_results.push(success);
         }
     }
-    Err("css request failed".into())
+
+    if all_results.is_empty() {
+        return Err("css request failed".into());
+    }
+
+    // 取文章数最多的结果作为基础
+    all_results.sort_by(|a, b| b.len().cmp(&a.len()));
+    let mut base = all_results.remove(0);
+
+    // 从其他 feed 结果中收集有 description 的条目（以 link 为 key）
+    let mut desc_map: HashMap<String, String> = HashMap::new();
+    for result in &all_results {
+        for post in result {
+            if let Some(ref desc) = post.description {
+                desc_map.entry(post.link.clone()).or_insert_with(|| desc.clone());
+            }
+        }
+    }
+
+    // 用有 description 的数据补充基础结果中缺失的 description
+    if !desc_map.is_empty() {
+        for post in &mut base {
+            if post.description.is_none() {
+                if let Some(desc) = desc_map.remove(&post.link) {
+                    post.description = Some(desc);
+                }
+            }
+        }
+    }
+
+    info!("{} 解析成功! 共{}条", base_url, base.len());
+    Ok(base)
 }
 
 /// 构建请求客户端

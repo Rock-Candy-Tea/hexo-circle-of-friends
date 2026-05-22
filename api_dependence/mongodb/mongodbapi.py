@@ -43,6 +43,7 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
                 "author": 1,
                 "avatar": 1,
                 "createdAt": 1,
+                "description": 1,
                 "summary": {"$ifNull": ["$summary_data.summary", None]},
                 "ai_model": {"$ifNull": ["$summary_data.ai_model", None]},
                 "summary_created_at": {"$ifNull": ["$summary_data.createdAt", None]},
@@ -94,6 +95,7 @@ def query_all(li, start: int = 0, end: int = 0, rule: str = "updated"):
             item[elem] = post.get(elem)
 
         # 添加摘要相关字段
+        item["description"] = post.get("description")
         item["summary"] = post.get("summary")
         item["ai_model"] = post.get("ai_model")
         item["summary_created_at"] = post.get("summary_created_at")

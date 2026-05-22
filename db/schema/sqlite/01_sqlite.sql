@@ -18,6 +18,7 @@ CREATE TABLE posts (
 	avatar VARCHAR(1024), 
 	rule VARCHAR(256), 
 	"createdAt" VARCHAR(1024), 
+	description TEXT,
 	PRIMARY KEY (id)
 );
 

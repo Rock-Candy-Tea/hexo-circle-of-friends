@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::File;
 
 use chrono::Utc;
@@ -5,6 +6,7 @@ use data_structures::metadata::{self, ArticleSummary};
 use data_structures::response::AllPostData;
 use db::{SqlitePool, mongo, mysql, sqlite};
 use downloader::{download, genai::EnhancedSummaryProvider};
+use futures::stream::{self, StreamExt};
 use tokio::{self};
 use tracing::{error, info};
 
@@ -60,7 +62,81 @@ fn should_update_summary(
     }
 }
 
-/// 为文章生成摘要
+/// 需要生成摘要的文章信息
+#[derive(Debug)]
+struct PendingSummary {
+    link: String,
+    html_content: String,
+    content_hash: String,
+    /// 如果是更新已有摘要，保留原始创建时间
+    existing_created_at: Option<String>,
+}
+
+/// 并发下载文章HTML内容，返回需要生成摘要的文章列表
+async fn fetch_pending_articles(
+    posts: &[metadata::Posts],
+    existing_summaries: &HashMap<String, Option<ArticleSummary>>,
+    client: &reqwest_middleware::ClientWithMiddleware,
+    max_concurrent: usize,
+) -> Vec<PendingSummary> {
+    let pending: Vec<PendingSummary> = Vec::new();
+    let pending = std::sync::Arc::new(tokio::sync::Mutex::new(pending));
+
+    // 并发下载HTML并筛选需要更新的文章
+    let tasks: Vec<_> = posts
+        .iter()
+        .map(|post| {
+            let link = post.meta.link.clone();
+            let client = client.clone();
+            let existing = existing_summaries.get(&link).cloned().flatten();
+            let pending = pending.clone();
+            async move {
+                match download::start_crawl_detailpages(&link, &client).await {
+                    Ok(html_content) => {
+                        let current_hash = tools::calculate_content_hash(&html_content);
+
+                        let (needs_update, existing_created_at) = if let Some(ref es) = existing {
+                            let (should_update, reason) = should_update_summary(es, &current_hash);
+                            if !should_update {
+                                info!("文章 {} {}，跳过摘要生成", link, reason);
+                                return;
+                            }
+                            info!("文章 {} {}，需要生成摘要", link, reason);
+                            (true, Some(es.created_at.clone()))
+                        } else {
+                            info!("文章 {} 没有缓存摘要，需要生成新摘要", link);
+                            (true, None)
+                        };
+
+                        if needs_update {
+                            pending.lock().await.push(PendingSummary {
+                                link,
+                                html_content,
+                                content_hash: current_hash,
+                                existing_created_at,
+                            });
+                        }
+                    }
+                    Err(e) => {
+                        error!("获取文章详情失败 {}: {}", link, e);
+                    }
+                }
+            }
+        })
+        .collect();
+
+    // 使用 buffer_unordered 控制并发下载数
+    stream::iter(tasks)
+        .buffer_unordered(max_concurrent * 2) // 下载并发可以比AI调用更高
+        .collect::<Vec<()>>()
+        .await;
+
+    std::sync::Arc::try_unwrap(pending)
+        .unwrap()
+        .into_inner()
+}
+
+/// 为文章生成摘要（并发优化版）
 async fn generate_article_summaries(
     fc_settings: &data_structures::config::Settings,
     client: &reqwest_middleware::ClientWithMiddleware,
@@ -76,16 +152,17 @@ async fn generate_article_summaries(
         return Err(e.into());
     }
 
-    // 创建专用的LLM客户端（30秒超时）
-    let llm_client = download::build_client(30, 0);
+    // 创建专用的LLM客户端（60秒超时，Thinking模型需要更长时间）
+    let llm_client = download::build_client(60, 0);
+    let max_concurrent = fc_settings.generate_summary.get_max_concurrent();
 
     info!(
-        "开始生成文章摘要，使用提供商: {}",
+        "开始生成文章摘要（并发模式），使用提供商: {}",
         fc_settings.generate_summary.provider
     );
     info!(
         "配置参数 - 最大并发: {}, 等待限速: {}, 最大字符: {}",
-        fc_settings.generate_summary.get_max_concurrent(),
+        max_concurrent,
         fc_settings.generate_summary.get_wait_on_rate_limit(),
         fc_settings.generate_summary.get_max_chars(),
     );
@@ -95,107 +172,57 @@ async fn generate_article_summaries(
             let dbpool = sqlite::connect_sqlite_dbpool("data.db").await?;
             let posts = sqlite::select_all_from_posts(&dbpool, 0, 0, "updated").await?;
 
-            for post in posts {
-                let link = &post.meta.link;
+            // 批量查询已有摘要
+            let mut existing_summaries: HashMap<String, Option<ArticleSummary>> = HashMap::new();
+            for post in &posts {
+                let summary = sqlite::select_article_summary_by_link(&post.meta.link, &dbpool)
+                    .await
+                    .unwrap_or(None);
+                existing_summaries.insert(post.meta.link.clone(), summary);
+            }
 
-                // 检查是否已经有缓存的摘要
-                if let Ok(Some(existing_summary)) =
-                    sqlite::select_article_summary_by_link(link, &dbpool).await
-                {
-                    // 获取当前文章的HTML内容
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
+            // 并发下载并筛选需要更新的文章
+            let pending = fetch_pending_articles(&posts, &existing_summaries, client, max_concurrent).await;
+            info!("需要生成摘要的文章数: {}/{}", pending.len(), posts.len());
 
-                            // 检查是否需要更新摘要
-                            let (should_update, reason) =
-                                should_update_summary(&existing_summary, &current_hash);
-                            if !should_update {
-                                info!("文章 {} {}，跳过摘要生成", link, reason);
-                                continue;
-                            }
+            // 使用 generate_summaries_batch 并发生成摘要
+            let html_contents: Vec<(String, String)> = pending
+                .iter()
+                .map(|p| (p.link.clone(), p.html_content.clone()))
+                .collect();
 
-                            info!("文章 {} {}，需要生成摘要", link, reason);
+            let results = summary_provider
+                .generate_summaries_batch(&llm_client, html_contents)
+                .await;
 
-                            // 生成新的摘要
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        existing_summary.created_at,
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        sqlite::insert_article_summary(&article_summary, &dbpool)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功更新文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
+            // 保存结果
+            for (link, result) in results {
+                let pending_item = pending.iter().find(|p| p.link == link).unwrap();
+                match result {
+                    Ok(summary_result) => {
+                        let now = tools::strptime_to_string_ymdhms(
+                            Utc::now().with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
+                        );
+                        let created_at = pending_item
+                            .existing_created_at
+                            .clone()
+                            .unwrap_or_else(|| now.clone());
+                        let article_summary = ArticleSummary::new(
+                            link.clone(),
+                            pending_item.content_hash.clone(),
+                            summary_result.summary,
+                            Some(summary_result.model),
+                            created_at,
+                            now,
+                        );
+                        if let Err(e) = sqlite::insert_article_summary(&article_summary, &dbpool).await {
+                            error!("保存文章摘要失败 {}: {}", link, e);
+                        } else {
+                            info!("成功生成文章摘要: {}", link);
                         }
                     }
-                } else {
-                    // 没有缓存的摘要，需要生成新的
-                    info!("文章 {} 没有缓存摘要，需要生成新摘要", link);
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
-
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        now.clone(),
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        sqlite::insert_article_summary(&article_summary, &dbpool)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功生成文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
-                        }
+                    Err(e) => {
+                        error!("生成文章摘要失败 {}: {}", link, e);
                     }
                 }
             }
@@ -205,109 +232,57 @@ async fn generate_article_summaries(
             let dbpool = mysql::connect_mysql_dbpool(&mysqlconnstr).await?;
             let posts = mysql::select_all_from_posts(&dbpool, 0, 0, "updated").await?;
 
-            for post in posts {
-                let link = &post.meta.link;
+            // 批量查询已有摘要
+            let mut existing_summaries: HashMap<String, Option<ArticleSummary>> = HashMap::new();
+            for post in &posts {
+                let summary = mysql::select_article_summary_by_link(&post.meta.link, &dbpool)
+                    .await
+                    .unwrap_or(None);
+                existing_summaries.insert(post.meta.link.clone(), summary);
+            }
 
-                if let Ok(Some(existing_summary)) =
-                    mysql::select_article_summary_by_link(link, &dbpool).await
-                {
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
+            // 并发下载并筛选需要更新的文章
+            let pending = fetch_pending_articles(&posts, &existing_summaries, client, max_concurrent).await;
+            info!("需要生成摘要的文章数: {}/{}", pending.len(), posts.len());
 
-                            // 检查是否需要更新摘要：
-                            // 1. 哈希值不同（内容变化）
-                            // 2. 摘要为空
-                            let content_unchanged = existing_summary.content_hash == current_hash;
-                            let summary_empty = existing_summary.summary.trim().is_empty();
+            // 使用 generate_summaries_batch 并发生成摘要
+            let html_contents: Vec<(String, String)> = pending
+                .iter()
+                .map(|p| (p.link.clone(), p.html_content.clone()))
+                .collect();
 
-                            if content_unchanged && !summary_empty {
-                                info!("文章 {} 内容未变化且摘要存在，跳过摘要生成", link);
-                                continue;
-                            }
+            let results = summary_provider
+                .generate_summaries_batch(&llm_client, html_contents)
+                .await;
 
-                            if summary_empty {
-                                info!("文章 {} 摘要为空，需要生成摘要", link);
-                            } else {
-                                info!("文章 {} 内容已变化，需要更新摘要", link);
-                            }
-
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        existing_summary.created_at,
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        mysql::insert_article_summary(&article_summary, &dbpool)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功更新文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
+            // 保存结果
+            for (link, result) in results {
+                let pending_item = pending.iter().find(|p| p.link == link).unwrap();
+                match result {
+                    Ok(summary_result) => {
+                        let now = tools::strptime_to_string_ymdhms(
+                            Utc::now().with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
+                        );
+                        let created_at = pending_item
+                            .existing_created_at
+                            .clone()
+                            .unwrap_or_else(|| now.clone());
+                        let article_summary = ArticleSummary::new(
+                            link.clone(),
+                            pending_item.content_hash.clone(),
+                            summary_result.summary,
+                            Some(summary_result.model),
+                            created_at,
+                            now,
+                        );
+                        if let Err(e) = mysql::insert_article_summary(&article_summary, &dbpool).await {
+                            error!("保存文章摘要失败 {}: {}", link, e);
+                        } else {
+                            info!("成功生成文章摘要: {}", link);
                         }
                     }
-                } else {
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
-
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        now.clone(),
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        mysql::insert_article_summary(&article_summary, &dbpool)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功生成文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
-                        }
+                    Err(e) => {
+                        error!("生成文章摘要失败 {}: {}", link, e);
                     }
                 }
             }
@@ -317,109 +292,57 @@ async fn generate_article_summaries(
             let clientdb = mongo::connect_mongodb_clientdb(&mongodburi).await?;
             let posts = mongo::select_all_from_posts(&clientdb, 0, 0, "updated").await?;
 
-            for post in posts {
-                let link = &post.meta.link;
+            // 批量查询已有摘要
+            let mut existing_summaries: HashMap<String, Option<ArticleSummary>> = HashMap::new();
+            for post in &posts {
+                let summary = mongo::select_article_summary_by_link(&post.meta.link, &clientdb)
+                    .await
+                    .unwrap_or(None);
+                existing_summaries.insert(post.meta.link.clone(), summary);
+            }
 
-                if let Ok(Some(existing_summary)) =
-                    mongo::select_article_summary_by_link(link, &clientdb).await
-                {
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
+            // 并发下载并筛选需要更新的文章
+            let pending = fetch_pending_articles(&posts, &existing_summaries, client, max_concurrent).await;
+            info!("需要生成摘要的文章数: {}/{}", pending.len(), posts.len());
 
-                            // 检查是否需要更新摘要：
-                            // 1. 哈希值不同（内容变化）
-                            // 2. 摘要为空
-                            let content_unchanged = existing_summary.content_hash == current_hash;
-                            let summary_empty = existing_summary.summary.trim().is_empty();
+            // 使用 generate_summaries_batch 并发生成摘要
+            let html_contents: Vec<(String, String)> = pending
+                .iter()
+                .map(|p| (p.link.clone(), p.html_content.clone()))
+                .collect();
 
-                            if content_unchanged && !summary_empty {
-                                info!("文章 {} 内容未变化且摘要存在，跳过摘要生成", link);
-                                continue;
-                            }
+            let results = summary_provider
+                .generate_summaries_batch(&llm_client, html_contents)
+                .await;
 
-                            if summary_empty {
-                                info!("文章 {} 摘要为空，需要生成摘要", link);
-                            } else {
-                                info!("文章 {} 内容已变化，需要更新摘要", link);
-                            }
-
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        existing_summary.created_at,
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        mongo::insert_article_summary(&article_summary, &clientdb)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功更新文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
+            // 保存结果
+            for (link, result) in results {
+                let pending_item = pending.iter().find(|p| p.link == link).unwrap();
+                match result {
+                    Ok(summary_result) => {
+                        let now = tools::strptime_to_string_ymdhms(
+                            Utc::now().with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
+                        );
+                        let created_at = pending_item
+                            .existing_created_at
+                            .clone()
+                            .unwrap_or_else(|| now.clone());
+                        let article_summary = ArticleSummary::new(
+                            link.clone(),
+                            pending_item.content_hash.clone(),
+                            summary_result.summary,
+                            Some(summary_result.model),
+                            created_at,
+                            now,
+                        );
+                        if let Err(e) = mongo::insert_article_summary(&article_summary, &clientdb).await {
+                            error!("保存文章摘要失败 {}: {}", link, e);
+                        } else {
+                            info!("成功生成文章摘要: {}", link);
                         }
                     }
-                } else {
-                    match download::start_crawl_detailpages(link, client).await {
-                        Ok(html_content) => {
-                            let current_hash = tools::calculate_content_hash(&html_content);
-
-                            match summary_provider
-                                .generate_summary(&llm_client, &html_content)
-                                .await
-                            {
-                                Ok(summary_result) => {
-                                    let now = tools::strptime_to_string_ymdhms(
-                                        Utc::now()
-                                            .with_timezone(&downloader::BEIJING_OFFSET.unwrap()),
-                                    );
-                                    let article_summary = ArticleSummary::new(
-                                        link.clone(),
-                                        current_hash,
-                                        summary_result.summary,
-                                        Some(summary_result.model),
-                                        now.clone(),
-                                        now,
-                                    );
-
-                                    if let Err(e) =
-                                        mongo::insert_article_summary(&article_summary, &clientdb)
-                                            .await
-                                    {
-                                        error!("保存文章摘要失败 {}: {}", link, e);
-                                    } else {
-                                        info!("成功生成文章摘要: {}", link);
-                                    }
-                                }
-                                Err(e) => {
-                                    error!("生成文章摘要失败 {}: {}", link, e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("获取文章详情失败 {}: {}", link, e);
-                        }
+                    Err(e) => {
+                        error!("生成文章摘要失败 {}: {}", link, e);
                     }
                 }
             }
@@ -595,10 +518,11 @@ async fn main() {
             match sqlx::migrate!("../db/schema/sqlite").run(&dbpool).await {
                 Ok(()) => (),
                 Err(e) => {
-                    info!("{}", e);
-                    return;
+                    info!("迁移提示(可忽略): {}", e);
                 }
             };
+            // 确保 description 列存在（兼容老版本数据库）
+            sqlite::ensure_description_column(&dbpool).await;
             if let Err(e) = sqlite::truncate_friend_table(&dbpool).await {
                 error!("{}", e);
                 return;
@@ -671,10 +595,11 @@ async fn main() {
             match sqlx::migrate!("../db/schema/mysql").run(&dbpool).await {
                 Ok(()) => (),
                 Err(e) => {
-                    info!("{}", e);
-                    return;
+                    info!("迁移提示(可忽略): {}", e);
                 }
             };
+            // 确保 description 列存在（兼容老版本数据库）
+            mysql::ensure_description_column(&dbpool).await;
             if let Err(e) = mysql::truncate_friend_table(&dbpool).await {
                 error!("{}", e);
                 return;
