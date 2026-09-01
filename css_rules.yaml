@@ -289,4 +289,10 @@ link_page_rules:
         link: [{ selector: "a.cf-friends-link", attr: "href" }],
         avatar: [{ selector: ".cf-friends-avatar", attr: "src" }],
       },
+    Clarity:
+      {
+        author: [{ selector: ".feed-card .author", attr: "text" }],
+        link: [{ selector: ".feed-card", attr: "href" }],
+        avatar: [{ selector: ".feed-card .avatar img", attr: "src" }],
+      },
   }
