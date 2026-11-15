@@ -1,4 +1,4 @@
-use data_structures::config::GenerateSummaryConfig;
+use data_structures::config::{GenerateSummaryConfig, ProviderConfig};
 use futures::future::join_all;
 use reqwest_middleware::ClientWithMiddleware;
 use std::time::Duration;
@@ -6,7 +6,7 @@ use tokio::time::sleep;
 use tools::html_extractor::HtmlExtractor;
 use tracing::{info, warn};
 
-use super::{bigmodel, gemini, siliconflow};
+use super::openai;
 
 /// AI摘要生成结果，包含摘要内容和使用的模型信息
 #[derive(Debug, Clone)]
@@ -231,165 +231,60 @@ impl EnhancedSummaryProvider {
         }
     }
 
-    /// 生成单个摘要（核心逻辑）
+    /// 生成单个摘要（核心逻辑）：按配置顺序遍历所有提供商，前面的优先，全部失败则报错
     async fn generate_single_summary(
         &self,
         client: &ClientWithMiddleware,
         content: &str,
     ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
-        match self.config.provider.as_str() {
-            "gemini" => self.try_gemini_models(client, content).await,
-            "siliconflow" => self.try_siliconflow_models(client, content).await,
-            "bigmodel" => self.try_bigmodel_models(client, content).await,
-            "all" => self.try_all_providers(client, content).await,
-            _ => Err(format!("不支持的提供商: {}", self.config.provider).into()),
-        }
-    }
-
-    async fn try_gemini_models(
-        &self,
-        client: &ClientWithMiddleware,
-        content: &str,
-    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
-        let gemini_config = self.config.gemini.as_ref().ok_or("Gemini配置缺失")?;
-
         let mut last_error = None;
 
-        for model in &gemini_config.models {
-            info!("尝试使用Gemini模型: {}", model);
-
-            match gemini::generate_content(client, content).await {
-                Ok(summary) => {
-                    info!("Gemini模型 {} 成功生成摘要", model);
-                    return Ok(SummaryResult {
-                        summary,
-                        model: format!("gemini-{model}"),
-                    });
-                }
+        for provider in &self.config.providers {
+            match self.try_provider_models(client, provider, content).await {
+                Ok(summary_result) => return Ok(summary_result),
                 Err(e) => {
-                    warn!("Gemini模型 {} 失败: {}", model, e);
+                    warn!("提供商 {} 失败: {}", provider.name, e);
                     last_error = Some(e);
                 }
             }
         }
 
-        Err(last_error.unwrap_or_else(|| "所有Gemini模型都失败了".into()))
+        Err(last_error.unwrap_or_else(|| "没有配置任何可用的 AI 提供商".to_string().into()))
     }
 
-    async fn try_siliconflow_models(
+    /// 依次尝试某个提供商下的所有模型（OpenAI 兼容格式）
+    async fn try_provider_models(
         &self,
         client: &ClientWithMiddleware,
+        provider: &ProviderConfig,
         content: &str,
     ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
-        let siliconflow_config = self
-            .config
-            .siliconflow
-            .as_ref()
-            .ok_or("SiliconFlow配置缺失")?;
+        // 读取该提供商配置的 API key；未配置则直接失败，由上层降级到下一个提供商
+        let api_key = tools::get_env_var(&provider.api_key_env)?;
 
         let mut last_error = None;
 
-        for model in &siliconflow_config.models {
-            info!("尝试使用SiliconFlow模型: {}", model);
+        for model in &provider.models {
+            info!("尝试使用 {} 模型: {}", provider.name, model);
 
-            match siliconflow::generate_content(client, model, content).await {
+            match openai::generate_content(client, &provider.base_url, &api_key, model, content)
+                .await
+            {
                 Ok(summary) => {
-                    info!("SiliconFlow模型 {} 成功生成摘要", model);
+                    info!("{} 模型 {} 成功生成摘要", provider.name, model);
                     return Ok(SummaryResult {
                         summary,
-                        model: format!("siliconflow-{model}"),
+                        model: format!("{}-{}", provider.name, model),
                     });
                 }
                 Err(e) => {
-                    warn!("SiliconFlow模型 {} 失败: {}", model, e);
+                    warn!("{} 模型 {} 失败: {}", provider.name, model, e);
                     last_error = Some(e);
                 }
             }
         }
 
-        Err(last_error.unwrap_or_else(|| "所有SiliconFlow模型都失败了".into()))
-    }
-
-    async fn try_bigmodel_models(
-        &self,
-        client: &ClientWithMiddleware,
-        content: &str,
-    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
-        let bigmodel_config = self.config.bigmodel.as_ref().ok_or("BigModel配置缺失")?;
-
-        let mut last_error = None;
-
-        for model in &bigmodel_config.models {
-            info!("尝试使用BigModel模型: {}", model);
-
-            match bigmodel::generate_content(client, model, content).await {
-                Ok(summary) => {
-                    info!("BigModel模型 {} 成功生成摘要", model);
-                    return Ok(SummaryResult {
-                        summary,
-                        model: format!("bigmodel-{model}"),
-                    });
-                }
-                Err(e) => {
-                    warn!("BigModel模型 {} 失败: {}", model, e);
-                    last_error = Some(e);
-                }
-            }
-        }
-
-        Err(last_error.unwrap_or_else(|| "所有BigModel模型都失败了".into()))
-    }
-
-    async fn try_all_providers(
-        &self,
-        client: &ClientWithMiddleware,
-        content: &str,
-    ) -> Result<SummaryResult, Box<dyn std::error::Error>> {
-        info!("尝试所有配置的AI提供商");
-
-        // 首先尝试BigModel
-        if self.config.bigmodel.is_some() {
-            info!("尝试BigModel提供商");
-            match self.try_bigmodel_models(client, content).await {
-                Ok(summary_result) => {
-                    info!("BigModel提供商成功生成摘要");
-                    return Ok(summary_result);
-                }
-                Err(e) => {
-                    warn!("BigModel提供商失败: {}", e);
-                }
-            }
-        }
-
-        // 其次尝试SiliconFlow
-        if self.config.siliconflow.is_some() {
-            info!("尝试SiliconFlow提供商");
-            match self.try_siliconflow_models(client, content).await {
-                Ok(summary_result) => {
-                    info!("SiliconFlow提供商成功生成摘要");
-                    return Ok(summary_result);
-                }
-                Err(e) => {
-                    warn!("SiliconFlow提供商失败: {}", e);
-                }
-            }
-        }
-
-        // 然后尝试Gemini作为备选
-        if self.config.gemini.is_some() {
-            info!("尝试Gemini提供商");
-            match self.try_gemini_models(client, content).await {
-                Ok(summary_result) => {
-                    info!("Gemini提供商成功生成摘要");
-                    return Ok(summary_result);
-                }
-                Err(e) => {
-                    warn!("Gemini提供商失败: {}", e);
-                }
-            }
-        }
-
-        Err("所有配置的AI提供商都失败了".into())
+        Err(last_error.unwrap_or_else(|| format!("{} 的所有模型都失败了", provider.name).into()))
     }
 
     /// 验证配置的有效性
@@ -398,52 +293,23 @@ impl EnhancedSummaryProvider {
             return Ok(());
         }
 
-        // 验证提供商配置
-        match self.config.provider.as_str() {
-            "gemini" => {
-                if let Some(gemini_config) = &self.config.gemini {
-                    if gemini_config.models.is_empty() {
-                        return Err("Gemini模型列表不能为空".to_string());
-                    }
-                } else {
-                    return Err("选择了Gemini提供商但缺少Gemini配置".to_string());
-                }
-            }
-            "siliconflow" => {
-                if let Some(siliconflow_config) = &self.config.siliconflow {
-                    if siliconflow_config.models.is_empty() {
-                        return Err("SiliconFlow模型列表不能为空".to_string());
-                    }
-                } else {
-                    return Err("选择了SiliconFlow提供商但缺少SiliconFlow配置".to_string());
-                }
-            }
-            "bigmodel" => {
-                if let Some(bigmodel_config) = &self.config.bigmodel {
-                    if bigmodel_config.models.is_empty() {
-                        return Err("BigModel模型列表不能为空".to_string());
-                    }
-                } else {
-                    return Err("选择了BigModel提供商但缺少BigModel配置".to_string());
-                }
-            }
-            "all" => {
-                let has_gemini = self
-                    .config
-                    .gemini
-                    .as_ref()
-                    .is_some_and(|g| !g.models.is_empty());
-                let has_siliconflow = self
-                    .config
-                    .siliconflow
-                    .as_ref()
-                    .is_some_and(|s| !s.models.is_empty());
+        if self.config.providers.is_empty() {
+            return Err("未配置任何 AI 提供商（providers 为空）".to_string());
+        }
 
-                if !has_gemini && !has_siliconflow {
-                    return Err("选择了'all'提供商但没有配置任何有效的提供商".to_string());
-                }
+        for provider in &self.config.providers {
+            if provider.name.is_empty() {
+                return Err("提供商 name 不能为空".to_string());
             }
-            _ => return Err(format!("不支持的提供商: {}", self.config.provider)),
+            if provider.base_url.is_empty() {
+                return Err(format!("提供商 {} 的 base_url 不能为空", provider.name));
+            }
+            if provider.api_key_env.is_empty() {
+                return Err(format!("提供商 {} 的 api_key_env 不能为空", provider.name));
+            }
+            if provider.models.is_empty() {
+                return Err(format!("提供商 {} 的模型列表不能为空", provider.name));
+            }
         }
 
         // 验证配置参数 (使用智能默认值，简化验证)
@@ -461,20 +327,20 @@ impl EnhancedSummaryProvider {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use data_structures::config::ModelConfig;
+    use data_structures::config::ProviderConfig;
 
     fn create_test_config() -> GenerateSummaryConfig {
         GenerateSummaryConfig {
             enabled: true,
-            provider: "siliconflow".to_string(),
-            max_concurrent: 3,        // 使用默认值
-            wait_on_rate_limit: true, // 使用默认值
-            max_chars: 8000,          // 使用默认值
-            gemini: None,
-            siliconflow: Some(ModelConfig {
-                models: vec!["THUDM/GLM-4.1V-9B-Thinking".to_string()],
-            }),
-            bigmodel: None,
+            max_concurrent: 3,
+            wait_on_rate_limit: true,
+            max_chars: 8000,
+            providers: vec![ProviderConfig {
+                name: "siliconflow".to_string(),
+                base_url: "https://api.siliconflow.cn/v1".to_string(),
+                api_key_env: "SILICONFLOW_API_KEY".to_string(),
+                models: vec!["deepseek-ai/DeepSeek-V3.2".to_string()],
+            }],
         }
     }
 
@@ -482,6 +348,24 @@ mod tests {
     fn test_validate_config_valid() {
         let provider = EnhancedSummaryProvider::new(create_test_config());
         assert!(provider.validate_config().is_ok());
+    }
+
+    #[test]
+    fn test_validate_config_no_providers() {
+        let mut config = create_test_config();
+        config.providers = vec![];
+
+        let provider = EnhancedSummaryProvider::new(config);
+        assert!(provider.validate_config().is_err());
+    }
+
+    #[test]
+    fn test_validate_config_empty_models() {
+        let mut config = create_test_config();
+        config.providers[0].models = vec![];
+
+        let provider = EnhancedSummaryProvider::new(config);
+        assert!(provider.validate_config().is_err());
     }
 
     #[test]

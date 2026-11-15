@@ -1,3 +1,15 @@
+`v6.0.7`（未发布）更新说明：
+
+```
+- 🤖 **重构 AI 摘要供应商**：统一为 OpenAI 兼容的 `chat/completions` 格式，移除按供应商硬编码的实现
+  - 新增通用 OpenAI 客户端，支持任意 OpenAI 兼容端点（SiliconFlow、智谱、DeepSeek、Gemini 兼容层等）
+  - 配置从 `provider` + `gemini/siliconflow/bigmodel` 改为 `providers` 数组（`name`/`base_url`/`api_key_env`/`models`）
+  - 按 `providers` 顺序 + 各 `models` 顺序自动降级，不再需要 `provider: "all"`
+  - 修复 Gemini 模型硬编码导致配置不生效的问题，删除三份重复的供应商代码
+  - ⚠️ **破坏性变更**：旧字段 `provider`/`gemini`/`siliconflow`/`bigmodel` 不再解析，需按新格式更新 `fc_settings.yaml`
+  - 更新默认模型：智谱 `glm-4.7`/`glm-5.3-flash`（已移除过时的 gemini/siliconflow 默认配置，仍需自行按需添加）
+```
+
 `v6.0.6` 更新说明：
 
 ```

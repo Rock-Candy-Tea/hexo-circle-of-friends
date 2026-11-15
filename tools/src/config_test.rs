@@ -12,23 +12,20 @@ mod tests {
             Ok(settings) => {
                 println!("成功解析配置文件");
                 println!("摘要生成启用: {}", settings.generate_summary.enabled);
-                println!("提供商: {}", settings.generate_summary.provider);
 
-                // 验证基本结构
-                assert!(!settings.generate_summary.provider.is_empty());
+                let providers = &settings.generate_summary.providers;
+                assert!(!providers.is_empty(), "providers 不应为空");
+                println!("提供商数量: {}", providers.len());
 
-                if settings.generate_summary.provider == "gemini" {
-                    assert!(settings.generate_summary.gemini.is_some());
-                    let gemini_config = settings.generate_summary.gemini.unwrap();
-                    assert!(!gemini_config.models.is_empty());
-                    println!("Gemini模型配置: {:?}", gemini_config.models);
-                }
-
-                if settings.generate_summary.provider == "siliconflow" {
-                    assert!(settings.generate_summary.siliconflow.is_some());
-                    let siliconflow_config = settings.generate_summary.siliconflow.unwrap();
-                    assert!(!siliconflow_config.models.is_empty());
-                    println!("SiliconFlow模型配置: {:?}", siliconflow_config.models);
+                for provider in providers {
+                    assert!(!provider.name.is_empty());
+                    assert!(!provider.base_url.is_empty());
+                    assert!(!provider.api_key_env.is_empty());
+                    assert!(!provider.models.is_empty());
+                    println!(
+                        "提供商 {}: 端点={}, 模型={:?}",
+                        provider.name, provider.base_url, provider.models
+                    );
                 }
             }
             Err(e) => {
@@ -58,34 +55,40 @@ SIMPLE_MODE: false
 CRON: "0 0 */6 * *"
 GENERATE_SUMMARY: {
   enabled: true,
-  provider: "all",
   max_concurrent: 3,
   wait_on_rate_limit: true,
   max_chars: 8000,
-  gemini: {
-    models: ["gemini-2.5-flash", "gemini-2.5-pro"]
-  },
-  siliconflow: {
-    models: ["THUDM/GLM-4.1V-9B-Thinking", "Qwen/Qwen3-8B", "THUDM/glm-4-9b-chat"]
-  }
+  providers: [
+    {
+      name: "siliconflow",
+      base_url: "https://api.siliconflow.cn/v1",
+      api_key_env: "SILICONFLOW_API_KEY",
+      models: ["deepseek-ai/DeepSeek-V3.2", "Qwen/Qwen3.6-27B"]
+    },
+    {
+      name: "bigmodel",
+      base_url: "https://open.bigmodel.cn/api/paas/v4",
+      api_key_env: "BIGMODEL_API_KEY",
+      models: ["glm-4.7"]
+    }
+  ]
 }
 "#;
 
         let settings: data_structures::config::Settings =
             serde_yaml::from_str(yaml_content).unwrap();
 
-        assert_eq!(settings.generate_summary.provider, "all");
         assert!(settings.generate_summary.enabled);
 
-        // 验证两个提供商的配置都存在
-        assert!(settings.generate_summary.gemini.is_some());
-        assert!(settings.generate_summary.siliconflow.is_some());
+        assert_eq!(settings.generate_summary.providers.len(), 2);
 
-        let gemini_config = settings.generate_summary.gemini.unwrap();
-        assert_eq!(gemini_config.models.len(), 2);
+        let siliconflow = &settings.generate_summary.providers[0];
+        assert_eq!(siliconflow.name, "siliconflow");
+        assert_eq!(siliconflow.models.len(), 2);
 
-        let siliconflow_config = settings.generate_summary.siliconflow.unwrap();
-        assert_eq!(siliconflow_config.models.len(), 3);
+        let bigmodel = &settings.generate_summary.providers[1];
+        assert_eq!(bigmodel.name, "bigmodel");
+        assert_eq!(bigmodel.models.len(), 1);
     }
 
     #[test]

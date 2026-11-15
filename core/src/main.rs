@@ -79,9 +79,15 @@ async fn generate_article_summaries(
     // 创建专用的LLM客户端（30秒超时）
     let llm_client = download::build_client(30, 0);
 
+    let provider_names: Vec<&str> = fc_settings
+        .generate_summary
+        .providers
+        .iter()
+        .map(|p| p.name.as_str())
+        .collect();
     info!(
         "开始生成文章摘要，使用提供商: {}",
-        fc_settings.generate_summary.provider
+        provider_names.join(", ")
     );
     info!(
         "配置参数 - 最大并发: {}, 等待限速: {}, 最大字符: {}",

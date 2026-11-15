@@ -264,14 +264,12 @@ pub mod config {
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
     pub struct GenerateSummaryConfig {
         pub enabled: bool,
-        pub provider: String, // "gemini", "siliconflow", "bigmodel", or "all"
-        pub max_concurrent: usize, // 默认: 3
+        pub max_concurrent: usize,    // 默认: 3
         pub wait_on_rate_limit: bool, // 默认: true
-        pub max_chars: usize, // 默认: 8000
+        pub max_chars: usize,         // 默认: 8000
 
-        pub gemini: Option<ModelConfig>,
-        pub siliconflow: Option<ModelConfig>,
-        pub bigmodel: Option<ModelConfig>,
+        /// 按顺序依次尝试的 AI 提供商列表（OpenAI 兼容格式），前面的优先
+        pub providers: Vec<ProviderConfig>,
     }
 
     impl GenerateSummaryConfig {
@@ -306,8 +304,16 @@ pub mod config {
         }
     }
 
+    /// 单个 AI 提供商配置，统一使用 OpenAI 兼容的 chat/completions 格式
     #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-    pub struct ModelConfig {
+    pub struct ProviderConfig {
+        /// 提供商名称，仅用于日志和结果标注，如 "siliconflow"
+        pub name: String,
+        /// OpenAI 兼容端点，如 "https://api.siliconflow.cn/v1"（最终拼接 /chat/completions）
+        pub base_url: String,
+        /// 存放 API key 的环境变量名，如 "SILICONFLOW_API_KEY"
+        pub api_key_env: String,
+        /// 该提供商的降级模型列表，按顺序依次尝试
         pub models: Vec<String>,
     }
 

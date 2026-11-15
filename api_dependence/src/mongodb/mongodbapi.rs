@@ -99,8 +99,7 @@ pub async fn get_post(
                         Ok(v) if !v.is_empty() => v,
                         _ => {
                             return Err(PYQError::QueryDataBaseError(format!(
-                                "未找到域名 {} 对应的友链或文章",
-                                domain_str
+                                "未找到域名 {domain_str} 对应的友链或文章"
                             )));
                         }
                     };
@@ -114,8 +113,7 @@ pub async fn get_post(
                         Some(f) => (f, domain_str),
                         None => {
                             return Err(PYQError::QueryDataBaseError(format!(
-                                "未找到域名 {} 对应的友链",
-                                domain_str
+                                "未找到域名 {domain_str} 对应的友链"
                             )));
                         }
                     }
